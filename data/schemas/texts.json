@@ -1,0 +1,23 @@
+{
+    "type": "object",
+    "patternProperties": {
+        "^.*$": {
+            "type": "object",
+            "properties": {
+                "description": {"type": "string"},
+                "eng": {"type": "string"},
+                "rus": {"type": "string"},
+                "param_descriptions": {
+                    "type": "object",
+                    "patternProperties": {
+                        "^.*$": {"type": "string"}
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "required": ["description", "eng", "rus"],
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}

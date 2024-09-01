@@ -1,0 +1,37 @@
+{
+  "common.success": {
+    "description": "Стандартный ответ на успешное действие",
+    "eng": "Success",
+    "rus": "Действие успешно выполнено"
+  },
+  "error.forbidden": {
+    "description": "Стандартный отказ выполнить действие из-за отсутствия прав",
+    "eng": "Not enough permissions. If you believe this is a mistake, please contact KazVixX",
+    "rus": "Действие успешно выполнено"
+  },
+  "error.bad_duration_format": {
+    "description": "Ошибка, возникающая при предоставлении невалидной строки в качестве длительности (например, бана)",
+    "param_descriptions": {
+      "duration": "Строчка, предоставленная юзером в качестве длительности. Ожидается, что она уже предварительно отформатирована как код"
+    },
+    "eng": "Failed to parse a duration from string: {duration}. The expected format is described [here](https://en.wikipedia.org/wiki/ISO_8601#Durations)",
+    "rus": "Не удалось спарсить продолжительность из предоставленной строки: {duration}. Ожидаемый формат описан [здесь](https://en.wikipedia.org/wiki/ISO_8601#Durations)"
+  },
+  "errors.expected_positive_duration": {
+    "description": "Ошибка, возникающая, когда юзер пытается передать в команду отрицательную длительность (например, бана)",
+    "param_descriptions": {
+      "duration_secs": "Длительность бана в секундах, предоставленная пользователем"
+    },
+    "eng": "Cannot do that for a negative amount of time (got: {duration_secs} seconds)",
+    "rus": "Данное действие не позволяет указать отрицательную продолжительность (в данном случае, {duration_secs} секунд)"
+  },
+  "errors.duration_exceeds_max_allowed": {
+      "description": "Ошибка, возникающая при передаче продолжительности больше разрешенного максимума",
+      "param_descriptions": {
+        "max_duration_secs": "Максимально допустимая продолжительность в секундах"
+      },
+      "eng": "Provided duration exceeds the maximum allowed ({max_duration_secs} secs)",
+      "rus": "Предоставленная продолжительность превышает максимально допустимую ({max_duration_secs} секунд)"
+  }
+}
+
