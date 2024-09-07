@@ -1,0 +1,16 @@
+{
+    "type": "object",
+    "patternProperties": {
+        "^.*$": {
+            "type": "object",
+            "properties": {
+                "description": {"type": "string"},
+                "prod": {"type": "integer"},
+                "test": {"type": "integer"}
+            },
+            "required": ["description", "prod", "test"],
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}

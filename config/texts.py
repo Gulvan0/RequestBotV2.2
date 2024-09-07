@@ -1,13 +1,13 @@
-import json
 import jsonschema
 import logging
 import re
-from pathlib import Path
 
 from util.datatypes import Language
 from util.identifiers import TextPieceID
+from util.io import load_data_json
 
-CONTENT = json.loads(Path('data/texts.json').read_text(encoding='utf-8'))
+
+CONTENT = load_data_json('texts')
 
 
 def get_default_template(piece_id: TextPieceID, lang: Language) -> str:
@@ -27,7 +27,7 @@ def enlist() -> dict[str, str]:
 
 
 def validate() -> None:
-    schema = json.loads(Path('data/schemas/texts.json').read_text(encoding='utf-8'))
+    schema = load_data_json('schemas/texts')
     jsonschema.validate(CONTENT, schema)
 
     for piece_id in TextPieceID:
