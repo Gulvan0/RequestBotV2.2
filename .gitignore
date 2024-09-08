@@ -1,2 +1,4 @@
 .env
-/.idea/codeStyles
+/.idea
+/data/database.db
+/venv
