@@ -23,3 +23,12 @@ class RouteID(Enum):
     REVIEW_TEXT = "review_text"
     REQUESTS_CLOSED = "requests_closed"
     REQUESTS_REOPENED = "requests_reopened"
+
+
+@unique
+class ParameterID(Enum):
+    QUEUE_BLOCK_AT = "queue.block_at"
+    QUEUE_UNBLOCK_AT = "queue.unblock_at"
+    QUEUE_BLOCK_ENABLED = "queue.block_enabled"
+    QUEUE_UNBLOCK_ENABLED = "queue.unblock_enabled"
+    QUEUE_BLOCKED_MANUALLY = "queue.blocked_manually"

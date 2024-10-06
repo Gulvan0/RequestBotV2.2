@@ -82,5 +82,7 @@ def disable(route_id: RouteID) -> None:
 def explain(route_id: RouteID) -> str:
     desc = get_description(route_id)
     default_channel = get_default_channel_id(route_id)
+    current_channel = get_channel_id(route_id)
+    current_state = ':green_square: Включен' if is_enabled(route_id) else ':red_square: Выключен'
 
-    return f"{desc}\n\n**Канал по умолчанию:** {as_channel(default_channel)}"
+    return f"{desc}\n\n**Канал по умолчанию:** {as_channel(default_channel)}\n\n**Текущий канал:** {as_channel(current_channel)}\n\n**Текущее состояние:** {current_state}"

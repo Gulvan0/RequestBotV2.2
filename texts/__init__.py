@@ -7,6 +7,7 @@ from sqlmodel import Session
 
 import typing as tp
 
+from util.format import as_code, as_code_block
 from util.identifiers import TextPieceID
 
 
@@ -51,11 +52,17 @@ def explain(piece_id: TextPieceID) -> str:
     param_desc = get_param_descriptions(piece_id)
 
     explanation = desc
+
     explanation += "\n\n**Параметры:**"
     if param_desc:
         for param_name, param_description in param_desc.items():
             explanation += f"\n`{param_name}` - {param_description}"
     else:
         explanation += "\nДанный шаблон не принимает параметров"
+
+    explanation += '\n'
+    for lang in Language:
+        current_template = get_template(piece_id, lang)
+        explanation += f'\n**Текущий шаблон ({as_code(lang)}):**\n{as_code_block(current_template)}'
 
     return explanation

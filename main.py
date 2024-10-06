@@ -2,11 +2,11 @@ import click
 import logging
 
 from config.texts import validate as validate_texts
-from config.routes import enlist, validate as validate_routes
+from config.routes import validate as validate_routes
+from config.parameters import validate as validate_parameters
 from database.db import create_db_and_tables
 from database.models import *  # noqa
 from globalconf import CONFIG
-from routes import explain, get_channel_id, reset_channel_id, update_channel_id
 from util.datatypes import Stage
 
 
@@ -33,13 +33,9 @@ def main(debug, log_queries):
 
     validate_texts()
     validate_routes()
+    validate_parameters()
 
-    print(enlist())
-    print(explain(RouteID.APPROVAL_NOTIFICATION))
-
-    print(get_channel_id(RouteID.APPROVAL_NOTIFICATION))
-    update_channel_id(RouteID.APPROVAL_NOTIFICATION, -1)
-    reset_channel_id(RouteID.APPROVAL_NOTIFICATION)
+    # FILL
 
 if __name__ == "__main__":
     main()

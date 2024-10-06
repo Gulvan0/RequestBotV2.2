@@ -1,0 +1,27 @@
+{
+    "queue.block_at": {
+        "description": "Количество активных реквестов, при достижении которого очередь закрывается",
+        "value_type": "natural",
+        "default": "50"
+    },
+    "queue.unblock_at": {
+        "description": "Количество активных реквестов, при достижении которого закрытая очередь вновь открывается",
+        "value_type": "uint",
+        "default": "30"
+    },
+    "queue.block_enabled": {
+        "description": "Блокировать ли очередь автоматически при достижении заданного числа активных реквестов",
+        "value_type": "bool",
+        "default": "true"
+    },
+    "queue.unblock_enabled": {
+        "description": "Открывать ли очередь автоматически при достижении заданного числа активных реквестов",
+        "value_type": "bool",
+        "default": "false"
+    },
+    "queue.blocked_manually": {
+        "description": "Закрыты ли реквесты вручную",
+        "value_type": "bool",
+        "default": "false"
+    }
+}

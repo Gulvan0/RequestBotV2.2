@@ -1,7 +1,7 @@
 from sqlmodel import Field, SQLModel
 
 from util.datatypes import Language
-from util.identifiers import RouteID, TextPieceID
+from util.identifiers import ParameterID, RouteID, TextPieceID
 
 
 class TextPiece(SQLModel, table=True):
@@ -15,3 +15,7 @@ class Route(SQLModel, table=True):
     channel_id: int | None
     enabled: bool
 
+
+class ParameterValue(SQLModel, table=True):
+    id: ParameterID = Field(primary_key=True)
+    value: str
