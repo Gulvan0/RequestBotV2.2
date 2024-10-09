@@ -1,4 +1,11 @@
 from enum import StrEnum, unique
+from discord import app_commands
+
+
+class CommandChoiceOption(StrEnum):
+    @classmethod
+    def to_choice_list(cls) -> list[app_commands.Choice[str]]:
+        return [app_commands.Choice(name=option, value=option) for option in cls]
 
 
 @unique

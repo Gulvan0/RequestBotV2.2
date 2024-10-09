@@ -21,7 +21,7 @@ from util.datatypes import Stage
     is_flag=True,
     help="Log queries to the output"
 )
-def main(debug, log_queries):
+def main(debug: bool, log_queries: bool) -> None:
     logging.basicConfig()
     if log_queries:
         logger = logging.getLogger('sqlalchemy.engine')
