@@ -1,11 +1,15 @@
-from enum import StrEnum, unique
+from enum import Enum, StrEnum, unique
 from discord import app_commands
 
 
-class CommandChoiceOption(StrEnum):
+class CommandChoiceOption:
     @classmethod
-    def to_choice_list(cls) -> list[app_commands.Choice[str]]:
-        return [app_commands.Choice(name=option, value=option) for option in cls]
+    def from_enum(cls, e: type[Enum]) -> list[app_commands.Choice[str]]:
+        return [app_commands.Choice(name=option.value, value=option.value) for option in e]
+
+    @classmethod
+    def from_str_enum(cls, e: type[StrEnum]) -> list[app_commands.Choice[str]]:
+        return [app_commands.Choice(name=option, value=option) for option in e]
 
 
 @unique

@@ -4,7 +4,9 @@ from enum import Enum, unique
 @unique
 class TextPieceID(Enum):
     COMMON_SUCCESS = "common.success"
+    WARNING_NO_EFFECT = "warning.no_effect"
     ERROR_FORBIDDEN = "error.forbidden"
+    ERROR_WRONG_PARAMETER_VALUE_TYPE = "error.wrong_parameter_value_type"
     ERROR_BAD_DURATION_FORMAT = "error.bad_duration_format"
     ERROR_EXPECTED_POSITIVE_DURATION = "errors.expected_positive_duration"
     ERROR_DURATION_EXCEEDS_MAX_ALLOWED = "errors.duration_exceeds_max_allowed"

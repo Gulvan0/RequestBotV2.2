@@ -1,10 +1,19 @@
+from dataclasses import dataclass
 from sqlmodel import Session
 
 from config.routes import get_default_channel_id, get_description
 from database.db import engine
 from database.models import Route
-from util.format import as_channel
+from util.exceptions import AlreadySatisfiesError
 from util.identifiers import RouteID
+
+
+@dataclass
+class RouteDetails:
+    description: str
+    default_channel_id: int
+    current_channel_id: int
+    is_enabled: bool
 
 
 def get_channel_id(route_id: RouteID) -> int:
@@ -27,8 +36,14 @@ def update_channel_id(route_id: RouteID, channel_id: int) -> None:
     with Session(engine) as session:
         route = session.get(Route, route_id)
         if route:
+            if route.channel_id == channel_id:
+                raise AlreadySatisfiesError
+            elif route.channel_id is None and get_default_channel_id(route_id) == channel_id:
+                raise AlreadySatisfiesError
             route.channel_id = channel_id
         else:
+            if get_default_channel_id(route_id) == channel_id:
+                raise AlreadySatisfiesError
             route = Route(id=route_id, channel_id=channel_id, enabled=True)
         session.add(route)
         session.commit()
@@ -38,13 +53,15 @@ def reset_channel_id(route_id: RouteID) -> None:
     with Session(engine) as session:
         route = session.get(Route, route_id)
         if not route:
-            return
+            raise AlreadySatisfiesError
 
         if route.enabled:
             session.delete(route)
-        else:
+        elif route.channel_id:
             route.channel_id = None
             session.add(route)
+        else:
+            raise AlreadySatisfiesError
 
         session.commit()
 
@@ -53,7 +70,7 @@ def enable(route_id: RouteID) -> None:
     with Session(engine) as session:
         route = session.get(Route, route_id)
         if not route or route.enabled:
-            return
+            raise AlreadySatisfiesError
 
         if route.channel_id:
             route.enabled = True
@@ -73,16 +90,16 @@ def disable(route_id: RouteID) -> None:
         elif route.enabled:
             route.enabled = False
         else:
-            return
+            raise AlreadySatisfiesError
 
         session.add(route)
         session.commit()
 
 
-def explain(route_id: RouteID) -> str:
-    desc = get_description(route_id)
-    default_channel = get_default_channel_id(route_id)
-    current_channel = get_channel_id(route_id)
-    current_state = ':green_square: Включен' if is_enabled(route_id) else ':red_square: Выключен'
-
-    return f"{desc}\n\n**Канал по умолчанию:** {as_channel(default_channel)}\n\n**Текущий канал:** {as_channel(current_channel)}\n\n**Текущее состояние:** {current_state}"
+def explain(route_id: RouteID) -> RouteDetails:
+    return RouteDetails(
+        description=get_description(route_id),
+        default_channel_id=get_default_channel_id(route_id),
+        current_channel_id=get_channel_id(route_id),
+        is_enabled=is_enabled(route_id)
+    )

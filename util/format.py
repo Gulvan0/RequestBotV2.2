@@ -34,3 +34,12 @@ def as_channel(channel_id: int) -> str:
 
 def as_role(role_id: int) -> str:
     return f'<@&{role_id}>'
+
+
+def list_described_values(descriptions: dict[str, str]) -> list[str]:
+    lines = []
+
+    for text_piece_id, description in descriptions.items():
+        lines.append(f'`{text_piece_id}`: {description}')
+
+    return lines

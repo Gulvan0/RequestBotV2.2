@@ -19,24 +19,26 @@ def member_language(member: discord.Member) -> Language:
     return Language.RU if member.get_role(SPEAKS_RUSSIAN_ROLE[CONFIG.stage]) is not None else Language.EN
 
 
-async def respond(inter: discord.Interaction, template: str | Template | TextPieceID, substitutions: dict[str, str] | None = None, ephemeral: bool = False) -> None:
-    if not substitutions:
-        substitutions = {}
-
+async def respond(inter: discord.Interaction, template: str | list[str] | Template | TextPieceID, substitutions: dict[str, str] | None = None, ephemeral: bool = False) -> None:
     if isinstance(template, TextPieceID):
-        message_text = render_text(template, member_language(inter.user), substitutions)
+        message_text = render_text(template, member_language(inter.user), substitutions or {})
     elif isinstance(template, Template):
-        message_text = template.safe_substitute(substitutions)
+        message_text = template.safe_substitute(substitutions or {})
     else:
-        message_text = Template(template).safe_substitute(substitutions)
+        str_template = "\n".join(template) if isinstance(template, list) else template
+        if substitutions:
+            message_text = Template(str_template).safe_substitute(substitutions)
+        else:
+            message_text = str_template
 
     await inter.response.send_message(message_text, ephemeral=ephemeral)
 
 
 async def post(
     inter: discord.Interaction,
-    language: Language | list[Language] | tuple[Language, ...],
-    route: RouteID, text: TextPieceID,
+    route: RouteID,
+    text: TextPieceID,
+    language: Language | list[Language] | tuple[Language, ...] = (Language.RU, Language.EN),
     substitutions: dict[str, str] | None = None
 ) -> Message | None:
     if not substitutions:

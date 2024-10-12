@@ -1,3 +1,5 @@
+from enum import StrEnum
+
 import discord
 
 from discord import app_commands
@@ -9,7 +11,7 @@ from util.format import as_channel, as_role
 from util.identifiers import RouteID, TextPieceID
 
 
-class ResponseType(CommandChoiceOption):
+class ResponseType(StrEnum):
     EPHEMERAL = "Ephemeral"
     REAL = "Real"
     SEPARATE = "Separate"
@@ -19,7 +21,7 @@ class ResponseType(CommandChoiceOption):
 class GeneralCog(commands.GroupCog, name="general", description="A super cog"):
     @app_commands.command(description="Respond with a pong")
     @app_commands.describe(response_type="Response type")
-    @app_commands.choices(response_type=ResponseType.to_choice_list())
+    @app_commands.choices(response_type=CommandChoiceOption.from_str_enum(ResponseType))
     async def ping(self, inter: discord.Interaction, response_type: str):
         match response_type:
             case ResponseType.EPHEMERAL:
