@@ -1,7 +1,7 @@
 from sqlmodel import Field, SQLModel
 
 from util.datatypes import Language
-from util.identifiers import ParameterID, RouteID, TextPieceID
+from util.identifiers import ParameterID, RouteID, TextPieceID, UserPreferenceID
 
 
 class TextPiece(SQLModel, table=True):
@@ -18,4 +18,10 @@ class Route(SQLModel, table=True):
 
 class ParameterValue(SQLModel, table=True):
     id: ParameterID = Field(primary_key=True)
+    value: str
+
+
+class UserPreference(SQLModel, table=True):
+    id: UserPreferenceID = Field(primary_key=True)
+    user_id: int = Field(primary_key=True)
     value: str

@@ -4,6 +4,11 @@
     "eng": "Success",
     "rus": "Действие успешно выполнено"
   },
+  "common.language_selection_proposal_subtext": {
+    "description": "Примечание, советующее пользователям, не установившим язык бота, сделать это",
+    "eng": "If you don't speak Russian or you don't want to see this note, use `/language` to set the bot's language",
+    "rus": "Если Вы говорите по-русски или не хотите видеть это примечание, установите язык бота командой `/language`"
+  },
   "warning.no_effect": {
     "description": "Стандартный ответ на действие, не возымевшее эффекта из-за того, что все и так уже в нужном состоянии (например, при передаче уже используемого значения параметра в качестве нового, на которое надо его поменять)",
     "eng": "No changes were applied: the data is already in the desired state",
@@ -11,17 +16,20 @@
   },
   "error.forbidden": {
     "description": "Стандартный отказ выполнить действие из-за отсутствия прав",
-    "eng": "Not enough permissions. If you believe this is a mistake, please contact KazVixX",
-    "rus": "Действие успешно выполнено"
+    "param_descriptions": {
+      "admin_mention": "Тег админа сервера, к которому отсылает бот при несогласии пользователя"
+    },
+    "eng": "Not enough permissions. If you believe this is a mistake, please contact {admin_mention}",
+    "rus": "Недостаточно прав. Обратитесь к {admin_mention}, если считаете, что произошла ошибка"
   },
   "error.wrong_parameter_value_type": {
     "description": "Ошибка, возникающая при невозможности привести переданное пользователем значение к типу параметра, значение которого пользователь пытается обновить",
-    "eng": "Cannot assign the passed value: {value}. Only the values of the following type are admitted: {param_type}",
-    "rus": "Не удалось присвоить параметру значение {value}. Разрешены значения, принадлежащие только к типу {param_type}",
     "param_descriptions": {
       "value": "Строчка, предоставленная юзером в качестве значения параметра. Ожидается, что она уже предварительно отформатирована как код",
       "param_type": "Тип параметра, которому попытались присвоить значение. Ожидается, что он уже предварительно отформатирован как код"
-    }
+    },
+    "eng": "Cannot assign the passed value: {value}. Only the values of the following type are admitted: {param_type}",
+    "rus": "Не удалось присвоить параметру значение {value}. Разрешены значения, принадлежащие только к типу {param_type}"
   },
   "error.bad_duration_format": {
     "description": "Ошибка, возникающая при предоставлении невалидной строки в качестве длительности (например, бана)",

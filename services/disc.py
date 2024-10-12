@@ -1,27 +1,43 @@
-import discord
-from discord import Message
+from dataclasses import dataclass
 
-from globalconf import CONFIG
+import discord
+from discord import Locale, Message
+
+from config.stage_parameters import get_value as get_stage_parameter_value
 from routes import get_channel_id, is_enabled
 from texts import render_text
-from util.datatypes import Language, Stage
-from util.identifiers import RouteID, TextPieceID
+from user_preferences import get_value as get_preference_value
+from util.datatypes import Language
+from util.identifiers import RouteID, StageParameterID, TextPieceID, UserPreferenceID
 from string import Template
 
 
-SPEAKS_RUSSIAN_ROLE = {
-    Stage.TEST: 1293687410651041907,
-    Stage.PROD: 1065981580012691497
-}
+@dataclass
+class MemberLanguageInfo:
+    language: Language
+    is_assumed: bool
 
 
-def member_language(member: discord.Member) -> Language:
-    return Language.RU if member.get_role(SPEAKS_RUSSIAN_ROLE[CONFIG.stage]) is not None else Language.EN
+def member_language(member: discord.Member, locale: Locale | None) -> MemberLanguageInfo:
+    preferred_language = get_preference_value(UserPreferenceID.LANGUAGE, member, Language)
+    if preferred_language:
+        return MemberLanguageInfo(preferred_language, False)
+    elif locale:
+        return MemberLanguageInfo(Language.RU if locale == Locale.russian else Language.EN, False)
+    elif member.get_role(get_stage_parameter_value(StageParameterID.SPEAKS_RUSSIAN_ROLE_ID)) is not None:
+        return MemberLanguageInfo(Language.RU, True)
+    else:
+        return MemberLanguageInfo(Language.EN, True)
 
 
 async def respond(inter: discord.Interaction, template: str | list[str] | Template | TextPieceID, substitutions: dict[str, str] | None = None, ephemeral: bool = False) -> None:
     if isinstance(template, TextPieceID):
-        message_text = render_text(template, member_language(inter.user), substitutions or {})
+        member_language_info = member_language(inter.user, inter.locale)
+        message_text = render_text(template, member_language_info.language, substitutions or {})
+        if member_language_info.is_assumed:
+            subtext_language = Language.EN if member_language_info.language == Language.RU else Language.RU
+            subtext = render_text(TextPieceID.COMMON_LANGUAGE_SELECTION_PROPOSAL_SUBTEXT, subtext_language)
+            message_text += f"\n-# {subtext}"
     elif isinstance(template, Template):
         message_text = template.safe_substitute(substitutions or {})
     else:

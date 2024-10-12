@@ -4,6 +4,7 @@ from enum import Enum, unique
 @unique
 class TextPieceID(Enum):
     COMMON_SUCCESS = "common.success"
+    COMMON_LANGUAGE_SELECTION_PROPOSAL_SUBTEXT = "common.language_selection_proposal_subtext"
     WARNING_NO_EFFECT = "warning.no_effect"
     ERROR_FORBIDDEN = "error.forbidden"
     ERROR_WRONG_PARAMETER_VALUE_TYPE = "error.wrong_parameter_value_type"
@@ -34,3 +35,14 @@ class ParameterID(Enum):
     QUEUE_BLOCK_ENABLED = "queue.block_enabled"
     QUEUE_UNBLOCK_ENABLED = "queue.unblock_enabled"
     QUEUE_BLOCKED_MANUALLY = "queue.blocked_manually"
+
+
+@unique
+class StageParameterID(Enum):
+    SPEAKS_RUSSIAN_ROLE_ID = "speaks_russian_role_id"
+    ADMIN_USER_ID = "admin_user_id"
+
+
+@unique
+class UserPreferenceID(Enum):
+    LANGUAGE = "language"

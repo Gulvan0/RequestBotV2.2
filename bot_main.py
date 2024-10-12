@@ -11,6 +11,7 @@ from discord.utils import _ColourFormatter
 from config.texts import validate as validate_texts
 from config.routes import validate as validate_routes
 from config.parameters import validate as validate_parameters
+from config.stage_parameters import validate as validate_stage_parameters
 from database.db import create_db_and_tables
 from database.models import *  # noqa
 from globalconf import CONFIG
@@ -101,6 +102,7 @@ def main(debug: bool, log_queries: bool) -> None:
     validate_texts()
     validate_routes()
     validate_parameters()
+    validate_stage_parameters()
 
     bot = RequestBot()
     bot.run()
