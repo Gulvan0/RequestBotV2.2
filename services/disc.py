@@ -1,14 +1,20 @@
 from dataclasses import dataclass
 
 import discord
+import typing as tp
 from discord import Locale, Message
+from discord.app_commands import commands
+from discord.ext.commands import Context
+from discord.ext.commands._types import BotT
 
 from config.stage_parameters import get_value as get_stage_parameter_value
+from permissions import has_permission
 from routes import get_channel_id, is_enabled
 from texts import render_text
 from user_preferences import get_value as get_preference_value
 from util.datatypes import Language
-from util.identifiers import RouteID, StageParameterID, TextPieceID, UserPreferenceID
+from util.format import as_user
+from util.identifiers import PermissionFlagID, RouteID, StageParameterID, TextPieceID, UserPreferenceID
 from string import Template
 
 
@@ -48,6 +54,16 @@ async def respond(inter: discord.Interaction, template: str | list[str] | Templa
             message_text = str_template
 
     await inter.response.send_message(message_text, ephemeral=ephemeral)
+
+
+async def respond_forbidden(inter: discord.Interaction) -> None:
+    await respond(inter, TextPieceID.ERROR_FORBIDDEN, dict(admin_mention=as_user(get_stage_parameter_value(StageParameterID.ADMIN_USER_ID))), ephemeral=True)
+
+
+def requires_permission(permission: PermissionFlagID):
+    async def predicate(inter: discord.Interaction):
+        return has_permission(inter.user, permission)
+    return commands.check(predicate)
 
 
 async def post(

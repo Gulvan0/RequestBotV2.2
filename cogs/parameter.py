@@ -5,18 +5,19 @@ from discord.ext import commands
 
 from config.parameters import get_displayed_type
 from config.parameters import enlist
-from services.disc import respond
+from services.disc import requires_permission, respond
 from parameters import explain, RestrictionNotSatisfiedError, update_value, reset_value
 from util.datatypes import CommandChoiceOption
 from util.exceptions import AlreadySatisfiesError
 from util.format import as_code, list_described_values
-from util.identifiers import TextPieceID, ParameterID
+from util.identifiers import PermissionFlagID, TextPieceID, ParameterID
 
 
 class ParameterCog(commands.GroupCog, name="parameter", description="Utilities for working with global bot parameters"):
     @app_commands.command(description="View details about a certain parameter")
     @app_commands.describe(parameter="Parameter to describe")
     @app_commands.choices(parameter=CommandChoiceOption.from_enum(ParameterID))
+    @requires_permission(PermissionFlagID.ADMIN)
     async def describe(self, inter: discord.Interaction, parameter: ParameterID) -> None:
         parameter_details = explain(parameter)
 
@@ -37,6 +38,7 @@ class ParameterCog(commands.GroupCog, name="parameter", description="Utilities f
         new_value="New value to assign"
     )
     @app_commands.choices(parameter=CommandChoiceOption.from_enum(ParameterID))
+    @requires_permission(PermissionFlagID.ADMIN)
     async def set(self, inter: discord.Interaction, parameter: ParameterID, new_value: str) -> None:
         try:
             update_value(parameter, new_value)
@@ -58,6 +60,7 @@ class ParameterCog(commands.GroupCog, name="parameter", description="Utilities f
     @app_commands.command(description="Reset a parameter to its default value")
     @app_commands.describe(parameter="Parameter to reset")
     @app_commands.choices(parameter=CommandChoiceOption.from_enum(ParameterID))
+    @requires_permission(PermissionFlagID.ADMIN)
     async def reset(self, inter: discord.Interaction, parameter: ParameterID) -> None:
         try:
             reset_value(parameter)
@@ -66,7 +69,8 @@ class ParameterCog(commands.GroupCog, name="parameter", description="Utilities f
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="List all available message templates")
+    @app_commands.command(description="List all available parameters")
+    @requires_permission(PermissionFlagID.ADMIN)
     async def list(self, inter: discord.Interaction) -> None:
         await respond(inter, list_described_values(enlist()), ephemeral=True)
 

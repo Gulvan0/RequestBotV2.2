@@ -1,0 +1,14 @@
+{
+    "type": "object",
+    "patternProperties": {
+        "^.*$": {
+            "type": "object",
+            "properties": {
+                "description": {"type": "string"}
+            },
+            "required": ["description"],
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}

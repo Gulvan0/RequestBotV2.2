@@ -1,3 +1,5 @@
+from functools import cache
+
 import jsonschema
 import typing as tp
 
@@ -9,6 +11,7 @@ from util.io import load_data_json
 CONTENT = load_data_json('stage_parameters')
 
 
+@cache
 def get_value(parameter: StageParameterID) -> tp.Any:
     return CONTENT[parameter.value][CONFIG.stage]
 

@@ -9,6 +9,19 @@
     "eng": "If you don't speak Russian or you don't want to see this note, use `/language` to set the bot's language",
     "rus": "Если Вы говорите по-русски или не хотите видеть это примечание, установите язык бота командой `/language`"
   },
+  "permission.no_assigned_roles": {
+    "description": "Сообщение, которое выводится при попытке вывести роли, связанные с разрешениями бота, когда ни одной такой роли нет",
+    "eng": "No role is granted with bot permissions",
+    "rus": "Ни к одной роли не привязаны разрешения бота"
+  },
+  "permission.member_has_no_permissions": {
+    "description": "Сообщение, которое выводится при попытке вывести разрешения конкретного пользователя, когда у него/нее нет ни одного",
+    "param_descriptions": {
+      "member_mention": "Тег пользователя, информация про разрешения которого была запрошена"
+    },
+    "eng": "{member_mention} has no permissions",
+    "rus": "У {member_mention} нет разрешений"
+  },
   "warning.no_effect": {
     "description": "Стандартный ответ на действие, не возымевшее эффекта из-за того, что все и так уже в нужном состоянии (например, при передаче уже используемого значения параметра в качестве нового, на которое надо его поменять)",
     "eng": "No changes were applied: the data is already in the desired state",
@@ -21,6 +34,11 @@
     },
     "eng": "Not enough permissions. If you believe this is a mistake, please contact {admin_mention}",
     "rus": "Недостаточно прав. Обратитесь к {admin_mention}, если считаете, что произошла ошибка"
+  },
+  "error.cant_remove_admin_permission": {
+    "description": "Сообщение, выводящееся при попытке осуществить действие, которое лишит исполнителя команды права администратора",
+    "eng": "This action would take away your admin permission. This is not allowed due to the safety reasons. If you really want to resign, remove your admin role or ask another admin to perform this action (considering this won't leave them without their admin rights too)",
+    "rus": "Это действие забрало бы у Вас разрешения администратора. Это запрещено по причинам безопасности. Если Вы действительно хотите сложить полномочия, уберите у себя роль, дающую права администратора бота, или попросите осуществить это действие другого администратора (если оно не лишит его/ее права администратора)"
   },
   "error.wrong_parameter_value_type": {
     "description": "Ошибка, возникающая при невозможности привести переданное пользователем значение к типу параметра, значение которого пользователь пытается обновить",
