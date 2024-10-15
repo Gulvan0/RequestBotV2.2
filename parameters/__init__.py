@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from discord import Member
+
 from config.parameters import get_default_raw, get_description, get_displayed_type, normalize_raw_value
 from database.db import engine
 from database.models import ParameterValue
@@ -9,8 +11,8 @@ from sqlmodel import Session
 import typing as tp
 
 from util.exceptions import AlreadySatisfiesError
-from util.identifiers import ParameterID
-
+from util.identifiers import LoggedEventTypeID, ParameterID
+from eventlog import add_entry
 
 T = tp.TypeVar('T')
 
@@ -48,7 +50,7 @@ def get_value(parameter_id: ParameterID, casting_type: type[T]) -> T:
             return casting_type(raw)
 
 
-def update_value(parameter_id: ParameterID, non_normalized_raw_value: str) -> None:
+def update_value(parameter_id: ParameterID, non_normalized_raw_value: str, invoker: Member | None = None) -> None:
     try:
         normalized_raw_value = normalize_raw_value(parameter_id, non_normalized_raw_value)
     except ValueError:
@@ -58,6 +60,7 @@ def update_value(parameter_id: ParameterID, non_normalized_raw_value: str) -> No
         value_row = session.get(ParameterValue, parameter_id)
         if value_row:
             if value_row.value == normalized_raw_value:
+                print(value_row.value, normalized_raw_value)
                 raise AlreadySatisfiesError
             value_row.value = normalized_raw_value
         else:
@@ -67,14 +70,24 @@ def update_value(parameter_id: ParameterID, non_normalized_raw_value: str) -> No
         session.add(value_row)
         session.commit()
 
+    add_entry(LoggedEventTypeID.PARAMETER_EDITED, invoker, dict(
+        parameter_id=parameter_id.value,
+        value=normalized_raw_value
+    ))
 
-def reset_value(parameter_id: ParameterID) -> None:
+
+def reset_value(parameter_id: ParameterID, invoker: Member | None = None) -> None:
     with Session(engine) as session:
         value_row = session.get(ParameterValue, parameter_id)
         if not value_row:
             raise AlreadySatisfiesError
         session.delete(value_row)
         session.commit()
+
+    add_entry(LoggedEventTypeID.PARAMETER_EDITED, invoker, dict(
+        parameter_id=parameter_id.value,
+        value=get_default_raw(parameter_id)
+    ))
 
 
 def explain(parameter_id: ParameterID) -> ParameterDetails:

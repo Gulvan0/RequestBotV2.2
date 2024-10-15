@@ -5,7 +5,9 @@ import discord
 from database.db import engine
 from database.models import UserPreference
 from sqlmodel import Session
-from util.identifiers import UserPreferenceID
+
+from eventlog import add_entry
+from util.identifiers import LoggedEventTypeID, UserPreferenceID
 
 T = tp.TypeVar('T')
 
@@ -39,3 +41,8 @@ def update_value(preference_id: UserPreferenceID, user: discord.Member, normaliz
             value_row = UserPreference(id=preference_id, user_id=user.id, value=normalized_raw_value)
         session.add(value_row)
         session.commit()
+
+    add_entry(LoggedEventTypeID.USER_PREFERENCE_UPDATED, user, dict(
+        preference_id=preference_id.value,
+        value=normalized_raw_value
+    ))

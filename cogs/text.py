@@ -54,7 +54,7 @@ class TextCog(commands.GroupCog, name="text", description="Utilities for working
     @requires_permission(PermissionFlagID.ADMIN)
     async def edit(self, inter: discord.Interaction, template_name: TextPieceID, language: Language, new_value: str) -> None:
         try:
-            update_template(template_name, language, new_value)
+            update_template(template_name, language, new_value, inter.user)
         except AlreadySatisfiesError:
             await respond(inter, TextPieceID.WARNING_NO_EFFECT, ephemeral=True)
         else:
@@ -72,7 +72,7 @@ class TextCog(commands.GroupCog, name="text", description="Utilities for working
     @requires_permission(PermissionFlagID.ADMIN)
     async def reset(self, inter: discord.Interaction, template_name: TextPieceID, language: Language) -> None:
         try:
-            reset_template(template_name, language)
+            reset_template(template_name, language, inter.user)
         except AlreadySatisfiesError:
             await respond(inter, TextPieceID.WARNING_NO_EFFECT, ephemeral=True)
         else:

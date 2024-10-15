@@ -31,7 +31,7 @@ class PermissionCog(commands.GroupCog, name="permission", description="Utilities
             return
 
         try:
-            bind(role, permission)
+            bind(role, permission, inter.user)
         except AlreadySatisfiesError:
             await respond(inter, TextPieceID.WARNING_NO_EFFECT, ephemeral=True)
         else:
@@ -46,7 +46,7 @@ class PermissionCog(commands.GroupCog, name="permission", description="Utilities
     @requires_permission(PermissionFlagID.ADMIN)
     async def unbind(self, inter: discord.Interaction, permission: PermissionFlagID, role: discord.Role):
         try:
-            unbind(role, permission)
+            unbind(role, permission, inter.user)
         except AlreadySatisfiesError:
             await respond(inter, TextPieceID.WARNING_NO_EFFECT, ephemeral=True)
             return
@@ -62,7 +62,7 @@ class PermissionCog(commands.GroupCog, name="permission", description="Utilities
     @requires_permission(PermissionFlagID.ADMIN)
     async def clear(self, inter: discord.Interaction, role: discord.Role):
         try:
-            clear(role)
+            clear(role, inter.user)
         except AlreadySatisfiesError:
             await respond(inter, TextPieceID.WARNING_NO_EFFECT, ephemeral=True)
         else:

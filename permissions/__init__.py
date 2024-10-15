@@ -1,13 +1,15 @@
 from collections import defaultdict
 
 import discord
+from discord import Member
 from sqlalchemy import Select
 from sqlmodel import select, Session
 
 from database.db import engine
 from database.models import PermissionFlag
+from eventlog import add_entry
 from util.exceptions import AlreadySatisfiesError
-from util.identifiers import PermissionFlagID
+from util.identifiers import LoggedEventTypeID, PermissionFlagID
 
 
 def has_permission(member: discord.Member, permission: PermissionFlagID) -> bool:
@@ -20,7 +22,7 @@ def has_permission(member: discord.Member, permission: PermissionFlagID) -> bool
     return bool(member_roles & required_roles)
 
 
-def bind(role: discord.Role, permission: PermissionFlagID) -> None:
+def bind(role: discord.Role, permission: PermissionFlagID, invoker: Member | None = None) -> None:
     with Session(engine) as session:
         existing_entry = session.get(PermissionFlag, (permission, role.id))
         if existing_entry:
@@ -30,8 +32,13 @@ def bind(role: discord.Role, permission: PermissionFlagID) -> None:
         session.add(new_entry)
         session.commit()
 
+    add_entry(LoggedEventTypeID.PERMISSION_BOUND, invoker, dict(
+        permission_id=permission.value,
+        role_id=str(role.id)
+    ))
 
-def unbind(role: discord.Role, permission: PermissionFlagID) -> None:
+
+def unbind(role: discord.Role, permission: PermissionFlagID, invoker: Member | None = None) -> None:
     with Session(engine) as session:
         existing_entry = session.get(PermissionFlag, (permission, role.id))
         if not existing_entry:
@@ -40,8 +47,13 @@ def unbind(role: discord.Role, permission: PermissionFlagID) -> None:
         session.delete(existing_entry)
         session.commit()
 
+    add_entry(LoggedEventTypeID.PERMISSION_UNBOUND, invoker, dict(
+        permission_id=permission.value,
+        role_id=str(role.id)
+    ))
 
-def clear(role: discord.Role) -> None:
+
+def clear(role: discord.Role, invoker: Member | None = None) -> None:
     with Session(engine) as session:
         had_permissions = False
         query: Select = select(PermissionFlag).where(PermissionFlag.role_id == role.id)
@@ -53,6 +65,10 @@ def clear(role: discord.Role) -> None:
             raise AlreadySatisfiesError
 
         session.commit()
+
+    add_entry(LoggedEventTypeID.ROLE_CLEARED_FROM_PERMISSIONS, invoker, dict(
+        role_id=str(role.id)
+    ))
 
 
 def list_bound_roles(member: discord.Member | None = None) -> dict[int, list[PermissionFlagID]]:

@@ -1,4 +1,6 @@
 import traceback
+from logging import Logger
+
 import aiohttp
 import click
 import discord

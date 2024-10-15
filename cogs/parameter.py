@@ -41,7 +41,7 @@ class ParameterCog(commands.GroupCog, name="parameter", description="Utilities f
     @requires_permission(PermissionFlagID.ADMIN)
     async def set(self, inter: discord.Interaction, parameter: ParameterID, new_value: str) -> None:
         try:
-            update_value(parameter, new_value)
+            update_value(parameter, new_value, inter.user)
         except RestrictionNotSatisfiedError:
             await respond(
                 inter,
@@ -63,7 +63,7 @@ class ParameterCog(commands.GroupCog, name="parameter", description="Utilities f
     @requires_permission(PermissionFlagID.ADMIN)
     async def reset(self, inter: discord.Interaction, parameter: ParameterID) -> None:
         try:
-            reset_value(parameter)
+            reset_value(parameter, inter.user)
         except AlreadySatisfiesError:
             await respond(inter, TextPieceID.WARNING_NO_EFFECT, ephemeral=True)
         else:

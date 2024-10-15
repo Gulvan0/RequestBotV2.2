@@ -1,4 +1,16 @@
-from enum import Enum, unique
+from enum import Enum, unique, auto
+
+
+@unique
+class LoggedEventTypeID(Enum):
+    TEXT_PIECE_EDITED = auto()
+    ROUTE_TARGET_UPDATED = auto()
+    ROUTE_TOGGLED = auto()
+    PARAMETER_EDITED = auto()
+    PERMISSION_BOUND = auto()
+    PERMISSION_UNBOUND = auto()
+    ROLE_CLEARED_FROM_PERMISSIONS = auto()
+    USER_PREFERENCE_UPDATED = auto()
 
 
 @unique
