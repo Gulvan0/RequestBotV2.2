@@ -1,5 +1,6 @@
 from datetime import datetime, UTC
 
+import yaml
 from sqlmodel import Field, SQLModel
 
 from util.datatypes import Language
@@ -40,3 +41,13 @@ class LoggedEvent(SQLModel, table=True):
     event_type: LoggedEventTypeID
     user_id: int | None
     custom_data: str = Field(default="{}")
+
+
+class StoredLogFilter(SQLModel, table=True):
+    name: str = Field(primary_key=True)
+    user_id: int | None
+    event_type: LoggedEventTypeID | None
+    custom_data_values: str = Field(default="{}")
+
+    def is_empty(self) -> bool:
+        return self.user_id is None and self.event_type is None and self.custom_data_values == "{}"

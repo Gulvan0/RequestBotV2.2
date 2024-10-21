@@ -1,5 +1,7 @@
 from enum import StrEnum
 
+import typing as tp
+
 
 class TimestampStyle(StrEnum):
     SHORT_TIME = "t"
@@ -34,6 +36,10 @@ def as_channel(channel_id: int) -> str:
 
 def as_role(role_id: int) -> str:
     return f'<@&{role_id}>'
+
+
+def list_values(values: tp.Iterable[str]) -> list[str]:
+    return list(map(as_code, values))
 
 
 def list_described_values(descriptions: dict[str, str]) -> list[str]:

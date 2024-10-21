@@ -19,17 +19,27 @@ class TextPieceID(Enum):
     COMMON_LANGUAGE_SELECTION_PROPOSAL_SUBTEXT = "common.language_selection_proposal_subtext"
     PERMISSION_NO_ASSIGNED_ROLES = "permission.no_assigned_roles"
     PERMISSION_MEMBER_HAS_NO_PERMISSIONS = "permission.member_has_no_permissions"
+    LOG_NO_ENTRIES = "log.no_entries"
+    LOG_TOP_REACHED = "log.top_reached"
+    LOG_BOTTOM_REACHED = "log.bottom_reached"
+    LOG_EMPTY_FILTER = "log.empty_filter"
+    LOG_EMPTY_FILTER_WONT_BE_SAVED = "log.empty_filter_wont_be_saved"
+    CONFIRMATION_OVERRIDE_FILTER = "confirmation.override_filter"
+    CONFIRMATION_DELETE_FILTER = "confirmation.delete_filter"
     WARNING_NO_EFFECT = "warning.no_effect"
+    ERROR_COMPONENT_ERROR = "error.component_error"
     ERROR_FORBIDDEN = "error.forbidden"
+    ERROR_FILTER_DOESNT_EXIST = "error.filter_doesnt_exist"
+    ERROR_CANT_PARSE_TIMESTAMP = "error.cant_parse_timestamp"
     ERROR_CANT_REMOVE_ADMIN_PERMISSION = "error.cant_remove_admin_permission"
     ERROR_WRONG_PARAMETER_VALUE_TYPE = "error.wrong_parameter_value_type"
     ERROR_BAD_DURATION_FORMAT = "error.bad_duration_format"
     ERROR_EXPECTED_POSITIVE_DURATION = "errors.expected_positive_duration"
-    ERROR_DURATION_EXCEEDS_MAX_ALLOWED = "errors.duration_exceeds_max_allowed"
 
 
 @unique
 class RouteID(Enum):
+    LOG = "log"
     PENDING_REQUEST = "pending_request"
     PRE_APPROVAL_NOTIFICATION = "pre_approval_notification"
     PRE_REJECTION_NOTIFICATION = "pre_rejection_notification"
@@ -55,6 +65,7 @@ class ParameterID(Enum):
 @unique
 class PermissionFlagID(Enum):
     ADMIN = "admin"
+    LOG_VIEWER = "log_viewer"
     REVIEWER = "reviewer"
     TRAINEE = "trainee"
     GD_MOD = "gd_mod"

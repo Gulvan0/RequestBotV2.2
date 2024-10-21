@@ -66,6 +66,18 @@ def requires_permission(permission: PermissionFlagID):
     return commands.check(predicate)
 
 
+async def post_raw_text(
+    inter: discord.Interaction,
+    route: RouteID,
+    text: str
+) -> Message | None:
+    if not is_enabled(route):
+        return None
+
+    channel_id = get_channel_id(route)
+    return await inter.client.get_channel(channel_id).send(text)
+
+
 async def post(
     inter: discord.Interaction,
     route: RouteID,
@@ -73,15 +85,8 @@ async def post(
     language: Language | list[Language] | tuple[Language, ...] = (Language.RU, Language.EN),
     substitutions: dict[str, str] | None = None
 ) -> Message | None:
-    if not substitutions:
-        substitutions = {}
-
-    if not is_enabled(route):
-        return None
-
-    channel_id = get_channel_id(route)
     if isinstance(language, Language):
-        message_text = render_text(text, language, substitutions)
+        message_text = render_text(text, language, substitutions or {})
     else:
-        message_text = '\n---\n'.join([render_text(text, current_lang, substitutions) for current_lang in language])
-    return await inter.client.get_channel(channel_id).send(message_text)
+        message_text = '\n---\n'.join([render_text(text, current_lang, substitutions or {}) for current_lang in language])
+    return await post_raw_text(inter, route, message_text)

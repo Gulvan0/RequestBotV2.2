@@ -1,15 +1,12 @@
-from enum import StrEnum
-
 import discord
 
 from discord import app_commands
 from discord.ext import commands
 
-from services.disc import post, respond
+from services.disc import respond
 from user_preferences import update_value
 from util.datatypes import CommandChoiceOption, Language
-from util.format import as_channel, as_role
-from util.identifiers import RouteID, TextPieceID, UserPreferenceID
+from util.identifiers import TextPieceID, UserPreferenceID
 
 
 class GeneralCog(commands.Cog, name="general", description="Common commands"):

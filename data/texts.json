@@ -22,10 +22,59 @@
     "eng": "{member_mention} has no permissions",
     "rus": "У {member_mention} нет разрешений"
   },
+  "log.no_entries": {
+    "description": "Сообщение, которое выводится при попытке вывести логи, когда ни одной записи, удовлетворяющей заданному фильтру, не найдено",
+    "eng": "No logs matching the active filter are found. If you expected some entries to show up, check your filtering settings",
+    "rus": "Логи, удовлетворяющие активному фильтру, не найдены. Если ожидалось, что таковые найдутся, проверьте настройки своего фильтра"
+  },
+  "log.top_reached": {
+    "description": "Пометка, добавляющаяся к сообщению с логами, когда достигнута самая старая запись",
+    "eng": "You've reached the oldest entry",
+    "rus": "Начало логов"
+  },
+  "log.bottom_reached": {
+    "description": "Пометка, добавляющаяся к сообщению с логами, когда достигнута самая недавняя запись",
+    "eng": "You've reached the most recent entry",
+    "rus": "Конец логов"
+  },
+  "log.empty_filter": {
+    "description": "Сообщение, выводящееся при попытке вывести описание пустого (т. е. допускающего любые записи) фильтра",
+    "eng": "Filter has no restrictions",
+    "rus": "Фильтр не имеет ограничений"
+  },
+  "log.empty_filter_wont_be_saved": {
+    "description": "Отказ, выводящийся при попытке сохранить пустой (т. е. допускающий любые записи) фильтр",
+    "eng": "You're trying to save an empty filter, which is pointless. Hence, no filter will be saved",
+    "rus": "Фильтр пуст, поэтому он не будет сохранен (сохранять пустой фильтр не имеет смысла)"
+  },
+  "confirmation.override_filter": {
+    "description": "Подтверждение перезаписи существующего фильтра",
+    "param_descriptions": {
+      "name": "Название перезаписываемого фильтра"
+    },
+    "eng": "A filter with the name {name} already exists. Override?",
+    "rus": "Фильтр с именем {name} уже существует. Перезаписать?"
+  },
+  "confirmation.delete_filter": {
+    "description": "Подтверждение удаления фильтра",
+    "param_descriptions": {
+      "name": "Название удаляемого фильтра"
+    },
+    "eng": "Delete filter {name}?",
+    "rus": "Удалить фильтр {name}?"
+  },
   "warning.no_effect": {
     "description": "Стандартный ответ на действие, не возымевшее эффекта из-за того, что все и так уже в нужном состоянии (например, при передаче уже используемого значения параметра в качестве нового, на которое надо его поменять)",
     "eng": "No changes were applied: the data is already in the desired state",
     "rus": "Изменения не были применены: данные уже находятся в желаемом состоянии"
+  },
+  "error.component_error": {
+    "description": "Сообщение, выводящееся при любой ошибке взаимодействия с компонентом (скорее всего, вызванной изъянами в коде бота)",
+    "param_descriptions": {
+      "error_traceback": "Traceback ошибки, уже отформатированный как блок кода"
+    },
+    "eng": "An error occurred while interacting with this component:\n{error_traceback}",
+    "rus": "Произошла ошибка при взаимодействии с компонентом:\n{error_traceback}"
   },
   "error.forbidden": {
     "description": "Стандартный отказ выполнить действие из-за отсутствия прав",
@@ -34,6 +83,22 @@
     },
     "eng": "Not enough permissions. If you believe this is a mistake, please contact {admin_mention}",
     "rus": "Недостаточно прав. Обратитесь к {admin_mention}, если считаете, что произошла ошибка"
+  },
+  "error.filter_doesnt_exist": {
+    "description": "Ошибка, возникающая при попытке выбрать несуществующий фильтр",
+    "param_descriptions": {
+      "name": "Отформатированное как код название фильтра, предоставленное пользователем"
+    },
+    "eng": "Filter does not exist: {name}",
+    "rus": "Фильтр {name} не существует"
+  },
+  "error.cant_parse_timestamp": {
+    "description": "Ошибка, возникающая при невозможности обработать предоставленную пользователем строчку как временную метку",
+    "param_descriptions": {
+      "raw": "Предоставленная пользователем строчка. Ожидается, что она уже отформатирована как код"
+    },
+    "eng": "Failed to parse timestamp from text: {raw} is not a valid timestamp",
+    "rus": "Не удалось обработать строчку {raw} как временную метку"
   },
   "error.cant_remove_admin_permission": {
     "description": "Сообщение, выводящееся при попытке осуществить действие, которое лишит исполнителя команды права администратора",
@@ -64,14 +129,6 @@
     },
     "eng": "Cannot do that for a negative amount of time (got: {duration_secs} seconds)",
     "rus": "Данное действие не позволяет указать отрицательную продолжительность (в данном случае, {duration_secs} секунд)"
-  },
-  "errors.duration_exceeds_max_allowed": {
-      "description": "Ошибка, возникающая при передаче продолжительности больше разрешенного максимума",
-      "param_descriptions": {
-        "max_duration_secs": "Максимально допустимая продолжительность в секундах"
-      },
-      "eng": "Provided duration exceeds the maximum allowed ({max_duration_secs} secs)",
-      "rus": "Предоставленная продолжительность превышает максимально допустимую ({max_duration_secs} секунд)"
   }
 }
 
