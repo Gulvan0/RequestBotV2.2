@@ -1,21 +1,26 @@
 from dataclasses import dataclass
+from os import PathLike
 
 import discord
 import typing as tp
-from discord import Locale, Message
+from discord import File, Locale, Message
 from discord.app_commands import commands
 from discord.ext.commands import Context
 from discord.ext.commands._types import BotT
 
 from config.stage_parameters import get_value as get_stage_parameter_value
+from globalconf import CONFIG
 from permissions import has_permission
 from routes import get_channel_id, is_enabled
 from texts import render_text
 from user_preferences import get_value as get_preference_value
 from util.datatypes import Language
-from util.format import as_user
+from util.format import as_code_block, as_user
 from util.identifiers import PermissionFlagID, RouteID, StageParameterID, TextPieceID, UserPreferenceID
 from string import Template
+
+
+MESSAGE_LENGTH_LIMIT = 2000
 
 
 @dataclass
@@ -60,6 +65,29 @@ async def respond_forbidden(inter: discord.Interaction) -> None:
     await respond(inter, TextPieceID.ERROR_FORBIDDEN, dict(admin_mention=as_user(get_stage_parameter_value(StageParameterID.ADMIN_USER_ID))), ephemeral=True)
 
 
+async def send_developers(message: str, code_syntax: str | None = None, file_path: str | PathLike | None = None):
+    extra_symbols = 8 + len(code_syntax) if code_syntax is not None else 0
+    actual_max_length = MESSAGE_LENGTH_LIMIT - extra_symbols
+
+    message_length = len(message)
+
+    if message_length > actual_max_length:
+        parts_cnt = (message_length - 1) // actual_max_length + 1
+        for part_index in range(min(parts_cnt, 10)):
+            index_from = actual_max_length * part_index
+            index_to = index_from + actual_max_length
+            await send_developers(message[index_from:index_to], code_syntax, file_path if part_index == 0 else None)
+        return
+
+    developer_user_ids: list[int] = get_stage_parameter_value(StageParameterID.DEVELOPER_USER_IDS)
+    for developer_user_id in developer_user_ids:
+        developer = await CONFIG.bot.fetch_user(developer_user_id)
+        await developer.send(
+            as_code_block(message, code_syntax or None) if code_syntax is not None else message,
+            file=File(file_path) if file_path else None
+        )
+
+
 def requires_permission(permission: PermissionFlagID):
     async def predicate(inter: discord.Interaction):
         return has_permission(inter.user, permission)
@@ -67,19 +95,16 @@ def requires_permission(permission: PermissionFlagID):
 
 
 async def post_raw_text(
-    inter: discord.Interaction,
     route: RouteID,
     text: str
 ) -> Message | None:
     if not is_enabled(route):
         return None
-
     channel_id = get_channel_id(route)
-    return await inter.client.get_channel(channel_id).send(text)
+    return await CONFIG.bot.get_channel(channel_id).send(text)
 
 
 async def post(
-    inter: discord.Interaction,
     route: RouteID,
     text: TextPieceID,
     language: Language | list[Language] | tuple[Language, ...] = (Language.RU, Language.EN),
@@ -89,4 +114,4 @@ async def post(
         message_text = render_text(text, language, substitutions or {})
     else:
         message_text = '\n---\n'.join([render_text(text, current_lang, substitutions or {}) for current_lang in language])
-    return await post_raw_text(inter, route, message_text)
+    return await post_raw_text(route, message_text)

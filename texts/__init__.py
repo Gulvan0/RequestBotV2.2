@@ -29,7 +29,7 @@ def get_template(piece_id: TextPieceID, lang: Language) -> str:
     return result.template if result else get_default_template(piece_id, lang)
 
 
-def update_template(piece_id: TextPieceID, lang: Language, new_text: str, invoker: Member | None = None) -> None:
+async def update_template(piece_id: TextPieceID, lang: Language, new_text: str, invoker: Member | None = None) -> None:
     with Session(engine) as session:
         piece = session.get(TextPiece, (piece_id, lang))
         if piece:
@@ -43,14 +43,14 @@ def update_template(piece_id: TextPieceID, lang: Language, new_text: str, invoke
         session.add(piece)
         session.commit()
 
-    add_entry(LoggedEventTypeID.TEXT_PIECE_EDITED, invoker, dict(
+    await add_entry(LoggedEventTypeID.TEXT_PIECE_EDITED, invoker, dict(
         piece_id=piece_id.value,
         lang=lang.value,
         new_text=new_text
     ))
 
 
-def reset_template(piece_id: TextPieceID, lang: Language, invoker: Member | None = None) -> None:
+async def reset_template(piece_id: TextPieceID, lang: Language, invoker: Member | None = None) -> None:
     with Session(engine) as session:
         piece = session.get(TextPiece, (piece_id, lang))
         if not piece:
@@ -58,7 +58,7 @@ def reset_template(piece_id: TextPieceID, lang: Language, invoker: Member | None
         session.delete(piece)
         session.commit()
 
-    add_entry(LoggedEventTypeID.TEXT_PIECE_EDITED, invoker, dict(
+    await add_entry(LoggedEventTypeID.TEXT_PIECE_EDITED, invoker, dict(
         piece_id=piece_id.value,
         lang=lang.value,
         new_text=get_default_template(piece_id, lang)

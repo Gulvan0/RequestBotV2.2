@@ -14,7 +14,7 @@ class GeneralCog(commands.Cog, name="general", description="Common commands"):
     @app_commands.describe(language="Language you want the bot to speak with you")
     @app_commands.choices(language=CommandChoiceOption.from_str_enum(Language))
     async def language(self, inter: discord.Interaction, language: str):
-        update_value(UserPreferenceID.LANGUAGE, inter.user, language)
+        await update_value(UserPreferenceID.LANGUAGE, inter.user, language)
 
         await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 

@@ -1,16 +1,16 @@
-from enum import Enum, unique, auto
+from enum import Enum, unique
 
 
 @unique
 class LoggedEventTypeID(Enum):
-    TEXT_PIECE_EDITED = auto()
-    ROUTE_TARGET_UPDATED = auto()
-    ROUTE_TOGGLED = auto()
-    PARAMETER_EDITED = auto()
-    PERMISSION_BOUND = auto()
-    PERMISSION_UNBOUND = auto()
-    ROLE_CLEARED_FROM_PERMISSIONS = auto()
-    USER_PREFERENCE_UPDATED = auto()
+    TEXT_PIECE_EDITED = "TEXT_PIECE_EDITED"
+    ROUTE_TARGET_UPDATED = "ROUTE_TARGET_UPDATED"
+    ROUTE_TOGGLED = "ROUTE_TOGGLED"
+    PARAMETER_EDITED = "PARAMETER_EDITED"
+    PERMISSION_BOUND = "PERMISSION_BOUND"
+    PERMISSION_UNBOUND = "PERMISSION_UNBOUND"
+    ROLE_CLEARED_FROM_PERMISSIONS = "ROLE_CLEARED_FROM_PERMISSIONS"
+    USER_PREFERENCE_UPDATED = "USER_PREFERENCE_UPDATED"
 
 
 @unique
@@ -20,6 +20,7 @@ class TextPieceID(Enum):
     PERMISSION_NO_ASSIGNED_ROLES = "permission.no_assigned_roles"
     PERMISSION_MEMBER_HAS_NO_PERMISSIONS = "permission.member_has_no_permissions"
     LOG_NO_ENTRIES = "log.no_entries"
+    LOG_NO_FILTERS = "log.no_filters"
     LOG_TOP_REACHED = "log.top_reached"
     LOG_BOTTOM_REACHED = "log.bottom_reached"
     LOG_EMPTY_FILTER = "log.empty_filter"
@@ -28,6 +29,7 @@ class TextPieceID(Enum):
     CONFIRMATION_DELETE_FILTER = "confirmation.delete_filter"
     WARNING_NO_EFFECT = "warning.no_effect"
     ERROR_COMPONENT_ERROR = "error.component_error"
+    ERROR_COMMAND_ERROR = "error.command_error"
     ERROR_FORBIDDEN = "error.forbidden"
     ERROR_FILTER_DOESNT_EXIST = "error.filter_doesnt_exist"
     ERROR_CANT_PARSE_TIMESTAMP = "error.cant_parse_timestamp"
@@ -79,6 +81,7 @@ class PermissionFlagID(Enum):
 class StageParameterID(Enum):
     SPEAKS_RUSSIAN_ROLE_ID = "speaks_russian_role_id"
     ADMIN_USER_ID = "admin_user_id"
+    DEVELOPER_USER_IDS = "developer_user_ids"
 
 
 @unique

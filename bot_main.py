@@ -1,5 +1,4 @@
 import traceback
-from logging import Logger
 
 import aiohttp
 import click
@@ -74,6 +73,7 @@ class RequestBot(commands.Bot):
             result = await self.tree.sync(guild=guild)
             self.synced = not self.synced
             self.logger.info(f"Synced command tree: {len(result)} commands")
+
     def run(self, *args: tp.Any, **kwargs: tp.Any) -> None:
         try:
             super().run(os.getenv("BOT_TOKEN"), *args, **kwargs)
@@ -108,8 +108,8 @@ def main(debug: bool, log_queries: bool) -> None:
     validate_stage_parameters()
     validate_permission_flags()
 
-    bot = RequestBot()
-    bot.run()
+    CONFIG.bot = RequestBot()
+    CONFIG.bot.run()
 
 
 if __name__ == "__main__":

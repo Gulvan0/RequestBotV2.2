@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import traceback
 import typing
+from collections.abc import Coroutine
 
 import discord
 
@@ -16,13 +17,14 @@ import typing as tp
 class ConfirmationView(discord.ui.View):
     user: discord.Member
     message: discord.Message | None = None
-    callback: tp.Callable[[], tp.Any]
+    callback: tp.Callable[[discord.Interaction], tp.Any]
 
     def __init__(self) -> None:
         super().__init__(timeout=300)
 
     async def destroy_self(self) -> None:
-        await self.message.edit(content=None, view=None)
+        if self.message:
+            await self.message.edit(content="-", view=None)
         self.message = None
 
     async def on_timeout(self) -> None:
@@ -39,27 +41,33 @@ class ConfirmationView(discord.ui.View):
         self,
         inter: discord.Interaction,
         ephemeral: bool,
-        callback: tp.Callable[[], tp.Any],
+        callback: tp.Callable[[discord.Interaction], tp.Any],
         question_text: TextPieceID,
         question_substitutions: dict[str, str] | None = None
     ) -> None:
+        self.user = inter.user
         self.callback = callback
 
         message_text = render_text(question_text, member_language(inter.user, inter.locale).language, question_substitutions)
         await inter.response.send_message(message_text, view=self, ephemeral=ephemeral)
         self.message = await inter.original_response()
 
-    @discord.ui.button(emoji=":white_check_mark:", style=discord.ButtonStyle.red)
+    @discord.ui.button(label="Yes", style=discord.ButtonStyle.red)
     async def yes(self, inter: discord.Interaction, _) -> None:
         if self.user.id != inter.user.id:
             return
 
-        self.callback()
+        returned = self.callback(inter)
+        if isinstance(returned, Coroutine):
+            await returned
 
-        success_text = render_text(TextPieceID.COMMON_SUCCESS, member_language(inter.user, inter.locale).language)
-        await inter.response.edit_message(content=success_text, view=None)
+        if not inter.response.is_done():
+            success_text = render_text(TextPieceID.COMMON_SUCCESS, member_language(inter.user, inter.locale).language)
+            await inter.response.edit_message(content=success_text, view=None)
+        else:
+            await self.destroy_self()
 
-    @discord.ui.button(label=":no_entry:", style=discord.ButtonStyle.gray)
+    @discord.ui.button(label="No", style=discord.ButtonStyle.gray)
     async def no(self, inter: discord.Interaction, _) -> None:
         if self.user.id != inter.user.id:
             return

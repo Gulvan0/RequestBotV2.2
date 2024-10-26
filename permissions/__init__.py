@@ -22,7 +22,7 @@ def has_permission(member: discord.Member, permission: PermissionFlagID) -> bool
     return bool(member_roles & required_roles)
 
 
-def bind(role: discord.Role, permission: PermissionFlagID, invoker: Member | None = None) -> None:
+async def bind(role: discord.Role, permission: PermissionFlagID, invoker: Member | None = None) -> None:
     with Session(engine) as session:
         existing_entry = session.get(PermissionFlag, (permission, role.id))
         if existing_entry:
@@ -32,13 +32,13 @@ def bind(role: discord.Role, permission: PermissionFlagID, invoker: Member | Non
         session.add(new_entry)
         session.commit()
 
-    add_entry(LoggedEventTypeID.PERMISSION_BOUND, invoker, dict(
+    await add_entry(LoggedEventTypeID.PERMISSION_BOUND, invoker, dict(
         permission_id=permission.value,
         role_id=str(role.id)
     ))
 
 
-def unbind(role: discord.Role, permission: PermissionFlagID, invoker: Member | None = None) -> None:
+async def unbind(role: discord.Role, permission: PermissionFlagID, invoker: Member | None = None) -> None:
     with Session(engine) as session:
         existing_entry = session.get(PermissionFlag, (permission, role.id))
         if not existing_entry:
@@ -47,13 +47,13 @@ def unbind(role: discord.Role, permission: PermissionFlagID, invoker: Member | N
         session.delete(existing_entry)
         session.commit()
 
-    add_entry(LoggedEventTypeID.PERMISSION_UNBOUND, invoker, dict(
+    await add_entry(LoggedEventTypeID.PERMISSION_UNBOUND, invoker, dict(
         permission_id=permission.value,
         role_id=str(role.id)
     ))
 
 
-def clear(role: discord.Role, invoker: Member | None = None) -> None:
+async def clear(role: discord.Role, invoker: Member | None = None) -> None:
     with Session(engine) as session:
         had_permissions = False
         query: Select = select(PermissionFlag).where(PermissionFlag.role_id == role.id)
@@ -66,7 +66,7 @@ def clear(role: discord.Role, invoker: Member | None = None) -> None:
 
         session.commit()
 
-    add_entry(LoggedEventTypeID.ROLE_CLEARED_FROM_PERMISSIONS, invoker, dict(
+    await add_entry(LoggedEventTypeID.ROLE_CLEARED_FROM_PERMISSIONS, invoker, dict(
         role_id=str(role.id)
     ))
 

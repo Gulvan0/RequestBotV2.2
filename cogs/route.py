@@ -41,7 +41,7 @@ class RouteCog(commands.GroupCog, name="route", description="Utilities for worki
     @requires_permission(PermissionFlagID.ADMIN)
     async def update_channel(self, inter: discord.Interaction, route: RouteID, new_value: TextChannel) -> None:
         try:
-            update_channel_id(route, new_value.id, inter.user)
+            await update_channel_id(route, new_value.id, inter.user)
         except AlreadySatisfiesError:
             await respond(inter, TextPieceID.WARNING_NO_EFFECT, ephemeral=True)
         else:
@@ -53,7 +53,7 @@ class RouteCog(commands.GroupCog, name="route", description="Utilities for worki
     @requires_permission(PermissionFlagID.ADMIN)
     async def reset_channel(self, inter: discord.Interaction, route: RouteID) -> None:
         try:
-            reset_channel_id(route, inter.user)
+            await reset_channel_id(route, inter.user)
         except AlreadySatisfiesError:
             await respond(inter, TextPieceID.WARNING_NO_EFFECT, ephemeral=True)
         else:
@@ -65,7 +65,7 @@ class RouteCog(commands.GroupCog, name="route", description="Utilities for worki
     @requires_permission(PermissionFlagID.ADMIN)
     async def enable(self, inter: discord.Interaction, route: RouteID) -> None:
         try:
-            enable(route, inter.user)
+            await enable(route, inter.user)
         except AlreadySatisfiesError:
             await respond(inter, TextPieceID.WARNING_NO_EFFECT, ephemeral=True)
         else:
@@ -77,7 +77,7 @@ class RouteCog(commands.GroupCog, name="route", description="Utilities for worki
     @requires_permission(PermissionFlagID.ADMIN)
     async def disable(self, inter: discord.Interaction, route: RouteID) -> None:
         try:
-            disable(route, inter.user)
+            await disable(route, inter.user)
         except AlreadySatisfiesError:
             await respond(inter, TextPieceID.WARNING_NO_EFFECT, ephemeral=True)
         else:

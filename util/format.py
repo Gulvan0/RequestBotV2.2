@@ -2,6 +2,8 @@ from enum import StrEnum
 
 import typing as tp
 
+from discord import Member
+
 
 class TimestampStyle(StrEnum):
     SHORT_TIME = "t"
@@ -36,6 +38,10 @@ def as_channel(channel_id: int) -> str:
 
 def as_role(role_id: int) -> str:
     return f'<@&{role_id}>'
+
+
+def logs_member_ref(member: Member | None) -> str:
+    return f'{member.name}/{member.id}' if member else 'bot'
 
 
 def list_values(values: tp.Iterable[str]) -> list[str]:

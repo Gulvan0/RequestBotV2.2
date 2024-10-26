@@ -32,7 +32,7 @@ def get_value(preference_id: UserPreferenceID, user: discord.Member, casting_typ
             return casting_type(result.value)
 
 
-def update_value(preference_id: UserPreferenceID, user: discord.Member, normalized_raw_value: str) -> None:
+async def update_value(preference_id: UserPreferenceID, user: discord.Member, normalized_raw_value: str) -> None:
     with Session(engine) as session:
         value_row = session.get(UserPreference, (preference_id, user.id))
         if value_row:
@@ -42,7 +42,7 @@ def update_value(preference_id: UserPreferenceID, user: discord.Member, normaliz
         session.add(value_row)
         session.commit()
 
-    add_entry(LoggedEventTypeID.USER_PREFERENCE_UPDATED, user, dict(
+    await add_entry(LoggedEventTypeID.USER_PREFERENCE_UPDATED, user, dict(
         preference_id=preference_id.value,
         value=normalized_raw_value
     ))

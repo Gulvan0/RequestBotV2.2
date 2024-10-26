@@ -27,6 +27,11 @@
     "eng": "No logs matching the active filter are found. If you expected some entries to show up, check your filtering settings",
     "rus": "Логи, удовлетворяющие активному фильтру, не найдены. Если ожидалось, что таковые найдутся, проверьте настройки своего фильтра"
   },
+  "log.no_filters": {
+    "description": "Сообщение, которое выводится при попытке вывести список фильтров логов, когда он пуст",
+    "eng": "There are no saved filters",
+    "rus": "Нет ни одного сохраненного фильтра"
+  },
   "log.top_reached": {
     "description": "Пометка, добавляющаяся к сообщению с логами, когда достигнута самая старая запись",
     "eng": "You've reached the oldest entry",
@@ -71,15 +76,24 @@
   "error.component_error": {
     "description": "Сообщение, выводящееся при любой ошибке взаимодействия с компонентом (скорее всего, вызванной изъянами в коде бота)",
     "param_descriptions": {
-      "error_traceback": "Traceback ошибки, уже отформатированный как блок кода"
+      "error_traceback": "Текст ошибки, уже отформатированный как блок кода"
     },
     "eng": "An error occurred while interacting with this component:\n{error_traceback}",
     "rus": "Произошла ошибка при взаимодействии с компонентом:\n{error_traceback}"
   },
+  "error.command_error": {
+    "description": "Сообщение, выводящееся при любой внутренней ошибке команды (такие вызваны изъянами в коде бота)",
+    "param_descriptions": {
+      "admin_mention": "Тег админа сервера, к которому просит обратиться бот",
+      "error_traceback": "Текст ошибки, уже отформатированный как блок кода и сокращенный до разумных пределов"
+    },
+    "eng": "An error occurred:\n{error_traceback}\nPlease notify {admin_mention}",
+    "rus": "Произошла ошибка:\n{error_traceback}\nСвяжитесь с {admin_mention}"
+  },
   "error.forbidden": {
     "description": "Стандартный отказ выполнить действие из-за отсутствия прав",
     "param_descriptions": {
-      "admin_mention": "Тег админа сервера, к которому отсылает бот при несогласии пользователя"
+      "admin_mention": "Тег админа сервера, к которому отсылает бот при несогласии пользователя с отказом"
     },
     "eng": "Not enough permissions. If you believe this is a mistake, please contact {admin_mention}",
     "rus": "Недостаточно прав. Обратитесь к {admin_mention}, если считаете, что произошла ошибка"

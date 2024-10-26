@@ -35,7 +35,7 @@ def is_enabled(route_id: RouteID) -> bool:
     return result.enabled if result else True
 
 
-def update_channel_id(route_id: RouteID, channel_id: int, invoker: Member | None = None) -> None:
+async def update_channel_id(route_id: RouteID, channel_id: int, invoker: Member | None = None) -> None:
     with Session(engine) as session:
         route = session.get(Route, route_id)
         if route:
@@ -51,13 +51,13 @@ def update_channel_id(route_id: RouteID, channel_id: int, invoker: Member | None
         session.add(route)
         session.commit()
 
-    add_entry(LoggedEventTypeID.ROUTE_TARGET_UPDATED, invoker, dict(
+    await add_entry(LoggedEventTypeID.ROUTE_TARGET_UPDATED, invoker, dict(
         route_id=route_id.value,
         new_channel_id=str(channel_id)
     ))
 
 
-def reset_channel_id(route_id: RouteID, invoker: Member | None = None) -> None:
+async def reset_channel_id(route_id: RouteID, invoker: Member | None = None) -> None:
     with Session(engine) as session:
         route = session.get(Route, route_id)
         if not route:
@@ -73,13 +73,13 @@ def reset_channel_id(route_id: RouteID, invoker: Member | None = None) -> None:
 
         session.commit()
 
-    add_entry(LoggedEventTypeID.ROUTE_TARGET_UPDATED, invoker, dict(
+    await add_entry(LoggedEventTypeID.ROUTE_TARGET_UPDATED, invoker, dict(
         route_id=route_id.value,
         new_channel_id=str(get_default_channel_id(route_id))
     ))
 
 
-def enable(route_id: RouteID, invoker: Member | None = None) -> None:
+async def enable(route_id: RouteID, invoker: Member | None = None) -> None:
     with Session(engine) as session:
         route = session.get(Route, route_id)
         if not route or route.enabled:
@@ -93,13 +93,13 @@ def enable(route_id: RouteID, invoker: Member | None = None) -> None:
 
         session.commit()
 
-    add_entry(LoggedEventTypeID.ROUTE_TOGGLED, invoker, dict(
+    await add_entry(LoggedEventTypeID.ROUTE_TOGGLED, invoker, dict(
         route_id=route_id.value,
         enabled="True"
     ))
 
 
-def disable(route_id: RouteID, invoker: Member | None = None) -> None:
+async def disable(route_id: RouteID, invoker: Member | None = None) -> None:
     with Session(engine) as session:
         route = session.get(Route, route_id)
 
@@ -113,7 +113,7 @@ def disable(route_id: RouteID, invoker: Member | None = None) -> None:
         session.add(route)
         session.commit()
 
-    add_entry(LoggedEventTypeID.ROUTE_TOGGLED, invoker, dict(
+    await add_entry(LoggedEventTypeID.ROUTE_TOGGLED, invoker, dict(
         route_id=route_id.value,
         enabled="False"
     ))

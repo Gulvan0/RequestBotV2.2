@@ -31,7 +31,7 @@ class PermissionCog(commands.GroupCog, name="permission", description="Utilities
             return
 
         try:
-            bind(role, permission, inter.user)
+            await bind(role, permission, inter.user)
         except AlreadySatisfiesError:
             await respond(inter, TextPieceID.WARNING_NO_EFFECT, ephemeral=True)
         else:
@@ -46,13 +46,13 @@ class PermissionCog(commands.GroupCog, name="permission", description="Utilities
     @requires_permission(PermissionFlagID.ADMIN)
     async def unbind(self, inter: discord.Interaction, permission: PermissionFlagID, role: discord.Role):
         try:
-            unbind(role, permission, inter.user)
+            await unbind(role, permission, inter.user)
         except AlreadySatisfiesError:
             await respond(inter, TextPieceID.WARNING_NO_EFFECT, ephemeral=True)
             return
 
         if permission == PermissionFlagID.ADMIN and not has_permission(inter.user, PermissionFlagID.ADMIN):
-            bind(role, permission)
+            await bind(role, permission)
             await respond(inter, TextPieceID.ERROR_CANT_REMOVE_ADMIN_PERMISSION, ephemeral=True)
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
@@ -62,7 +62,7 @@ class PermissionCog(commands.GroupCog, name="permission", description="Utilities
     @requires_permission(PermissionFlagID.ADMIN)
     async def clear(self, inter: discord.Interaction, role: discord.Role):
         try:
-            clear(role, inter.user)
+            await clear(role, inter.user)
         except AlreadySatisfiesError:
             await respond(inter, TextPieceID.WARNING_NO_EFFECT, ephemeral=True)
         else:

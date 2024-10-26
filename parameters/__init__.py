@@ -50,7 +50,7 @@ def get_value(parameter_id: ParameterID, casting_type: type[T]) -> T:
             return casting_type(raw)
 
 
-def update_value(parameter_id: ParameterID, non_normalized_raw_value: str, invoker: Member | None = None) -> None:
+async def update_value(parameter_id: ParameterID, non_normalized_raw_value: str, invoker: Member | None = None) -> None:
     try:
         normalized_raw_value = normalize_raw_value(parameter_id, non_normalized_raw_value)
     except ValueError:
@@ -60,7 +60,6 @@ def update_value(parameter_id: ParameterID, non_normalized_raw_value: str, invok
         value_row = session.get(ParameterValue, parameter_id)
         if value_row:
             if value_row.value == normalized_raw_value:
-                print(value_row.value, normalized_raw_value)
                 raise AlreadySatisfiesError
             value_row.value = normalized_raw_value
         else:
@@ -70,13 +69,13 @@ def update_value(parameter_id: ParameterID, non_normalized_raw_value: str, invok
         session.add(value_row)
         session.commit()
 
-    add_entry(LoggedEventTypeID.PARAMETER_EDITED, invoker, dict(
+    await add_entry(LoggedEventTypeID.PARAMETER_EDITED, invoker, dict(
         parameter_id=parameter_id.value,
         value=normalized_raw_value
     ))
 
 
-def reset_value(parameter_id: ParameterID, invoker: Member | None = None) -> None:
+async def reset_value(parameter_id: ParameterID, invoker: Member | None = None) -> None:
     with Session(engine) as session:
         value_row = session.get(ParameterValue, parameter_id)
         if not value_row:
@@ -84,7 +83,7 @@ def reset_value(parameter_id: ParameterID, invoker: Member | None = None) -> Non
         session.delete(value_row)
         session.commit()
 
-    add_entry(LoggedEventTypeID.PARAMETER_EDITED, invoker, dict(
+    await add_entry(LoggedEventTypeID.PARAMETER_EDITED, invoker, dict(
         parameter_id=parameter_id.value,
         value=get_default_raw(parameter_id)
     ))
