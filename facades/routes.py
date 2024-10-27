@@ -6,7 +6,7 @@ from sqlmodel import Session
 from config.routes import get_default_channel_id, get_description
 from database.db import engine
 from database.models import Route
-from eventlog import add_entry
+from facades.eventlog import add_entry
 from util.exceptions import AlreadySatisfiesError
 from util.identifiers import LoggedEventTypeID, RouteID
 

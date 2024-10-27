@@ -7,7 +7,7 @@ from sqlmodel import select, Session
 
 from database.db import engine
 from database.models import PermissionFlag
-from eventlog import add_entry
+from facades.eventlog import add_entry
 from util.exceptions import AlreadySatisfiesError
 from util.identifiers import LoggedEventTypeID, PermissionFlagID
 

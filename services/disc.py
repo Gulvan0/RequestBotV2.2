@@ -2,18 +2,15 @@ from dataclasses import dataclass
 from os import PathLike
 
 import discord
-import typing as tp
 from discord import File, Locale, Message
 from discord.app_commands import commands
-from discord.ext.commands import Context
-from discord.ext.commands._types import BotT
 
 from config.stage_parameters import get_value as get_stage_parameter_value
 from globalconf import CONFIG
-from permissions import has_permission
-from routes import get_channel_id, is_enabled
-from texts import render_text
-from user_preferences import get_value as get_preference_value
+from facades.permissions import has_permission
+from facades.routes import get_channel_id, is_enabled
+from facades.texts import render_text
+from facades.user_preferences import get_value as get_preference_value
 from util.datatypes import Language
 from util.format import as_code_block, as_user
 from util.identifiers import PermissionFlagID, RouteID, StageParameterID, TextPieceID, UserPreferenceID
@@ -41,7 +38,13 @@ def member_language(member: discord.Member, locale: Locale | None) -> MemberLang
         return MemberLanguageInfo(Language.EN, True)
 
 
-async def respond(inter: discord.Interaction, template: str | list[str] | Template | TextPieceID, substitutions: dict[str, str] | None = None, ephemeral: bool = False) -> None:
+async def respond(
+    inter: discord.Interaction,
+    template: str | list[str] | Template | TextPieceID,
+    substitutions: dict[str, str] | None = None,
+    ephemeral: bool = False,
+    followup: bool = False
+) -> None:
     if isinstance(template, TextPieceID):
         member_language_info = member_language(inter.user, inter.locale)
         message_text = render_text(template, member_language_info.language, substitutions or {})
@@ -58,7 +61,10 @@ async def respond(inter: discord.Interaction, template: str | list[str] | Templa
         else:
             message_text = str_template
 
-    await inter.response.send_message(message_text, ephemeral=ephemeral)
+    if followup:
+        await inter.edit_original_response(content=message_text)
+    else:
+        await inter.response.send_message(message_text, ephemeral=ephemeral)
 
 
 async def respond_forbidden(inter: discord.Interaction) -> None:

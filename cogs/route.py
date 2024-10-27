@@ -5,7 +5,7 @@ from discord.ext import commands
 
 from config.routes import enlist
 from services.disc import requires_permission, respond
-from routes import explain, reset_channel_id, update_channel_id, enable, disable
+from facades.routes import explain, reset_channel_id, update_channel_id, enable, disable
 from util.datatypes import CommandChoiceOption
 from util.exceptions import AlreadySatisfiesError
 from util.format import as_channel, list_described_values

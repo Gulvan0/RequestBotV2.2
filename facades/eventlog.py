@@ -197,3 +197,14 @@ def get_offset_at_datetime(ts: datetime, log_filter: StoredLogFilter | None = No
     query = query.where(LoggedEvent.timestamp < ts)
     with Session(engine) as session:
         return session.exec(query).one()  # noqa
+
+
+def find_filters_by_prefix(pref: str) -> list[str]:
+    query = select(
+        StoredLogFilter.name
+    ).where(
+        col(StoredLogFilter.name).startswith(pref),
+        col(StoredLogFilter.name).startswith("@") == False
+    )
+    with Session(engine) as session:
+        return list(session.exec(query).all())  # noqa

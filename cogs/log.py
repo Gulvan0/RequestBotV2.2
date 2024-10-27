@@ -8,8 +8,9 @@ from discord.ext import commands
 
 from components.views.confirmation import ConfirmationView
 from components.views.log_pagination import LogPaginationView
-from eventlog import (
-    AlreadyExistsError, clear_current_filter, clear_filter_custom_fields, delete_filter, get_current_filter, get_filter, list_filters, NotExistsError, save_filter, select_filter, update_filter_custom_field, update_filter_event_type,
+from facades.eventlog import (
+    AlreadyExistsError, clear_current_filter, clear_filter_custom_fields, delete_filter, find_filters_by_prefix, get_current_filter, get_filter, list_filters, NotExistsError, save_filter, select_filter, update_filter_custom_field,
+    update_filter_event_type,
     update_filter_user,
 )
 from services.disc import requires_permission, respond
@@ -201,6 +202,14 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
                 await respond(following_inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
         await ConfirmationView().respond_with_view(inter, True, on_confirmed, TextPieceID.CONFIRMATION_DELETE_FILTER, dict(name=name))
 
+    @select_filter.autocomplete("name")
+    @delete_filter.autocomplete("name")
+    async def color_autocomplete(self, inter: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        return [
+            app_commands.Choice(name=option, value=option)
+            for option in find_filters_by_prefix(current)[:25]
+            if option.lower().startswith(current.lower())
+        ]
 
 
 async def setup(bot):

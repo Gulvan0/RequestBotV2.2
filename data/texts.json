@@ -52,6 +52,36 @@
     "eng": "You're trying to save an empty filter, which is pointless. Hence, no filter will be saved",
     "rus": "Фильтр пуст, поэтому он не будет сохранен (сохранять пустой фильтр не имеет смысла)"
   },
+  "request_command.closed": {
+      "description": "Сообщение, выводящееся при попытке создать новый реквест в момент, когда очередь закрыта",
+      "eng": "Sorry, the requests are temporarily closed. Follow the announcements to be notified when the queue will be reopened",
+      "rus": "Реквесты временно закрыты. Следите за объявлениями, чтобы узнать об открытии очереди реквестов одним из первых"
+  },
+  "request_command.unfeatured": {
+      "description": "Сообщение, выводящееся при попытке зареквестить уровень, у которого ранее снимали фичур",
+      "param_descriptions": {
+        "level_name": "Название уровня. Ожидается, что оно уже отформатировано как код"
+      },
+      "eng": "Failed to send a level request: level {level_name} was unfeatured by RobTop previously",
+      "rus": "Реквест не отправлен: у уровня {level_name} ранее уже был отозван фичур"
+  },
+  "request_command.already_rated": {
+      "description": "Сообщение, выводящееся при попытке зареквестить уже оцененный уровень",
+      "param_descriptions": {
+        "level_name": "Название уровня. Ожидается, что оно уже отформатировано как код",
+        "level_quality": "Качество уровня (rated/featured/epic/...). Ожидается, что оно представлено в виде неформатированного текста"
+      },
+      "eng": "Failed to send a level request: level {level_name} is already {level_quality}!",
+      "rus": "Реквест не отправлен: уровень {level_name} уже оценен (как {level_quality})!"
+  },
+  "request_command.not_found": {
+      "description": "Сообщение, выводящееся, когда не получается найти по ID уровень, который пытается зареквестить пользователь",
+      "param_descriptions": {
+        "level_id": "ID уровня, предоставленное пользователем. Ожидается, что он уже отформатирован как код"
+      },
+      "eng": "Failed to send a level request: level not found (ID `{level_id}`)!",
+      "rus": "Реквест не отправлен: уровень с ID `{level_id}` не найден!"
+  },
   "confirmation.override_filter": {
     "description": "Подтверждение перезаписи существующего фильтра",
     "param_descriptions": {
@@ -136,7 +166,7 @@
     "eng": "Failed to parse a duration from string: {duration}. The expected format is described [here](https://en.wikipedia.org/wiki/ISO_8601#Durations)",
     "rus": "Не удалось спарсить продолжительность из предоставленной строки: {duration}. Ожидаемый формат описан [здесь](https://en.wikipedia.org/wiki/ISO_8601#Durations)"
   },
-  "errors.expected_positive_duration": {
+  "error.expected_positive_duration": {
     "description": "Ошибка, возникающая, когда юзер пытается передать в команду отрицательную длительность (например, бана)",
     "param_descriptions": {
       "duration_secs": "Длительность бана в секундах, предоставленная пользователем"

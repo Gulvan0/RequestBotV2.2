@@ -6,7 +6,7 @@ from database.db import engine
 from database.models import UserPreference
 from sqlmodel import Session
 
-from eventlog import add_entry
+from facades.eventlog import add_entry
 from util.identifiers import LoggedEventTypeID, UserPreferenceID
 
 T = tp.TypeVar('T')

@@ -1,8 +1,20 @@
 from enum import Enum, StrEnum, unique
+
+import discord
 from discord import app_commands
 
 
 class CommandChoiceOption:
+    @classmethod
+    def autocomplete_from_enum(cls, e: type[Enum]):
+        async def callback(inter: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+            return [
+                app_commands.Choice(name=option.value, value=option.value)
+                for option in e
+                if option.value.lower().startswith(current.lower())
+            ][:25]
+        return callback
+
     @classmethod
     def from_enum(cls, e: type[Enum]) -> list[app_commands.Choice[str]]:
         return [app_commands.Choice(name=option.value, value=option.value) for option in e]

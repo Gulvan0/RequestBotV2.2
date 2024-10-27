@@ -9,9 +9,9 @@ import discord
 import yaml
 
 from database.models import LoggedEvent, StoredLogFilter
-from eventlog import get_current_filter, get_entries, get_offset_at_datetime
+from facades.eventlog import get_current_filter, get_entries, get_offset_at_datetime
 from services.disc import member_language, respond
-from texts import render_text
+from facades.texts import render_text
 from util.format import as_code_block, logs_member_ref
 from util.identifiers import TextPieceID
 

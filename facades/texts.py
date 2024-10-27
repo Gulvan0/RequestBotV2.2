@@ -5,7 +5,7 @@ from discord import Member
 from config.texts import get_default_template, get_description, get_param_descriptions
 from database.db import engine
 from database.models import TextPiece
-from eventlog import add_entry
+from facades.eventlog import add_entry
 from util.datatypes import Language
 
 from sqlmodel import Session

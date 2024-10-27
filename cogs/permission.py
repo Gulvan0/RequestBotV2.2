@@ -5,7 +5,7 @@ from discord.ext import commands
 
 from config.permission_flags import enlist
 from config.stage_parameters import get_value as get_stage_parameter_value
-from permissions import bind, unbind, clear, list_bound_roles, has_permission, is_permission_assigned
+from facades.permissions import bind, unbind, clear, list_bound_roles, has_permission, is_permission_assigned
 from services.disc import requires_permission, respond, respond_forbidden
 from util.datatypes import CommandChoiceOption
 from util.exceptions import AlreadySatisfiesError

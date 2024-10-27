@@ -4,7 +4,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from services.disc import respond
-from user_preferences import update_value
+from facades.user_preferences import update_value
 from util.datatypes import CommandChoiceOption, Language
 from util.identifiers import TextPieceID, UserPreferenceID
 

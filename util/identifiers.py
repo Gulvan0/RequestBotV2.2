@@ -25,6 +25,10 @@ class TextPieceID(Enum):
     LOG_BOTTOM_REACHED = "log.bottom_reached"
     LOG_EMPTY_FILTER = "log.empty_filter"
     LOG_EMPTY_FILTER_WONT_BE_SAVED = "log.empty_filter_wont_be_saved"
+    REQUEST_COMMAND_CLOSED = "request_command.closed"
+    REQUEST_COMMAND_UNFEATURED = "request_command.unfeatured"
+    REQUEST_COMMAND_ALREADY_RATED = "request_command.already_rated"
+    REQUEST_COMMAND_NOT_FOUND = "request_command.not_found"
     CONFIRMATION_OVERRIDE_FILTER = "confirmation.override_filter"
     CONFIRMATION_DELETE_FILTER = "confirmation.delete_filter"
     WARNING_NO_EFFECT = "warning.no_effect"
@@ -36,7 +40,7 @@ class TextPieceID(Enum):
     ERROR_CANT_REMOVE_ADMIN_PERMISSION = "error.cant_remove_admin_permission"
     ERROR_WRONG_PARAMETER_VALUE_TYPE = "error.wrong_parameter_value_type"
     ERROR_BAD_DURATION_FORMAT = "error.bad_duration_format"
-    ERROR_EXPECTED_POSITIVE_DURATION = "errors.expected_positive_duration"
+    ERROR_EXPECTED_POSITIVE_DURATION = "error.expected_positive_duration"
 
 
 @unique

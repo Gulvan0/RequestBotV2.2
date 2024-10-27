@@ -12,7 +12,7 @@ import typing as tp
 
 from util.exceptions import AlreadySatisfiesError
 from util.identifiers import LoggedEventTypeID, ParameterID
-from eventlog import add_entry
+from facades.eventlog import add_entry
 
 T = tp.TypeVar('T')
 

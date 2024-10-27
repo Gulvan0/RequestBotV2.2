@@ -1,3 +1,5 @@
+from tempfile import template
+
 import discord
 
 from discord import app_commands
@@ -5,7 +7,7 @@ from discord.ext import commands
 
 from config.texts import enlist
 from services.disc import requires_permission, respond
-from texts import explain, reset_template, update_template
+from facades.texts import explain, reset_template, update_template
 from util.datatypes import CommandChoiceOption, Language
 from util.exceptions import AlreadySatisfiesError
 from util.format import as_code, as_code_block, list_described_values
@@ -15,7 +17,8 @@ from util.identifiers import PermissionFlagID, TextPieceID
 class TextCog(commands.GroupCog, name="text", description="Utilities for working with message templates"):
     @app_commands.command(description="View details about a message template")
     @app_commands.describe(template_name="Template name (aka. text piece ID)")
-    @app_commands.choices(template_name=CommandChoiceOption.from_enum(TextPieceID))
+    @app_commands.choices(template_name=[])
+    @app_commands.autocomplete(template_name=CommandChoiceOption.autocomplete_from_enum(TextPieceID))
     @requires_permission(PermissionFlagID.ADMIN)
     async def describe(self, inter: discord.Interaction, template_name: TextPieceID) -> None:
         text_piece_details = explain(template_name)
@@ -47,10 +50,8 @@ class TextCog(commands.GroupCog, name="text", description="Utilities for working
         language="Template language",
         new_value="Updated template text"
     )
-    @app_commands.choices(
-        template_name=CommandChoiceOption.from_enum(TextPieceID),
-        language=CommandChoiceOption.from_str_enum(Language)
-    )
+    @app_commands.autocomplete(template_name=CommandChoiceOption.autocomplete_from_enum(TextPieceID))
+    @app_commands.choices(language=CommandChoiceOption.from_str_enum(Language), template_name=[])
     @requires_permission(PermissionFlagID.ADMIN)
     async def edit(self, inter: discord.Interaction, template_name: TextPieceID, language: Language, new_value: str) -> None:
         try:
@@ -65,10 +66,8 @@ class TextCog(commands.GroupCog, name="text", description="Utilities for working
         template_name="Template name (aka. text piece ID)",
         language="Template language"
     )
-    @app_commands.choices(
-        template_name=CommandChoiceOption.from_enum(TextPieceID),
-        language=CommandChoiceOption.from_str_enum(Language)
-    )
+    @app_commands.autocomplete(template_name=CommandChoiceOption.autocomplete_from_enum(TextPieceID))
+    @app_commands.choices(language=CommandChoiceOption.from_str_enum(Language), template_name=[])
     @requires_permission(PermissionFlagID.ADMIN)
     async def reset(self, inter: discord.Interaction, template_name: TextPieceID, language: Language) -> None:
         try:

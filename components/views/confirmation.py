@@ -7,7 +7,7 @@ from collections.abc import Coroutine
 import discord
 
 from services.disc import member_language, respond
-from texts import render_text
+from facades.texts import render_text
 from util.format import as_code_block
 from util.identifiers import TextPieceID
 
