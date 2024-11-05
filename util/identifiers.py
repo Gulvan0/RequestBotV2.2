@@ -11,6 +11,8 @@ class LoggedEventTypeID(Enum):
     PERMISSION_UNBOUND = "PERMISSION_UNBOUND"
     ROLE_CLEARED_FROM_PERMISSIONS = "ROLE_CLEARED_FROM_PERMISSIONS"
     USER_PREFERENCE_UPDATED = "USER_PREFERENCE_UPDATED"
+    USER_COOLDOWN_UPDATED = "USER_COOLDOWN_UPDATED"
+    LEVEL_COOLDOWN_UPDATED = "LEVEL_COOLDOWN_UPDATED"
 
 
 @unique
@@ -19,10 +21,13 @@ class TextPieceID(Enum):
     COMMON_LANGUAGE_SELECTION_PROPOSAL_SUBTEXT = "common.language_selection_proposal_subtext"
     PERMISSION_NO_ASSIGNED_ROLES = "permission.no_assigned_roles"
     PERMISSION_MEMBER_HAS_NO_PERMISSIONS = "permission.member_has_no_permissions"
-    LOG_NO_ENTRIES = "log.no_entries"
+    PAGINATION_TOP_REACHED = "pagination.top_reached"
+    PAGINATION_BOTTOM_REACHED = "pagination.bottom_reached"
+    PAGINATION_NO_ENTRIES = "pagination.no_entries"
+    COOLDOWN_OVERWRITE_CONFIRMATION = "cooldown.overwrite_confirmation"
+    COOLDOWN_NOT_ON_COOLDOWN = "cooldown.not_on_cooldown"
+    COOLDOWN_INFO = "cooldown.info"
     LOG_NO_FILTERS = "log.no_filters"
-    LOG_TOP_REACHED = "log.top_reached"
-    LOG_BOTTOM_REACHED = "log.bottom_reached"
     LOG_EMPTY_FILTER = "log.empty_filter"
     LOG_EMPTY_FILTER_WONT_BE_SAVED = "log.empty_filter_wont_be_saved"
     REQUEST_COMMAND_CLOSED = "request_command.closed"
@@ -40,7 +45,8 @@ class TextPieceID(Enum):
     ERROR_CANT_REMOVE_ADMIN_PERMISSION = "error.cant_remove_admin_permission"
     ERROR_WRONG_PARAMETER_VALUE_TYPE = "error.wrong_parameter_value_type"
     ERROR_BAD_DURATION_FORMAT = "error.bad_duration_format"
-    ERROR_EXPECTED_POSITIVE_DURATION = "error.expected_positive_duration"
+    ERROR_ORIGIN_COOLDOWN_ENDLESS = "error.origin_cooldown_endless"
+    ERROR_COOLDOWN_END_IN_PAST = "error.cooldown_end_in_past"
 
 
 @unique
@@ -66,6 +72,8 @@ class ParameterID(Enum):
     QUEUE_BLOCK_ENABLED = "queue.block_enabled"
     QUEUE_UNBLOCK_ENABLED = "queue.unblock_enabled"
     QUEUE_BLOCKED_MANUALLY = "queue.blocked_manually"
+    COOLDOWN_POST_REQUEST_USER_CD = "cooldown.post_request_user_cd"
+    COOLDOWN_POST_REJECT_LEVEL_CD = "cooldown.post_reject_level_cd"
 
 
 @unique

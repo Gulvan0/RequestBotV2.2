@@ -22,25 +22,52 @@
     "eng": "{member_mention} has no permissions",
     "rus": "У {member_mention} нет разрешений"
   },
-  "log.no_entries": {
-    "description": "Сообщение, которое выводится при попытке вывести логи, когда ни одной записи, удовлетворяющей заданному фильтру, не найдено",
-    "eng": "No logs matching the active filter are found. If you expected some entries to show up, check your filtering settings",
-    "rus": "Логи, удовлетворяющие активному фильтру, не найдены. Если ожидалось, что таковые найдутся, проверьте настройки своего фильтра"
+  "pagination.top_reached": {
+    "description": "Пометка, добавляющаяся к многостраничному списку, когда достигнут первый элемент",
+    "eng": "You've reached the oldest entry",
+    "rus": "Начало"
+  },
+  "pagination.bottom_reached": {
+    "description": "Пометка, добавляющаяся к многостраничному списку, когда достигнут последний элемент",
+    "eng": "You've reached the most recent entry",
+    "rus": "Конец"
+  },
+  "pagination.no_entries": {
+    "description": "Сообщение, которое выводится при попытке вывести многостраничный список, когда ни одной записи не найдено",
+    "eng": "The list is empty",
+    "rus": "Список пуст"
+  },
+  "cooldown.overwrite_confirmation": {
+      "description": "Подтверждение, запрашиваемое у юзера при попытке обновить кулдаун, когда юзер/левел уже находится на кд",
+      "param_descriptions": {
+        "old": "Текущий кулдаун. Ожидается, что уже отформатирован как код",
+        "old_caster_mention": "Тег юзера, наложившего прошлый кулдаун",
+        "old_reason": "Причина, указанная при наложении прошлого кулдауна. Ожидается, что уже отформатирована как код. Если причина отсутствует, вместо нее будет передан прочерк",
+        "new": "Запрашиваемое пользователем новое значение кулдауна. Ожидается, что уже отформатировано как код"
+      },
+      "eng": "This will overwrite the current cooldown (end timestamp: {old}; originally casted by {old_caster_mention} with reason {old_reason}). After it will be overwritten the new end timestamp will be {new}. Continue?",
+      "rus": "Данное действие перезапишет текущий кулдаун (дата окончания {old}; наложен {old_caster_mention} по причине: {old_reason}). В случае перезаписи дата окончания нового кулдауна будет {new}). Продолжить?"
+  },
+  "cooldown.not_on_cooldown": {
+    "description": "Сообщение, которое выводится при попытке вывести информацию о кулдауне юзера/левела, когда юзер/левел в данный момент не находится на кулдауне",
+    "eng": "There is no active cooldown at the moment",
+    "rus": "В данный момент нет активного кулдауна"
+  },
+  "cooldown.info": {
+      "description": "Сообщение с информацией о кулдауне конкретного юзера/левела, выводимое по запросу",
+      "param_descriptions": {
+        "ends_at": "Предварительно отформатированный таймстемп окончания кулдауна. Прочерк, если кулдаун бесконечный",
+        "casted_at": "Предварительно отформатированные дата-время, когда кулдаун был наложен",
+        "caster_mention": "Тег юзера, наложившего кулдаун",
+        "reason": "Причина, указанная при наложении кулдауна. Ожидается, что уже отформатирована как код. Если причина отсутствует, вместо нее будет передан прочерк"
+      },
+      "eng": "**Ends:** {ends_at}\n**Casted by:** {caster_mention}\n**Casted at:** {casted_at}\n**Reason:** {reason}",
+      "rus": "**Заканчивается:** {ends_at}\n**Кем наложен:** {caster_mention}\n**Когда наложен:** {casted_at}\n**Причина:** {reason}"
   },
   "log.no_filters": {
     "description": "Сообщение, которое выводится при попытке вывести список фильтров логов, когда он пуст",
     "eng": "There are no saved filters",
     "rus": "Нет ни одного сохраненного фильтра"
-  },
-  "log.top_reached": {
-    "description": "Пометка, добавляющаяся к сообщению с логами, когда достигнута самая старая запись",
-    "eng": "You've reached the oldest entry",
-    "rus": "Начало логов"
-  },
-  "log.bottom_reached": {
-    "description": "Пометка, добавляющаяся к сообщению с логами, когда достигнута самая недавняя запись",
-    "eng": "You've reached the most recent entry",
-    "rus": "Конец логов"
   },
   "log.empty_filter": {
     "description": "Сообщение, выводящееся при попытке вывести описание пустого (т. е. допускающего любые записи) фильтра",
@@ -163,16 +190,21 @@
     "param_descriptions": {
       "duration": "Строчка, предоставленная юзером в качестве длительности. Ожидается, что она уже предварительно отформатирована как код"
     },
-    "eng": "Failed to parse a duration from string: {duration}. The expected format is described [here](https://en.wikipedia.org/wiki/ISO_8601#Durations)",
-    "rus": "Не удалось спарсить продолжительность из предоставленной строки: {duration}. Ожидаемый формат описан [здесь](https://en.wikipedia.org/wiki/ISO_8601#Durations)"
+    "eng": "Failed to parse a duration from string: {duration}. The expected format is described in /help duration",
+    "rus": "Не удалось спарсить продолжительность из предоставленной строки: {duration}. Ожидаемый формат описан в /help duration"
   },
-  "error.expected_positive_duration": {
-    "description": "Ошибка, возникающая, когда юзер пытается передать в команду отрицательную длительность (например, бана)",
+  "error.origin_cooldown_endless": {
+    "description": "Ошибка, возникающая, когда юзер пытается увеличить/уменьшить бесконечный кулдаун",
+    "eng": "The current cooldown is endless, hence it cannot be prolonged or shortened by a fixed amount",
+    "rus": "Текущий кулдаун бесконечен, его нельзя увеличить или уменьшить на фиксированную величину"
+  },
+  "error.cooldown_end_in_past": {
+    "description": "Ошибка, возникающая, когда юзер пытается установить кулдаун, который должен был уже к этому моменту закончиться (например, уменьшает текущий кулдаун на величину, превышающую оставшийся срок до его истечения)",
     "param_descriptions": {
-      "duration_secs": "Длительность бана в секундах, предоставленная пользователем"
+      "new_ends_at": "Предварительно отформатированный таймстемп окончания кулдауна, запрошенный пользователем (должен оказаться в прошлом)"
     },
-    "eng": "Cannot do that for a negative amount of time (got: {duration_secs} seconds)",
-    "rus": "Данное действие не позволяет указать отрицательную продолжительность (в данном случае, {duration_secs} секунд)"
+    "eng": "Cannot cast the cooldown as its end ({new_ends_at}) is already in the past",
+    "rus": "Не удалось наложить кулдаун, поскольку его конец ({new_ends_at}) уже в прошлом"
   }
 }
 

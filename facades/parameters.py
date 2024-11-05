@@ -14,13 +14,8 @@ from util.exceptions import AlreadySatisfiesError
 from util.identifiers import LoggedEventTypeID, ParameterID
 from facades.eventlog import add_entry
 
+
 T = tp.TypeVar('T')
-
-
-class RestrictionNotSatisfiedError(Exception):
-    """
-    An exception occurring when the parameter's new value passed by the user doesn't adhere to the type of this parameter
-    """
 
 
 @dataclass
@@ -31,7 +26,7 @@ class ParameterDetails:
     current_value: str
 
 
-def get_value(parameter_id: ParameterID, casting_type: type[T]) -> T:
+def get_value(parameter_id: ParameterID, casting_type: type[T] = str) -> T:
     with Session(engine) as session:
         result = session.get(ParameterValue, parameter_id)
 
@@ -51,10 +46,7 @@ def get_value(parameter_id: ParameterID, casting_type: type[T]) -> T:
 
 
 async def update_value(parameter_id: ParameterID, non_normalized_raw_value: str, invoker: Member | None = None) -> None:
-    try:
-        normalized_raw_value = normalize_raw_value(parameter_id, non_normalized_raw_value)
-    except ValueError:
-        raise RestrictionNotSatisfiedError
+    normalized_raw_value = normalize_raw_value(parameter_id, non_normalized_raw_value)
 
     with Session(engine) as session:
         value_row = session.get(ParameterValue, parameter_id)

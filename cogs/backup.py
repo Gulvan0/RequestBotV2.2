@@ -24,7 +24,7 @@ class BackupCog(commands.GroupCog, name="backup", description="Commands for mana
 
     @staticmethod
     async def backup() -> None:
-        time_now = int(time.time())
+        time_now = time.time()
         absolute_time = as_timestamp(time_now, TimestampStyle.LONG_DATETIME)
         relative_time = as_timestamp(time_now, TimestampStyle.RELATIVE)
         await send_developers(f'BACKUP {absolute_time} ({relative_time})', file_path=SQLITE_FILE_NAME)

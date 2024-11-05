@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import StrEnum
 
 import typing as tp
@@ -15,8 +16,8 @@ class TimestampStyle(StrEnum):
     RELATIVE = "R"
 
 
-def as_code(line: str) -> str:
-    return f'`{line}`'
+def as_code(line: str | int | float) -> str:
+    return f'`{str(line)}`'
 
 
 def as_code_block(text: str, syntax: str | None = None) -> str:
@@ -24,8 +25,17 @@ def as_code_block(text: str, syntax: str | None = None) -> str:
     return f'```{syntax_part}\n{text.strip()}\n```'
 
 
-def as_timestamp(ts: int, style: TimestampStyle = TimestampStyle.RELATIVE) -> str:
-    return f'<t:{ts}:{style.value}>'
+def as_timestamp(ts: int | float | datetime, style: TimestampStyle = TimestampStyle.RELATIVE) -> str:
+    match ts:
+        case datetime():
+            unix_secs = int(ts.timestamp())
+        case int():
+            unix_secs = ts
+        case float():
+            unix_secs = int(ts)
+        case _:
+            tp.assert_never(ts)
+    return f'<t:{unix_secs}:{style.value}>'
 
 
 def as_user(user_id: int) -> str:

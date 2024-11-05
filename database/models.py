@@ -3,7 +3,7 @@ from datetime import datetime, UTC
 import yaml
 from sqlmodel import Field, SQLModel
 
-from util.datatypes import Language
+from util.datatypes import CooldownEntity, Language
 from util.identifiers import LoggedEventTypeID, ParameterID, RouteID, TextPieceID, PermissionFlagID, UserPreferenceID
 
 
@@ -51,3 +51,13 @@ class StoredLogFilter(SQLModel, table=True):
 
     def is_empty(self) -> bool:
         return self.user_id is None and self.event_type is None and self.custom_data_values == "{}"
+
+
+class Cooldown(SQLModel, table=True):
+    entity: CooldownEntity = Field(primary_key=True)
+    entity_id: int = Field(primary_key=True)
+    casted_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    ends_at: datetime | None
+    reason: str | None
+    caster_user_id: int
+    causing_request_id: int | None

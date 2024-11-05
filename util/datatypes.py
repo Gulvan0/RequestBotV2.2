@@ -1,4 +1,4 @@
-from enum import Enum, StrEnum, unique
+from enum import auto, Enum, StrEnum, unique
 
 import discord
 from discord import app_commands
@@ -47,6 +47,7 @@ class UserProvidedValueType(StrEnum):
     NON_NEGATIVE_FLOAT = "positive_float_or_zero"
     STRING = "str"
     NON_EMPTY_STRING = "non_empty_str"
+    DURATION = "duration"
 
     def get_displayed_name(self) -> str:
         match self:
@@ -68,3 +69,17 @@ class UserProvidedValueType(StrEnum):
                 return "Строка текста"
             case UserProvidedValueType.NON_EMPTY_STRING:
                 return "Непустая строка текста"
+            case UserProvidedValueType.DURATION:
+                return "Продолжительность (абсолютная; формат описан в /help duration)"
+
+
+@unique
+class CooldownListingOption(StrEnum):
+    TEMPORARY = "List temporary cooldowns"
+    ENDLESS = "List lifetime bans"
+
+
+@unique
+class CooldownEntity(StrEnum):
+    USER = auto()
+    LEVEL = auto()

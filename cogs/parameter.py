@@ -3,10 +3,10 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from config.parameters import get_displayed_type
+from config.parameters import get_displayed_type, RestrictionNotSatisfiedError
 from config.parameters import enlist
 from services.disc import requires_permission, respond
-from facades.parameters import explain, RestrictionNotSatisfiedError, update_value, reset_value
+from facades.parameters import explain, update_value, reset_value
 from util.datatypes import CommandChoiceOption
 from util.exceptions import AlreadySatisfiesError
 from util.format import as_code, list_described_values

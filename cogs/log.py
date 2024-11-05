@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 import discord
 import yaml
@@ -7,7 +8,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from components.views.confirmation import ConfirmationView
-from components.views.log_pagination import LogPaginationView
+from components.views.pagination.log import LogPaginationView
 from facades.eventlog import (
     AlreadyExistsError, clear_current_filter, clear_filter_custom_fields, delete_filter, find_filters_by_prefix, get_current_filter, get_filter, list_filters, NotExistsError, save_filter, select_filter, update_filter_custom_field,
     update_filter_event_type,
@@ -135,12 +136,12 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
         else:
             await respond(inter, TextPieceID.LOG_EMPTY_FILTER, ephemeral=True)
 
-
     @app_commands.command(description="Display logs matching the currently selected filter")
     @app_commands.describe(timestamp="An event timestamp to jump to. Omit to start from the beginning")
     @requires_permission(PermissionFlagID.LOG_VIEWER)
     async def view(self, inter: discord.Interaction, timestamp: str | None = None):
-        parsed_timestamp = None
+        parsed_timestamp: datetime | None = None
+
         if timestamp:
             try:
                 parsed_timestamp = parse_datetime(timestamp)
@@ -148,7 +149,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
                 await respond(inter, TextPieceID.ERROR_CANT_PARSE_TIMESTAMP, substitutions=dict(raw=timestamp), ephemeral=True)
                 return
 
-        await LogPaginationView().respond_with_view(inter, True, parsed_timestamp)
+        await LogPaginationView(parsed_timestamp).respond_with_view(inter, True)
 
     @app_commands.command(description="Lists all the available filters")
     @requires_permission(PermissionFlagID.LOG_VIEWER)

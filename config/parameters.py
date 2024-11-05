@@ -4,6 +4,14 @@ import re
 from util.datatypes import UserProvidedValueType
 from util.identifiers import ParameterID
 from util.io import load_data_json
+from util.parsers import CantParseError, DurationType, normalize_duration
+
+
+class RestrictionNotSatisfiedError(Exception):
+    """
+    Raised when trying to normalize a raw value that cannot be converted to a parameter's value type
+    """
+    pass
 
 
 CONTENT = load_data_json('parameters')
@@ -29,32 +37,37 @@ def normalize_raw_value(parameter: ParameterID, raw_value: str) -> str:
     match _get_value_type(parameter):
         case UserProvidedValueType.FLOAT:
             if re.fullmatch(r'-?([1-9]\d*|0)(\.\d+)?', raw_value) is None or raw_value == "-0":
-                raise ValueError()
+                raise RestrictionNotSatisfiedError
         case UserProvidedValueType.BOOLEAN:
             if raw_value in ("t", "true", "y", "yes"):
                 return 'true'
             elif raw_value in ("f", "false", "n", "no"):
                 return 'false'
             else:
-                raise ValueError()
+                raise RestrictionNotSatisfiedError
         case UserProvidedValueType.INTEGER:
             if re.fullmatch(r'(-?[1-9]\d*|0)', raw_value) is None:
-                raise ValueError()
+                raise RestrictionNotSatisfiedError
         case UserProvidedValueType.NATURAL:
             if re.fullmatch(r'[1-9]\d*', raw_value) is None:
-                raise ValueError()
+                raise RestrictionNotSatisfiedError
         case UserProvidedValueType.NON_EMPTY_STRING:
             if raw_value == '':
-                raise ValueError()
+                raise RestrictionNotSatisfiedError
         case UserProvidedValueType.NON_NEGATIVE_FLOAT:
             if re.fullmatch(r'([1-9]\d*|0)(\.\d+)?', raw_value) is None:
-                raise ValueError()
+                raise RestrictionNotSatisfiedError
         case UserProvidedValueType.POSITIVE_FLOAT:
             if re.fullmatch(r'([1-9]\d*(\.\d+)?|0\.\d+)', raw_value) is None:
-                raise ValueError()
+                raise RestrictionNotSatisfiedError
         case UserProvidedValueType.NON_NEGATIVE_INTEGER:
             if re.fullmatch(r'[1-9]\d*|0', raw_value) is None:
-                raise ValueError()
+                raise RestrictionNotSatisfiedError
+        case UserProvidedValueType.DURATION:
+            try:
+                return normalize_duration(raw_value, {DurationType.ABSOLUTE})
+            except CantParseError:
+                raise RestrictionNotSatisfiedError
 
     return raw_value
 
