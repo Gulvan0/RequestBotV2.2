@@ -10,7 +10,7 @@ from util.identifiers import PermissionFlagID
 
 class UserCooldownCog(commands.GroupCog, name="usercd", description="Commands for managing user cooldowns and bans"):
     def __init__(self):
-        self.preset: CooldownPreset = CooldownPreset(CooldownEntity.USER)
+        self.preset: CooldownPreset = CooldownPreset(CooldownEntity.USER, PermissionFlagID.REMOVE_OTHER_USER_BANS)
 
     @app_commands.command(description="List users currently on cooldown")
     @app_commands.describe(cooldown_listing_type="Whether to display temporary or endless cooldowns")

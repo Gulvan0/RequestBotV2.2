@@ -8,17 +8,19 @@ from components.views.confirmation import ConfirmationView
 from components.views.pagination.endless_cooldown import EndlessCooldownPaginationView
 from components.views.pagination.temporary_cooldown import TemporaryCooldownPaginationView
 from facades.cooldowns import AlreadyOnCooldownError, CooldownEndIsInPast, CooldownEndlessError, get_current_cooldown, manually_amend, manually_modify, manually_set
-from services.disc import respond
+from facades.permissions import has_permission
+from services.disc import respond, respond_forbidden
 from util.datatypes import CooldownEntity, CooldownListingOption
 from util.exceptions import AlreadySatisfiesError
 from util.format import as_code, as_timestamp, as_user, TimestampStyle
-from util.identifiers import TextPieceID
+from util.identifiers import PermissionFlagID, TextPieceID
 from util.parsers import CantParseError, DurationType, get_duration_type, is_infinite_duration, is_null_duration, normalize_duration, parse_abs_duration, parse_rel_duration
 
 
 @dataclass
 class CooldownPreset:
     entity: CooldownEntity
+    others_ban_removal_permission: PermissionFlagID
 
     async def list(self, inter: discord.Interaction, cooldown_listing_type: CooldownListingOption) -> None:
         match cooldown_listing_type:
@@ -85,6 +87,10 @@ class CooldownPreset:
             try:
                 await manually_set(self.entity, entity_id, inter.user, None, reason)
             except AlreadyOnCooldownError as e:
+                if e.current.caster_user_id != inter.user.id and not has_permission(inter.user, self.others_ban_removal_permission):
+                    await respond_forbidden(inter)
+                    return
+
                 async def callback(callback_inter):
                     await manually_set(self.entity, entity_id, callback_inter.user, None, reason, force=True)
 
@@ -117,6 +123,10 @@ class CooldownPreset:
                         ephemeral=True
                     )
                 except AlreadyOnCooldownError as e:
+                    if e.current.caster_user_id != inter.user.id and not has_permission(inter.user, self.others_ban_removal_permission):
+                        await respond_forbidden(inter)
+                        return
+
                     async def callback(callback_inter):
                         await manually_set(self.entity, entity_id, callback_inter.user, delta, reason, force=True)
 

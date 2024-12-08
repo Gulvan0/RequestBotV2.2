@@ -10,7 +10,7 @@ from util.identifiers import PermissionFlagID
 
 class LevelCooldownCog(commands.GroupCog, name="levelcd", description="Commands for managing level cooldowns and bans"):
     def __init__(self):
-        self.preset: CooldownPreset = CooldownPreset(CooldownEntity.LEVEL)
+        self.preset: CooldownPreset = CooldownPreset(CooldownEntity.LEVEL, PermissionFlagID.REMOVE_OTHER_LEVEL_BANS)
 
     @app_commands.command(description="List levels currently on cooldown")
     @app_commands.describe(cooldown_listing_type="Whether to display temporary or endless cooldowns")
