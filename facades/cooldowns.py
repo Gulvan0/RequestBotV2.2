@@ -148,7 +148,7 @@ def cast_after_request(entity_type: CooldownEntity, entity_id: int, request_id: 
     now_datetime = datetime.now(UTC)
     new_ends_at = None if is_infinite_duration(raw_cooldown_duration) else now_datetime + parse_abs_duration(raw_cooldown_duration)
 
-    if current and not exceeds_current(current.ends_at, new_ends_at):
+    if current and not exceeds_current(current.exact_ends_at, new_ends_at):
         return
 
     reason_main_part = "Recently requested a level" if entity_type == CooldownEntity.USER else "Was recently requested"
@@ -170,13 +170,13 @@ def cast_after_request(entity_type: CooldownEntity, entity_id: int, request_id: 
 
 async def manually_set(entity_type: CooldownEntity, entity_id: int, caster: Member, duration: timedelta | None = None, reason: str | None = None, force: bool = False) -> None:
     now_datetime = datetime.now(UTC)
-    new_ends_at = None if duration else now_datetime + duration
+    new_ends_at = now_datetime + duration if duration else None
 
-    if duration and duration.seconds <= 0:
+    if duration and duration.total_seconds() <= 0:
         raise CooldownEndIsInPast(ends_at=new_ends_at)
 
     current = get_current_cooldown(entity_type, entity_id)
-    old_ends_at = current.ends_at if current else NO_COOLDOWN
+    old_ends_at = current.exact_ends_at if current else NO_COOLDOWN
 
     if current and not force:
         raise AlreadyOnCooldownError(current)
@@ -201,12 +201,12 @@ async def manually_set(entity_type: CooldownEntity, entity_id: int, caster: Memb
 async def manually_modify(entity_type: CooldownEntity, entity_id: int, caster: Member, delta_with_current: timedelta, reason: str | None = None) -> None:
     current = get_current_cooldown(entity_type, entity_id)
 
-    if current and not current.ends_at:
+    if current and not current.exact_ends_at:
         raise CooldownEndlessError
 
     now_datetime = datetime.now(UTC)
-    old_ends_at = current.ends_at if current else NO_COOLDOWN
-    origin_point = current.ends_at if current else now_datetime
+    old_ends_at = current.exact_ends_at if current else NO_COOLDOWN
+    origin_point = current.exact_ends_at if current else now_datetime
     new_ends_at = origin_point + delta_with_current
 
     if new_ends_at <= now_datetime:
@@ -235,7 +235,7 @@ async def manually_amend(entity_type: CooldownEntity, entity_id: int,  amending_
     if not current:
         raise AlreadySatisfiesError
 
-    old_ends_at = current.ends_at
+    old_ends_at = current.exact_ends_at
 
     with Session(engine) as session:
         session.delete(current)
@@ -266,7 +266,7 @@ def list_temporary_cooldowns(entity: CooldownEntity, limit: int, offset: int = 0
         return [
             CooldownInfo(
                 entity_id=entry.entity_id,
-                ends_at=entry.ends_at,
+                ends_at=entry.exact_ends_at,
                 reason=entry.reason
             )
             for entry in session.exec(query)

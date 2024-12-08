@@ -35,7 +35,7 @@ ELEMENT_PATTERN = rf'{ELEMENT_AMOUNT_PATTERN}({ELEMENT_UNIT_PATTERN})'
 def normalize_duration(raw_non_normalized_value: str, allowed_types: set[DurationType]) -> str:
     assert allowed_types, "At least one duration type must be allowed to normalize the raw value"
 
-    cleaned = re.sub('[^\dA-Za-z]', '', raw_non_normalized_value.lower())
+    cleaned = re.sub(r'[^\dA-Za-z+\-]', '', raw_non_normalized_value.lower())
 
     pattern = rf'({ELEMENT_PATTERN})+'
     if allowed_types == {DurationType.RELATIVE}:
@@ -62,7 +62,8 @@ def get_duration_type(raw_normalized_value: str) -> DurationType:
 
 def parse_abs_duration(raw_normalized_value: str) -> timedelta:
     delta = timedelta()
-    for amount, unit in re.findall(rf'({ELEMENT_AMOUNT_PATTERN})({ELEMENT_UNIT_PATTERN})', raw_normalized_value):
+    for amount_str, unit in re.findall(rf'({ELEMENT_AMOUNT_PATTERN})({ELEMENT_UNIT_PATTERN})', raw_normalized_value):
+        amount = int(amount_str)
         match DurationElementUnit(unit):
             case DurationElementUnit.SECOND:
                 delta += timedelta(seconds=amount)

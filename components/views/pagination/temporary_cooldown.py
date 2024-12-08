@@ -5,8 +5,6 @@ from facades.cooldowns import list_temporary_cooldowns, CooldownInfo
 from util.datatypes import CooldownEntity
 from util.format import as_code, as_timestamp, as_user
 
-import typing as tp
-
 
 class TemporaryCooldownPaginationView(GenericPaginationView):
     def __init__(self, entity: CooldownEntity) -> None:
@@ -23,5 +21,5 @@ class TemporaryCooldownPaginationView(GenericPaginationView):
             line += f" ({as_code(info.reason)})"
         return line
 
-    def get_current_page_blocks(self) -> tp.Iterable[str]:
-        return map(self._render_cooldown_line, list_temporary_cooldowns(self.entity, self.limit, self.offset))
+    async def get_current_page_blocks(self) -> list[str]:
+        return list(map(self._render_cooldown_line, list_temporary_cooldowns(self.entity, self.limit, self.offset)))

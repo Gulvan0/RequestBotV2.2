@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from enum import StrEnum
 
 import typing as tp
@@ -28,6 +28,8 @@ def as_code_block(text: str, syntax: str | None = None) -> str:
 def as_timestamp(ts: int | float | datetime, style: TimestampStyle = TimestampStyle.RELATIVE) -> str:
     match ts:
         case datetime():
+            if not ts.tzinfo:
+                ts = ts.replace(tzinfo=UTC)
             unix_secs = int(ts.timestamp())
         case int():
             unix_secs = ts

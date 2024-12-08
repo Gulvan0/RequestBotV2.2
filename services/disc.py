@@ -64,7 +64,10 @@ async def respond(
     if followup:
         await inter.edit_original_response(content=message_text)
     else:
-        await inter.response.send_message(message_text, ephemeral=ephemeral)
+        try:
+            await inter.response.send_message(message_text, ephemeral=ephemeral)
+        except discord.errors.NotFound:
+            pass
 
 
 async def respond_forbidden(inter: discord.Interaction) -> None:

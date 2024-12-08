@@ -14,7 +14,7 @@ class EndlessCooldownPaginationView(GenericPaginationView):
 
         self.limit = 10
 
-    def get_current_page_blocks(self) -> list[str]:
+    async def get_current_page_blocks(self) -> list[str]:
         lines = []
 
         id_to_reason_mapping = list_endless_cooldowns(self.entity, self.limit, self.offset)

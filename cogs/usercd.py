@@ -9,9 +9,7 @@ from util.identifiers import PermissionFlagID
 
 
 class UserCooldownCog(commands.GroupCog, name="usercd", description="Commands for managing user cooldowns and bans"):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
+    def __init__(self):
         self.preset: CooldownPreset = CooldownPreset(CooldownEntity.USER)
 
     @app_commands.command(description="List users currently on cooldown")
@@ -47,4 +45,4 @@ class UserCooldownCog(commands.GroupCog, name="usercd", description="Commands fo
 
 
 async def setup(bot):
-    await bot.add_cog(UserCooldownCog(bot))
+    await bot.add_cog(UserCooldownCog())

@@ -61,3 +61,19 @@ class Cooldown(SQLModel, table=True):
     reason: str | None
     caster_user_id: int
     causing_request_id: int | None
+
+    @property
+    def exact_casted_at(self) -> datetime:
+        if self.casted_at.tzinfo:
+            return self.casted_at
+        else:
+            return self.casted_at.replace(tzinfo=UTC)
+
+    @property
+    def exact_ends_at(self) -> datetime | None:
+        if not self.ends_at:
+            return None
+        elif self.ends_at.tzinfo:
+            return self.ends_at
+        else:
+            return self.ends_at.replace(tzinfo=UTC)

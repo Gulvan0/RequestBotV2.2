@@ -34,16 +34,16 @@ class CooldownPreset:
         cooldown = get_current_cooldown(self.entity, entity_id)
 
         if cooldown:
-            if cooldown.ends_at:
-                absolute = as_timestamp(cooldown.ends_at, TimestampStyle.LONG_DATETIME)
-                relative = as_timestamp(cooldown.ends_at, TimestampStyle.RELATIVE)
+            if cooldown.exact_ends_at:
+                absolute = as_timestamp(cooldown.exact_ends_at, TimestampStyle.LONG_DATETIME)
+                relative = as_timestamp(cooldown.exact_ends_at, TimestampStyle.RELATIVE)
                 ends_at_str = f"{absolute} ({relative})"
             else:
                 ends_at_str = as_code("-")
 
-            if cooldown.casted_at:
-                absolute = as_timestamp(cooldown.casted_at, TimestampStyle.LONG_DATETIME)
-                relative = as_timestamp(cooldown.casted_at, TimestampStyle.RELATIVE)
+            if cooldown.exact_casted_at:
+                absolute = as_timestamp(cooldown.exact_casted_at, TimestampStyle.LONG_DATETIME)
+                relative = as_timestamp(cooldown.exact_casted_at, TimestampStyle.RELATIVE)
                 casted_at_str = f"{absolute} ({relative})"
             else:
                 casted_at_str = as_code("-")
@@ -94,12 +94,14 @@ class CooldownPreset:
                     callback=callback,
                     question_text=TextPieceID.COOLDOWN_OVERWRITE_CONFIRMATION,
                     question_substitutions=dict(
-                        old=as_timestamp(e.current.ends_at) if e.current.ends_at else as_code("∞"),
+                        old=as_timestamp(e.current.exact_ends_at) if e.current.exact_ends_at else as_code("∞"),
                         old_caster_mention=as_user(e.current.caster_user_id),
                         old_reason=as_code(e.current.reason or "-"),
                         new=as_code("∞")
                     )
                 )
+            else:
+                await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
             return
 
         match get_duration_type(normalized_duration):
@@ -124,12 +126,14 @@ class CooldownPreset:
                         callback=callback,
                         question_text=TextPieceID.COOLDOWN_OVERWRITE_CONFIRMATION,
                         question_substitutions=dict(
-                            old=as_timestamp(e.current.ends_at.timestamp()) if e.current.ends_at else as_code("∞"),
+                            old=as_timestamp(e.current.exact_ends_at) if e.current.exact_ends_at else as_code("∞"),
                             old_caster_mention=as_user(e.current.caster_user_id),
                             old_reason=as_code(e.current.reason or "-"),
                             new=as_timestamp(datetime.now(UTC) + delta)
                         )
                     )
+                else:
+                    await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
             case DurationType.RELATIVE:
                 delta = parse_rel_duration(normalized_duration)
                 try:
@@ -143,5 +147,7 @@ class CooldownPreset:
                         substitutions=dict(new_ends_at=as_timestamp(e.ends_at, TimestampStyle.LONG_DATETIME)),
                         ephemeral=True
                     )
+                else:
+                    await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
             case _:
                 tp.assert_never(normalized_duration)

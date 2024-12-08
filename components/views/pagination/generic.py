@@ -38,7 +38,7 @@ class GenericPaginationView(ABC, discord.ui.View):
         await self.shutdown()
 
     @abstractmethod
-    async def get_current_page_blocks(self) -> tp.Iterable[str]:
+    async def get_current_page_blocks(self) -> list[str]:
         ...
 
     async def respond_with_view(self, inter: discord.Interaction, ephemeral: bool) -> None:
@@ -51,6 +51,8 @@ class GenericPaginationView(ABC, discord.ui.View):
 
         if blocks:
             self.message_text = "\n".join(blocks)
+            if len(blocks) < self.limit:
+                self.next.disabled = True
         else:
             self.message_text = render_text(TextPieceID.PAGINATION_NO_ENTRIES, member_language(inter.user, inter.locale).language)
             self.prev.disabled = True
@@ -76,8 +78,8 @@ class GenericPaginationView(ABC, discord.ui.View):
         if self.offset < 0:
             self.offset = 0
 
-        lines = await self.get_current_page_lines()
-        self.message_text = "\n".join(lines)
+        blocks = await self.get_current_page_blocks()
+        self.message_text = "\n".join(blocks)
         if self.offset == 0:
             note = render_text(TextPieceID.PAGINATION_TOP_REACHED, member_language(inter.user, inter.locale).language)
             self.message_text = f"**{note}**\n" + self.message_text
@@ -92,15 +94,15 @@ class GenericPaginationView(ABC, discord.ui.View):
 
         self.offset += self.limit
 
-        lines = await self.get_current_page_lines()
+        blocks = await self.get_current_page_blocks()
 
-        if lines:
-            self.message_text = "\n".join(lines)
+        if blocks:
+            self.message_text = "\n".join(blocks)
             self.prev.disabled = False
         else:
             self.offset -= self.limit
 
-        if len(lines) < self.limit:
+        if len(blocks) < self.limit:
             note = render_text(TextPieceID.PAGINATION_BOTTOM_REACHED, member_language(inter.user, inter.locale).language)
             self.message_text += f"\n**{note}**"
             button.disabled = True

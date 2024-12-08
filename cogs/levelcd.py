@@ -9,9 +9,7 @@ from util.identifiers import PermissionFlagID
 
 
 class LevelCooldownCog(commands.GroupCog, name="levelcd", description="Commands for managing level cooldowns and bans"):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
+    def __init__(self):
         self.preset: CooldownPreset = CooldownPreset(CooldownEntity.LEVEL)
 
     @app_commands.command(description="List levels currently on cooldown")
@@ -28,7 +26,7 @@ class LevelCooldownCog(commands.GroupCog, name="levelcd", description="Commands 
 
     @app_commands.command(description="Remove current cooldown for level")
     @app_commands.describe(
-        user="ID of a level whose cooldown is to be removed",
+        level_id="ID of a level whose cooldown is to be removed",
         reason="Why the cooldown is being removed"
     )
     @requires_permission(PermissionFlagID.BAN_LEVELS)
@@ -37,7 +35,7 @@ class LevelCooldownCog(commands.GroupCog, name="levelcd", description="Commands 
 
     @app_commands.command(description="Put a level on a cooldown or modify the cooldown this level currently has")
     @app_commands.describe(
-        user="ID of a level whose cooldown is to be set",
+        level_id="ID of a level whose cooldown is to be set",
         duration="Cooldown duration (absolute, relative to the current one or infinite). Format: /help duration",
         reason="Why the cooldown is being casted/updated"
     )
@@ -47,4 +45,4 @@ class LevelCooldownCog(commands.GroupCog, name="levelcd", description="Commands 
 
 
 async def setup(bot):
-    await bot.add_cog(LevelCooldownCog(bot))
+    await bot.add_cog(LevelCooldownCog())
