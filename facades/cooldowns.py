@@ -104,7 +104,7 @@ async def __log_user_cooldown_update(
     entity_id_key = "target_user_id" if entity == CooldownEntity.USER else "target_level_id"
     
     custom_data = {
-        entity_id_key: entity_id,
+        entity_id_key: str(entity_id),
         "old": _stringify_cooldown(old_ends_at),
         "new": _stringify_cooldown(new_ends_at),
         "reason": reason or "no reason"

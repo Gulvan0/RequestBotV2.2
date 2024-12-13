@@ -1,10 +1,14 @@
+from __future__ import annotations
+
 import json
+from dataclasses import dataclass, field
 from datetime import datetime
 
 import yaml
+import typing as tp
 
 import discord
-from sqlmodel.sql._expression_select_cls import Select, SelectBase, SelectOfScalar
+from sqlmodel.sql._expression_select_cls import Select, SelectOfScalar
 
 from database.models import LoggedEvent, StoredLogFilter
 import services.disc
@@ -28,6 +32,21 @@ class NotExistsError(Exception):
     An exception occurring when an entity with the provided name doesn't exist when it is assumed to (for example, when trying to select a filter by name, but no filter with such name exists)
     """
     pass
+
+
+@dataclass
+class LoadedLogFilter:
+    user_id: int | None = None
+    event_type: LoggedEventTypeID | None = None
+    custom_data_values: dict[str, str] = field(default_factory=dict)
+
+    @classmethod
+    def from_stored(cls, stored_filter: StoredLogFilter) -> LoadedLogFilter:
+        return LoadedLogFilter(
+            user_id=stored_filter.user_id,
+            event_type=stored_filter.event_type,
+            custom_data_values=json.loads(stored_filter.custom_data_values)
+        )
 
 
 async def add_entry(event_type: LoggedEventTypeID, user: discord.Member | None = None, custom_data: dict[str, str] | None = None) -> None:
@@ -172,18 +191,27 @@ def list_filters() -> set[str]:
         return set(session.exec(query).all())  # noqa
 
 
-def _apply_filter(log_filter: StoredLogFilter | None, query: Select | SelectOfScalar) -> Select | SelectOfScalar:
-    if log_filter:
-        if log_filter.user_id:
-            query = query.where(LoggedEvent.user_id == log_filter.user_id)
-        if log_filter.event_type:
-            query = query.where(LoggedEvent.event_type == log_filter.event_type)
-        for key, value in json.loads(log_filter.custom_data_values).items():
-            query = query.where(col(LoggedEvent.custom_data).contains(f'"{key}": "{value}"'))
+def _apply_filter(log_filter: StoredLogFilter | LoadedLogFilter | None, query: Select | SelectOfScalar) -> Select | SelectOfScalar:
+    match log_filter:
+        case None:
+            return query
+        case StoredLogFilter():
+            loaded = LoadedLogFilter.from_stored(log_filter)
+        case LoadedLogFilter():
+            loaded = log_filter
+        case _:
+            tp.assert_never(log_filter)
+
+    if loaded.user_id:
+        query = query.where(LoggedEvent.user_id == loaded.user_id)
+    if loaded.event_type:
+        query = query.where(LoggedEvent.event_type == loaded.event_type)
+    for key, value in loaded.custom_data_values.items():
+        query = query.where(col(LoggedEvent.custom_data).contains(f'"{key}": "{value}"'))
     return query
 
 
-def get_entries(limit: int, offset: int = 0, log_filter: StoredLogFilter | None = None) -> list[LoggedEvent]:
+def get_entries(limit: int, offset: int = 0, log_filter: StoredLogFilter | LoadedLogFilter | None = None) -> list[LoggedEvent]:
     query = select(LoggedEvent)
     query = _apply_filter(log_filter, query)
     query = query.limit(limit).offset(offset)
@@ -191,7 +219,7 @@ def get_entries(limit: int, offset: int = 0, log_filter: StoredLogFilter | None 
         return list(session.exec(query).all())
 
 
-def get_offset_at_datetime(ts: datetime, log_filter: StoredLogFilter | None = None) -> int:
+def get_offset_at_datetime(ts: datetime, log_filter: StoredLogFilter | LoadedLogFilter | None = None) -> int:
     query = select(func.count(LoggedEvent.id))
     query = _apply_filter(log_filter, query)
     query = query.where(LoggedEvent.timestamp < ts)

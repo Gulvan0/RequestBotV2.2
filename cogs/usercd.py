@@ -43,6 +43,12 @@ class UserCooldownCog(commands.GroupCog, name="usercd", description="Commands fo
     async def update(self, inter: discord.Interaction, user: Member, duration: str, reason: str | None = None) -> None:
         await self.preset.update(inter, user.id, duration, reason)
 
+    @app_commands.command(description="Show a cooldown history for a certain user")
+    @app_commands.describe(user="User whose cooldown history will be queried")
+    @requires_permission(PermissionFlagID.LOG_VIEWER)
+    async def history(self, inter: discord.Interaction, user: Member) -> None:
+        await self.preset.history(inter, user.id)
+
 
 async def setup(bot):
     await bot.add_cog(UserCooldownCog())

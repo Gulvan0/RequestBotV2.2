@@ -43,6 +43,12 @@ class LevelCooldownCog(commands.GroupCog, name="levelcd", description="Commands 
     async def update(self, inter: discord.Interaction, level_id: int, duration: str, reason: str | None = None) -> None:
         await self.preset.update(inter, level_id, duration, reason)
 
+    @app_commands.command(description="Show a cooldown history for a certain level")
+    @app_commands.describe(level_id="ID of a level whose cooldown history will be queried")
+    @requires_permission(PermissionFlagID.LOG_VIEWER)
+    async def history(self, inter: discord.Interaction, level_id: int) -> None:
+        await self.preset.history(inter, level_id)
+
 
 async def setup(bot):
     await bot.add_cog(LevelCooldownCog())

@@ -6,14 +6,16 @@ import typing as tp
 
 from components.views.confirmation import ConfirmationView
 from components.views.pagination.endless_cooldown import EndlessCooldownPaginationView
+from components.views.pagination.log import LogPaginationView
 from components.views.pagination.temporary_cooldown import TemporaryCooldownPaginationView
 from facades.cooldowns import AlreadyOnCooldownError, CooldownEndIsInPast, CooldownEndlessError, get_current_cooldown, manually_amend, manually_modify, manually_set
+from facades.eventlog import get_entries, LoadedLogFilter
 from facades.permissions import has_permission
 from services.disc import respond, respond_forbidden
 from util.datatypes import CooldownEntity, CooldownListingOption
 from util.exceptions import AlreadySatisfiesError
 from util.format import as_code, as_timestamp, as_user, TimestampStyle
-from util.identifiers import PermissionFlagID, TextPieceID
+from util.identifiers import LoggedEventTypeID, PermissionFlagID, TextPieceID
 from util.parsers import CantParseError, DurationType, get_duration_type, is_infinite_duration, is_null_duration, normalize_duration, parse_abs_duration, parse_rel_duration
 
 
@@ -161,3 +163,20 @@ class CooldownPreset:
                     await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
             case _:
                 tp.assert_never(normalized_duration)
+
+    async def history(self, inter: discord.Interaction, entity_id: int) -> None:
+        if self.entity == CooldownEntity.USER:
+            event_type = LoggedEventTypeID.USER_COOLDOWN_UPDATED
+            entity_id_key = "target_user_id"
+        else:
+            event_type = LoggedEventTypeID.LEVEL_COOLDOWN_UPDATED
+            entity_id_key = "target_level_id"
+
+        await LogPaginationView(
+            log_filter=LoadedLogFilter(
+                event_type=event_type,
+                custom_data_values={
+                    entity_id_key: str(entity_id)
+                }
+            )
+        ).respond_with_view(inter, True)
