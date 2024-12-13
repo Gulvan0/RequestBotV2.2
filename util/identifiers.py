@@ -27,6 +27,8 @@ class TextPieceID(Enum):
     COOLDOWN_OVERWRITE_CONFIRMATION = "cooldown.overwrite_confirmation"
     COOLDOWN_NOT_ON_COOLDOWN = "cooldown.not_on_cooldown"
     COOLDOWN_INFO = "cooldown.info"
+    HELP_DURATION = "help.duration"
+    HELP_TIMESTAMP = "help.timestamp"
     LOG_NO_FILTERS = "log.no_filters"
     LOG_EMPTY_FILTER = "log.empty_filter"
     LOG_EMPTY_FILTER_WONT_BE_SAVED = "log.empty_filter_wont_be_saved"

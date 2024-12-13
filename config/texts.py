@@ -1,17 +1,28 @@
 import jsonschema
 import logging
 import re
+import typing as tp
 
 from util.datatypes import Language
 from util.identifiers import TextPieceID
-from util.io import load_data_json
+from util.io import load_data_json, load_long_text
 
 
-CONTENT = load_data_json('texts')
+def __load_texts() -> dict[str, dict[str, tp.Any]]:
+    content: dict[str, dict[str, tp.Any]] = load_data_json('texts')
+    for text_piece in content.values():
+        for lang in Language:
+            template: str = text_piece[lang.value]
+            if template.startswith("ext::"):
+                text_piece[lang.value] = load_long_text(template.removeprefix("ext::"))
+    return content
+
+
+CONTENT = __load_texts()
 
 
 def get_default_template(piece_id: TextPieceID, lang: Language) -> str:
-    return CONTENT[piece_id.value][lang.value]
+    return CONTENT[piece_id.value][lang.value]  # noqa
 
 
 def get_description(piece_id: TextPieceID) -> str:

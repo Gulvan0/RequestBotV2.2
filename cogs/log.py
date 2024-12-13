@@ -137,7 +137,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
             await respond(inter, TextPieceID.LOG_EMPTY_FILTER, ephemeral=True)
 
     @app_commands.command(description="Display logs matching the currently selected filter")
-    @app_commands.describe(timestamp="An event timestamp to jump to. Omit to start from the beginning")
+    @app_commands.describe(timestamp="An event timestamp to jump to. Omit to start from the beginning. Format: /help timestamp")
     @requires_permission(PermissionFlagID.LOG_VIEWER)
     async def view(self, inter: discord.Interaction, timestamp: str | None = None):
         parsed_timestamp: datetime | None = None

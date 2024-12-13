@@ -78,7 +78,7 @@ def parse_abs_duration(raw_normalized_value: str) -> timedelta:
             case DurationElementUnit.MONTH:
                 delta += timedelta(days=amount * 30)
             case DurationElementUnit.QUARTER:
-                delta += timedelta(days=amount * 120)
+                delta += timedelta(days=amount * 90)
             case DurationElementUnit.YEAR:
                 delta += timedelta(days=amount * 365)
             case _:

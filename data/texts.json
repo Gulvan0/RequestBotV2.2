@@ -64,6 +64,16 @@
       "eng": "**Ends:** {ends_at}\n**Casted by:** {caster_mention}\n**Casted at:** {casted_at}\n**Reason:** {reason}",
       "rus": "**Заканчивается:** {ends_at}\n**Кем наложен:** {caster_mention}\n**Когда наложен:** {casted_at}\n**Причина:** {reason}"
   },
+  "help.duration": {
+    "description": "Ответ на /help duration: пояснения про формат, в котором команды бота принимают продолжительность",
+    "eng": "ext::help_duration_en",
+    "rus": "ext::help_duration_ru"
+  },
+  "help.timestamp": {
+    "description": "Ответ на /help timestamp: пояснения про формат, в котором команды бота принимают временные метки",
+    "eng": "ext::help_timestamp_en",
+    "rus": "ext::help_timestamp_ru"
+  },
   "log.no_filters": {
     "description": "Сообщение, которое выводится при попытке вывести список фильтров логов, когда он пуст",
     "eng": "There are no saved filters",
@@ -168,8 +178,8 @@
     "param_descriptions": {
       "raw": "Предоставленная пользователем строчка. Ожидается, что она уже отформатирована как код"
     },
-    "eng": "Failed to parse timestamp from text: {raw} is not a valid timestamp",
-    "rus": "Не удалось обработать строчку {raw} как временную метку"
+    "eng": "Failed to parse timestamp from text: {raw} is not a valid timestamp. The expected format is described in /help timestamp",
+    "rus": "Не удалось обработать строчку {raw} как временную метку. Ожидаемый формат описан в /help timestamp"
   },
   "error.cant_remove_admin_permission": {
     "description": "Сообщение, выводящееся при попытке осуществить действие, которое лишит исполнителя команды права администратора",
