@@ -105,12 +105,13 @@ def requires_permission(permission: PermissionFlagID):
 
 async def post_raw_text(
     route: RouteID,
-    text: str
+    text: str,
+    view: discord.ui.View | None = None
 ) -> Message | None:
     if not is_enabled(route):
         return None
     channel_id = get_channel_id(route)
-    return await CONFIG.bot.get_channel(channel_id).send(text)
+    return await CONFIG.bot.get_channel(channel_id).send(text, view=view)
 
 
 async def post(

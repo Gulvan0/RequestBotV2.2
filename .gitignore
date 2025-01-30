@@ -1,4 +1,4 @@
 .env
 /.idea
 /data/database.db
-/venv
+client_secret_*.json

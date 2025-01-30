@@ -1,9 +1,10 @@
 from datetime import datetime, UTC
+from typing import Optional
 
-import yaml
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
 
-from util.datatypes import CooldownEntity, Language
+from util.datatypes import Opinion, CooldownEntity, Language, Resolution
+from util.format import as_code, as_user
 from util.identifiers import LoggedEventTypeID, ParameterID, RouteID, TextPieceID, PermissionFlagID, UserPreferenceID
 
 
@@ -60,7 +61,9 @@ class Cooldown(SQLModel, table=True):
     ends_at: datetime | None
     reason: str | None
     caster_user_id: int
-    causing_request_id: int | None
+
+    causing_request_id: int | None = Field(default=None, foreign_key="request.id")
+    causing_request: Optional["Request"] = Relationship()
 
     @property
     def exact_casted_at(self) -> datetime:
@@ -77,3 +80,59 @@ class Cooldown(SQLModel, table=True):
             return self.ends_at
         else:
             return self.ends_at.replace(tzinfo=UTC)
+
+
+class Request(SQLModel, table=True):
+    id: int | None = Field(primary_key=True)
+
+    level_id: int
+    language: Language
+    yt_link: str | None
+    additional_comment: str | None
+
+    request_author: str
+    is_author_user_id: bool = True
+
+    details_message_id: int | None  # reviewers' widget when unresolved, else archive entry
+    finalization_message_id: int | None
+
+    resolution: Resolution | None
+    resolver_user_id: int | None
+
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))  # on command executed successfully
+    requested_at: datetime | None  # on modal submitted successfully
+    resolved_at: datetime | None  # on final resolution provided
+
+    opinions: list["RequestOpinion"] = Relationship(back_populates="request")
+    reviews: list["RequestReview"] = Relationship(back_populates="request")
+
+    @property
+    def request_author_mention(self) -> str:
+        return as_user(int(self.request_author)) if self.is_author_user_id else as_code(self.request_author)
+
+
+class RequestOpinion(SQLModel, table=True):
+    id: int | None = Field(primary_key=True)
+
+    author_user_id: int = Field(primary_key=True)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    opinion: Opinion
+
+    request_id: int = Field(foreign_key="request.id")
+    request: Request = Relationship(back_populates="opinions", sa_relationship_kwargs=dict(foreign_keys="RequestOpinion.request_id"))
+
+    associated_review_id: int | None = Field(default=None, foreign_key="requestreview.id")
+    associated_review: Optional["RequestReview"] = Relationship()
+
+
+class RequestReview(SQLModel, table=True):
+    id: int | None = Field(primary_key=True)
+
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    author_user_id: int
+    text: str
+    message_id: int
+    opinion: Opinion
+
+    request_id: int = Field(foreign_key="request.id")
+    request: Request = Relationship(back_populates="reviews")

@@ -13,6 +13,8 @@ class LoggedEventTypeID(Enum):
     USER_PREFERENCE_UPDATED = "USER_PREFERENCE_UPDATED"
     USER_COOLDOWN_UPDATED = "USER_COOLDOWN_UPDATED"
     LEVEL_COOLDOWN_UPDATED = "LEVEL_COOLDOWN_UPDATED"
+    REQUEST_INITIALIZED = "REQUEST_INITIALIZED"
+    REQUEST_REQUESTED = "REQUEST_REQUESTED"
 
 
 @unique
@@ -33,9 +35,16 @@ class TextPieceID(Enum):
     LOG_EMPTY_FILTER = "log.empty_filter"
     LOG_EMPTY_FILTER_WONT_BE_SAVED = "log.empty_filter_wont_be_saved"
     REQUEST_COMMAND_CLOSED = "request_command.closed"
-    REQUEST_COMMAND_UNFEATURED = "request_command.unfeatured"
     REQUEST_COMMAND_ALREADY_RATED = "request_command.already_rated"
     REQUEST_COMMAND_NOT_FOUND = "request_command.not_found"
+    REQUEST_COMMAND_ALREADY_APPROVED = "request_command.already_approved"
+    REQUEST_COMMAND_PREVIOUS_PENDING = "request_command.previous_pending"
+    REQUEST_COMMAND_USER_ON_COOLDOWN = "request_command.user_on_cooldown"
+    REQUEST_COMMAND_USER_BANNED_TEMPORARILY = "request_command.user_banned_temporarily"
+    REQUEST_COMMAND_USER_BANNED_FOREVER = "request_command.user_banned_forever"
+    REQUEST_COMMAND_LEVEL_ON_COOLDOWN = "request_command.level_on_cooldown"
+    REQUEST_COMMAND_LEVEL_BANNED_TEMPORARILY = "request_command.level_banned_temporarily"
+    REQUEST_COMMAND_LEVEL_BANNED_FOREVER = "request_command.level_banned_forever"
     CONFIRMATION_OVERRIDE_FILTER = "confirmation.override_filter"
     CONFIRMATION_DELETE_FILTER = "confirmation.delete_filter"
     WARNING_NO_EFFECT = "warning.no_effect"

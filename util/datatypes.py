@@ -83,3 +83,16 @@ class CooldownListingOption(StrEnum):
 class CooldownEntity(StrEnum):
     USER = auto()
     LEVEL = auto()
+
+
+@unique
+class Opinion(StrEnum):
+    APPROVED = auto()
+    REJECTED = auto()
+
+
+@unique
+class Resolution(StrEnum):
+    APPROVED = auto()
+    REJECTED = auto()
+    DISCARDED = auto()

@@ -38,15 +38,15 @@
     "rus": "Список пуст"
   },
   "cooldown.overwrite_confirmation": {
-      "description": "Подтверждение, запрашиваемое у юзера при попытке обновить кулдаун, когда юзер/левел уже находится на кд",
-      "param_descriptions": {
-        "old": "Текущий кулдаун. Ожидается, что уже отформатирован как код",
-        "old_caster_mention": "Тег юзера, наложившего прошлый кулдаун",
-        "old_reason": "Причина, указанная при наложении прошлого кулдауна. Ожидается, что уже отформатирована как код. Если причина отсутствует, вместо нее будет передан прочерк",
-        "new": "Запрашиваемое пользователем новое значение кулдауна. Ожидается, что уже отформатировано как код"
-      },
-      "eng": "This will overwrite the current cooldown (end timestamp: {old}; originally casted by {old_caster_mention} with reason {old_reason}). After it will be overwritten the new end timestamp will be {new}. Continue?",
-      "rus": "Данное действие перезапишет текущий кулдаун (дата окончания {old}; наложен {old_caster_mention} по причине: {old_reason}). В случае перезаписи дата окончания нового кулдауна будет {new}). Продолжить?"
+    "description": "Подтверждение, запрашиваемое у юзера при попытке обновить кулдаун, когда юзер/левел уже находится на кд",
+    "param_descriptions": {
+      "old": "Текущий кулдаун. Ожидается, что уже отформатирован как код",
+      "old_caster_mention": "Тег юзера, наложившего прошлый кулдаун",
+      "old_reason": "Причина, указанная при наложении прошлого кулдауна. Ожидается, что уже отформатирована как код. Если причина отсутствует, вместо нее будет передан прочерк",
+      "new": "Запрашиваемое пользователем новое значение кулдауна. Ожидается, что уже отформатировано как код"
+    },
+    "eng": "This will overwrite the current cooldown (end timestamp: {old}; originally casted by {old_caster_mention} with reason {old_reason}). After it will be overwritten the new end timestamp will be {new}. Continue?",
+    "rus": "Данное действие перезапишет текущий кулдаун (дата окончания {old}; наложен {old_caster_mention} по причине: {old_reason}). В случае перезаписи дата окончания нового кулдауна будет {new}). Продолжить?"
   },
   "cooldown.not_on_cooldown": {
     "description": "Сообщение, которое выводится при попытке вывести информацию о кулдауне юзера/левела, когда юзер/левел в данный момент не находится на кулдауне",
@@ -54,15 +54,15 @@
     "rus": "В данный момент нет активного кулдауна"
   },
   "cooldown.info": {
-      "description": "Сообщение с информацией о кулдауне конкретного юзера/левела, выводимое по запросу",
-      "param_descriptions": {
-        "ends_at": "Предварительно отформатированный таймстемп окончания кулдауна. Прочерк, если кулдаун бесконечный",
-        "casted_at": "Предварительно отформатированные дата-время, когда кулдаун был наложен",
-        "caster_mention": "Тег юзера, наложившего кулдаун",
-        "reason": "Причина, указанная при наложении кулдауна. Ожидается, что уже отформатирована как код. Если причина отсутствует, вместо нее будет передан прочерк"
-      },
-      "eng": "**Ends:** {ends_at}\n**Casted by:** {caster_mention}\n**Casted at:** {casted_at}\n**Reason:** {reason}",
-      "rus": "**Заканчивается:** {ends_at}\n**Кем наложен:** {caster_mention}\n**Когда наложен:** {casted_at}\n**Причина:** {reason}"
+    "description": "Сообщение с информацией о кулдауне конкретного юзера/левела, выводимое по запросу",
+    "param_descriptions": {
+      "ends_at": "Предварительно отформатированный таймстемп окончания кулдауна. Прочерк, если кулдаун бесконечный",
+      "casted_at": "Предварительно отформатированные дата-время, когда кулдаун был наложен",
+      "caster_mention": "Тег юзера, наложившего кулдаун",
+      "reason": "Причина, указанная при наложении кулдауна. Ожидается, что уже отформатирована как код. Если причина отсутствует, вместо нее будет передан прочерк"
+    },
+    "eng": "**Ends:** {ends_at}\n**Casted by:** {caster_mention}\n**Casted at:** {casted_at}\n**Reason:** {reason}",
+    "rus": "**Заканчивается:** {ends_at}\n**Кем наложен:** {caster_mention}\n**Когда наложен:** {casted_at}\n**Причина:** {reason}"
   },
   "help.duration": {
     "description": "Ответ на /help duration: пояснения про формат, в котором команды бота принимают продолжительность",
@@ -90,34 +90,110 @@
     "rus": "Фильтр пуст, поэтому он не будет сохранен (сохранять пустой фильтр не имеет смысла)"
   },
   "request_command.closed": {
-      "description": "Сообщение, выводящееся при попытке создать новый реквест в момент, когда очередь закрыта",
-      "eng": "Sorry, the requests are temporarily closed. Follow the announcements to be notified when the queue will be reopened",
-      "rus": "Реквесты временно закрыты. Следите за объявлениями, чтобы узнать об открытии очереди реквестов одним из первых"
-  },
-  "request_command.unfeatured": {
-      "description": "Сообщение, выводящееся при попытке зареквестить уровень, у которого ранее снимали фичур",
-      "param_descriptions": {
-        "level_name": "Название уровня. Ожидается, что оно уже отформатировано как код"
-      },
-      "eng": "Failed to send a level request: level {level_name} was unfeatured by RobTop previously",
-      "rus": "Реквест не отправлен: у уровня {level_name} ранее уже был отозван фичур"
+    "description": "Сообщение, выводящееся при попытке создать новый реквест в момент, когда очередь закрыта",
+    "eng": "Sorry, the requests are temporarily closed. Follow the announcements to be notified when the queue will be reopened",
+    "rus": "Реквесты временно закрыты. Следите за объявлениями, чтобы узнать об открытии очереди реквестов одним из первых"
   },
   "request_command.already_rated": {
-      "description": "Сообщение, выводящееся при попытке зареквестить уже оцененный уровень",
-      "param_descriptions": {
-        "level_name": "Название уровня. Ожидается, что оно уже отформатировано как код",
-        "level_quality": "Качество уровня (rated/featured/epic/...). Ожидается, что оно представлено в виде неформатированного текста"
-      },
-      "eng": "Failed to send a level request: level {level_name} is already {level_quality}!",
-      "rus": "Реквест не отправлен: уровень {level_name} уже оценен (как {level_quality})!"
+    "description": "Сообщение, выводящееся при попытке зареквестить уже оцененный уровень",
+    "param_descriptions": {
+      "level_name": "Название уровня. Ожидается, что оно уже отформатировано как код",
+      "level_quality": "Качество уровня (rated/featured/epic/...). Ожидается, что оно представлено в виде неформатированного текста"
+    },
+    "eng": "Failed to send a level request: level {level_name} is already {level_quality}!",
+    "rus": "Реквест не отправлен: уровень {level_name} уже оценен (как {level_quality})!"
   },
   "request_command.not_found": {
-      "description": "Сообщение, выводящееся, когда не получается найти по ID уровень, который пытается зареквестить пользователь",
-      "param_descriptions": {
-        "level_id": "ID уровня, предоставленное пользователем. Ожидается, что он уже отформатирован как код"
-      },
-      "eng": "Failed to send a level request: level not found (ID `{level_id}`)!",
-      "rus": "Реквест не отправлен: уровень с ID `{level_id}` не найден!"
+    "description": "Сообщение, выводящееся, когда не получается найти по ID уровень, который пытается зареквестить пользователь",
+    "param_descriptions": {
+      "level_id": "ID уровня, предоставленное пользователем. Ожидается, что он уже отформатирован как код"
+    },
+    "eng": "Failed to send a level request: level not found (ID {level_id})!",
+    "rus": "Реквест не отправлен: уровень с ID {level_id} не найден!"
+  },
+  "request_command.already_approved": {
+    "description": "Сообщение, выводящееся, когда пользователь пытается зареквестить уровень, уже одобренный в одном из прошлых реквестов",
+    "param_descriptions": {
+      "approval_ts": "Предварительно отформатированный таймстемп, когда уровень был одобрен",
+      "request_ts": "Предварительно отформатированный таймстемп, когда впоследствии одобренный уровень был реквестнут",
+      "orig_author": "Тег автора принятого реквеста"
+    },
+    "eng": "The level you're trying to request was already approved {approval_ts} (originally requested {request_ts} by {orig_author})",
+    "rus": "Этот уровень уже был одобрен {approval_ts} (реквестнут {request_ts} пользователем {orig_author})"
+  },
+  "request_command.previous_pending": {
+    "description": "Сообщение, выводящееся, когда пользователь пытается зареквестить уровень, который уже был реквестнут и все еще находится на рассмотрении",
+    "param_descriptions": {
+      "request_ts": "Предварительно отформатированный таймстемп, когда все еще находящийся в обработке реквест был создан",
+      "orig_author": "Тег автора все еще находящегося в обработке реквеста"
+    },
+    "eng": "This level has already been requested {request_ts} by {orig_author}. Please wait until the previous request gets resolved before requesting this level again",
+    "rus": "Этот уровень уже был реквестнут {request_ts} пользователем {orig_author}. Пожалуйста, дождитесь принятия решения по предыдущему реквесту прежде чем снова реквестить этот уровень"
+  },
+  "request_command.user_on_cooldown": {
+    "description": "Сообщение, выводящееся при попытке зареквестить уровень пользователем, находящимся на кулдауне после предыдущего реквеста",
+    "param_descriptions": {
+      "ends_at": "Предварительно отформатированный таймстемп окончания кулдауна",
+      "prev_level_name": "Название последнего уровня, реквестнутого пользователем. Ожидается, что оно уже предварительно отформатировано как код",
+      "prev_request_ts": "Предварительно отформатированный таймстемп создания предыдущего реквеста пользователем"
+    },
+    "eng": "You have already requested a level recently: {prev_level_name} was requested {prev_request_ts}. Please wait before submitting a new request. You will be able to do it {ends_at}",
+    "rus": "Недавно Вы уже создавали реквест: {prev_request_ts} Вы реквестили уровень {prev_level_name}. Пожалуйста, подождите перед отправкой нового реквеста, Вы сможете это сделать {ends_at}"
+  },
+  "request_command.user_banned_temporarily": {
+    "description": "Сообщение, выводящееся временно забаненному пользователю при попытке зареквестить уровень",
+    "param_descriptions": {
+      "ends_at": "Предварительно отформатированный таймстемп окончания бана",
+      "responsible_mention": "Тег пользователя, наложившего бан",
+      "reason": "Указанная причина бана. Ожидается, что она уже отформатирована как код",
+      "admin_mention": "Тег админа сервера, к которому будут отсылаться несогласные пользователи"
+    },
+    "eng": "You have been temporarily banned from requesting levels by {responsible_mention} (reason: {reason}). You will be able to submit a new request {ends_at}. Please contact {admin_mention} if you believe this is a mistake",
+    "rus": "{responsible_mention} выдал Вам временный запрет на создание реквестов (причина: {reason}). Вы сможете реквестить уровни {ends_at}. Пожалуйста, обратитесь к {admin_mention}, если Вы считаете это ошибкой"
+  },
+  "request_command.user_banned_forever": {
+    "description": "Сообщение, выводящееся забаненному навсегда пользователю при попытке зареквестить уровень",
+    "param_descriptions": {
+      "responsible_mention": "Тег пользователя, наложившего бан",
+      "reason": "Указанная причина бана. Ожидается, что она уже отформатирована как код",
+      "admin_mention": "Тег админа сервера, к которому будут отсылаться несогласные пользователи"
+    },
+    "eng": "You have been banned from requesting levels by {responsible_mention} (reason: {reason}). Please contact {admin_mention} if you believe this is a mistake",
+    "rus": "{responsible_mention} выдал Вам запрет на создание реквестов (причина: {reason}). Пожалуйста, обратитесь к {admin_mention}, если Вы считаете это ошибкой"
+  },
+  "request_command.level_on_cooldown": {
+    "description": "Сообщение, выводящееся при попытке зареквестить уровень, находящийся на кулдауне после предыдущего реквеста",
+    "param_descriptions": {
+      "level_name": "Название уровня. Ожидается, что оно уже отформатировано как код",
+      "ends_at": "Предварительно отформатированный таймстемп окончания кулдауна",
+      "prev_request_author": "Тег автора прошлого реквеста",
+      "prev_request_ts": "Предварительно отформатированный таймстемп создания предыдущего реквеста пользователем"
+    },
+    "eng": "Level {level_name} has already been requested recently ({prev_request_ts} by {prev_request_author}). Please wait until requesting it again. You will be able to do it {ends_at}",
+    "rus": "Уровень {level_name} уже был реквестнут {prev_request_ts} пользователем {prev_request_author}. Пожалуйста, подождите, прежде чем отправлять его снова. Вы сможете повторно отправить этот уровень {ends_at}"
+  },
+  "request_command.level_banned_temporarily": {
+    "description": "Сообщение, выводящееся при попытке зареквестить временно забаненный уровень",
+    "param_descriptions": {
+      "level_name": "Название уровня. Ожидается, что оно уже отформатировано как код",
+      "ends_at": "Предварительно отформатированный таймстемп окончания бана",
+      "responsible_mention": "Тег пользователя, наложившего бан",
+      "reason": "Указанная причина бана. Ожидается, что она уже отформатирована как код",
+      "admin_mention": "Тег админа сервера, к которому будут отсылаться несогласные пользователи"
+    },
+    "eng": "Level {level_name} have been temporarily blacklisted by {responsible_mention} (reason: {reason}). This level will be able to be requested again {ends_at}. Please contact {admin_mention} if you believe this is a mistake",
+    "rus": "{responsible_mention} временно добавил уровень {level_name} в черный список (причина: {reason}). Этот уровень сможет быть снова зареквесчен {ends_at}. Пожалуйста, обратитесь к {admin_mention}, если Вы считаете это ошибкой"
+  },
+  "request_command.level_banned_forever": {
+    "description": "Сообщение, выводящееся при попытке зареквестить забаненный навсегда уровень",
+    "param_descriptions": {
+      "level_name": "Название уровня. Ожидается, что оно уже отформатировано как код",
+      "responsible_mention": "Тег пользователя, наложившего бан",
+      "reason": "Указанная причина бана. Ожидается, что она уже отформатирована как код",
+      "admin_mention": "Тег админа сервера, к которому будут отсылаться несогласные пользователи"
+    },
+    "eng": "Level {level_name} have been blacklisted by {responsible_mention} (reason: {reason}). Please contact {admin_mention} if you believe this is a mistake",
+    "rus": "{responsible_mention} добавил уровень {level_name} в черный список (причина: {reason}). Пожалуйста, обратитесь к {admin_mention}, если Вы считаете это ошибкой"
   },
   "confirmation.override_filter": {
     "description": "Подтверждение перезаписи существующего фильтра",

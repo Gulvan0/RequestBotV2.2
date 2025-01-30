@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, UTC
 from discord import Member
 from sqlalchemy import Select
 
-from database.models import Cooldown
+from database.models import Cooldown, Request
 from database.db import engine
 
 from sqlmodel import col, select, Session
@@ -51,6 +51,12 @@ class CooldownInfo:
 
 class NO_COOLDOWN:  # noqa
     pass
+
+
+@dataclass
+class EagerlyPreloadedCooldown:
+    cooldown: Cooldown
+    causing_request: Request
 
 
 def _update_or_create(
@@ -136,6 +142,16 @@ def get_current_cooldown(entity_type: CooldownEntity, entity_id: int) -> Cooldow
 
     with Session(engine) as session:
         return session.get(Cooldown, (entity_type, entity_id))
+
+
+def get_current_cooldown_eagerly(entity_type: CooldownEntity, entity_id: int) -> EagerlyPreloadedCooldown | None:
+    clean_table()
+
+    with Session(engine) as session:
+        cooldown = session.get(Cooldown, (entity_type, entity_id))
+        if cooldown:
+            return EagerlyPreloadedCooldown(cooldown, cooldown.causing_request)  # noqa
+        return None
 
 
 def cast_after_request(entity_type: CooldownEntity, entity_id: int, request_id: int) -> None:
