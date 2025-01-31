@@ -89,10 +89,3 @@ class CooldownEntity(StrEnum):
 class Opinion(StrEnum):
     APPROVED = auto()
     REJECTED = auto()
-
-
-@unique
-class Resolution(StrEnum):
-    APPROVED = auto()
-    REJECTED = auto()
-    DISCARDED = auto()

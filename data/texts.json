@@ -195,6 +195,78 @@
     "eng": "Level {level_name} have been blacklisted by {responsible_mention} (reason: {reason}). Please contact {admin_mention} if you believe this is a mistake",
     "rus": "{responsible_mention} добавил уровень {level_name} в черный список (причина: {reason}). Пожалуйста, обратитесь к {admin_mention}, если Вы считаете это ошибкой"
   },
+  "request.review": {
+    "description": "Сообщение с текстом нового обзора на уровень и призывом автора реквеста",
+    "param_descriptions": {
+      "request_author": "Тег автора реквеста",
+      "reviewer_mention": "Тег ревьюера, написавшего обзор",
+      "level_id": "ID уровня, на который написан обзор",
+      "level_name": "Название уровня, на который написан обзор. Ожидается, что уже отформатировано как код",
+      "review_text": "Текст ревью",
+      "summary": "Итоговое мнение ревьюера об уровне (хороший/плохой). Варианты представлены отдельными шаблонами"
+    },
+    "eng": "{request_author}, {reviewer_mention} wrote a review of your level {level_name} (ID: {level_id}):\n{review_text}\n**Summary:** {summary}",
+    "rus": "{request_author}, {reviewer_mention} написал обзор на уровень {level_name} (ID: {level_id}):\n{review_text}\n**Итог:** {summary}"
+  },
+  "request.review.summary.good": {
+    "description": "Итоговая оценка уровня в ревью (хороший)",
+    "eng": "Good level :yes~1:",
+    "rus": "Хороший уровень :yes~1:"
+  },
+  "request.review.summary.bad": {
+    "description": "Итоговая оценка уровня в ревью (плохой)",
+    "eng": "Needs improvement :no~1:",
+    "rus": "Требует доработок :no~1:"
+  },
+  "request.approved": {
+    "description": "Уведомление об одобрении реквеста (с призывом его автора)",
+    "param_descriptions": {
+      "request_author": "Тег автора реквеста",
+      "responsible_mod_mention": "Тег модератора, одобрившего уровень",
+      "level_id": "ID одобренного уровня",
+      "level_name": "Название одобренного уровня. Ожидается, что уже отформатировано как код",
+      "grade": "Концовка сообщения, поясняющая, на что отправили. Варианты представлены отдельными шаблонами"
+    },
+    "eng": "{request_author}, your level {level_name} (ID: {level_id}) was sent for {grade} by {responsible_mod_mention}",
+    "rus": "{request_author}, модератор {responsible_mod_mention} отправил уровень {level_name} (ID: {level_id}) на {grade}"
+  },
+  "request.approved.grade.starrate": {
+    "description": "На что был отправлен уровень (старрейт)",
+    "eng": "star rate",
+    "rus": "старрейт"
+  },
+  "request.approved.grade.featured": {
+    "description": "На что был отправлен уровень (фичур)",
+    "eng": "feature",
+    "rus": "фичур"
+  },
+  "request.approved.grade.epic": {
+    "description": "На что был отправлен уровень (эпик)",
+    "eng": "epic",
+    "rus": "эпик"
+  },
+  "request.approved.grade.mythic": {
+    "description": "На что был отправлен уровень (мифик)",
+    "eng": "mythic",
+    "rus": "мифик"
+  },
+  "request.approved.grade.legendary": {
+    "description": "На что был отправлен уровень (лега)",
+    "eng": "legendary",
+    "rus": "легу"
+  },
+  "request.rejected": {
+    "description": "Уведомление об отклонении реквеста (с призывом его автора)",
+    "param_descriptions": {
+      "request_author": "Тег автора реквеста",
+      "responsible_mod_mention": "Тег модератора, отклонившего уровень",
+      "level_id": "ID отклоненного уровня",
+      "level_name": "Название отклоненного уровня. Ожидается, что уже отформатировано как код",
+      "reason": "Причина отклонения"
+    },
+    "eng": "{request_author}, your level {level_name} (ID: {level_id}) was rejected by {responsible_mod_mention} with a following reason:\n{reason}",
+    "rus": "{request_author}, модератор {responsible_mod_mention} отклонил уровень {level_name} (ID: {level_id}). Причина:\n{reason}"
+  },
   "confirmation.override_filter": {
     "description": "Подтверждение перезаписи существующего фильтра",
     "param_descriptions": {

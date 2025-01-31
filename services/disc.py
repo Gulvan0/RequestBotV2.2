@@ -41,7 +41,7 @@ def member_language(member: discord.Member, locale: Locale | None) -> MemberLang
 async def respond(
     inter: discord.Interaction,
     template: str | list[str] | Template | TextPieceID,
-    substitutions: dict[str, str] | None = None,
+    substitutions: dict[str, str | TextPieceID] | None = None,
     ephemeral: bool = False,
     followup: bool = False
 ) -> None:
@@ -118,10 +118,17 @@ async def post(
     route: RouteID,
     text: TextPieceID,
     language: Language | list[Language] | tuple[Language, ...] = (Language.RU, Language.EN),
-    substitutions: dict[str, str] | None = None
+    substitutions: dict[str, str | TextPieceID] | None = None
 ) -> Message | None:
     if isinstance(language, Language):
         message_text = render_text(text, language, substitutions or {})
     else:
         message_text = '\n---\n'.join([render_text(text, current_lang, substitutions or {}) for current_lang in language])
     return await post_raw_text(route, message_text)
+
+
+async def find_message(channel_id: int, message_id: int) -> Message | None:
+    channel = CONFIG.bot.get_channel(channel_id)
+    if channel:
+        return await channel.fetch_message(message_id)
+    return None

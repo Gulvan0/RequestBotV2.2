@@ -16,6 +16,10 @@ class TimestampStyle(StrEnum):
     RELATIVE = "R"
 
 
+def as_link(url: str, text: str) -> str:
+    return f'[{text}]({url})'
+
+
 def as_code(line: str | int | float) -> str:
     return f'`{str(line)}`'
 

@@ -3,7 +3,7 @@ from typing import Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
-from util.datatypes import Opinion, CooldownEntity, Language, Resolution
+from util.datatypes import Opinion, CooldownEntity, Language
 from util.format import as_code, as_user
 from util.identifiers import LoggedEventTypeID, ParameterID, RouteID, TextPieceID, PermissionFlagID, UserPreferenceID
 
@@ -86,6 +86,7 @@ class Request(SQLModel, table=True):
     id: int | None = Field(primary_key=True)
 
     level_id: int
+    level_name: str
     language: Language
     yt_link: str | None
     additional_comment: str | None
@@ -94,14 +95,12 @@ class Request(SQLModel, table=True):
     is_author_user_id: bool = True
 
     details_message_id: int | None  # reviewers' widget when unresolved, else archive entry
-    finalization_message_id: int | None
-
-    resolution: Resolution | None
-    resolver_user_id: int | None
+    details_message_channel_id: int | None
+    resolution_message_id: int | None
+    resolution_message_channel_id: int | None
 
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))  # on command executed successfully
     requested_at: datetime | None  # on modal submitted successfully
-    resolved_at: datetime | None  # on final resolution provided
 
     opinions: list["RequestOpinion"] = Relationship(back_populates="request")
     reviews: list["RequestReview"] = Relationship(back_populates="request")
@@ -117,6 +116,7 @@ class RequestOpinion(SQLModel, table=True):
     author_user_id: int = Field(primary_key=True)
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     opinion: Opinion
+    is_resolution: bool = False
 
     request_id: int = Field(foreign_key="request.id")
     request: Request = Relationship(back_populates="opinions", sa_relationship_kwargs=dict(foreign_keys="RequestOpinion.request_id"))

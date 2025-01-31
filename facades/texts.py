@@ -71,7 +71,10 @@ def render_text(piece_id: TextPieceID, lang: Language, substitutions: dict[str, 
 
     s = get_template(piece_id, lang)
     for key, value in substitutions.items():
-        s = s.replace('{' + key + '}', str(value))
+        s = s.replace(
+            '{' + key + '}',
+            render_text(value, lang) if isinstance(value, TextPieceID) else str(value)
+        )
     return s
 
 
