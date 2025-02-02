@@ -11,7 +11,6 @@ import discord
 from sqlmodel.sql._expression_select_cls import Select, SelectOfScalar
 
 from database.models import LoggedEvent, StoredLogFilter
-import services.disc
 from util.exceptions import AlreadySatisfiesError
 from util.format import as_code_block, logs_member_ref
 from util.identifiers import LoggedEventTypeID, RouteID
@@ -65,6 +64,7 @@ async def add_entry(event_type: LoggedEventTypeID, user: discord.Member | None =
     )
     event_dict.update(custom_data)
     posted_message = as_code_block(yaml.safe_dump(event_dict, sort_keys=False), "yaml")
+    import services.disc
     await services.disc.post_raw_text(RouteID.LOG, posted_message)
 
     custom_data_str = json.dumps(custom_data) if custom_data else "{}"

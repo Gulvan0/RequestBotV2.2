@@ -86,8 +86,8 @@ class Request(SQLModel, table=True):
     id: int | None = Field(primary_key=True)
 
     level_id: int
-    level_name: str
     language: Language
+    level_name: str | None
     yt_link: str | None
     additional_comment: str | None
 
@@ -113,7 +113,7 @@ class Request(SQLModel, table=True):
 class RequestOpinion(SQLModel, table=True):
     id: int | None = Field(primary_key=True)
 
-    author_user_id: int = Field(primary_key=True)
+    author_user_id: int
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     opinion: Opinion
     is_resolution: bool = False

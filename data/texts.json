@@ -89,6 +89,31 @@
     "eng": "You're trying to save an empty filter, which is pointless. Hence, no filter will be saved",
     "rus": "Фильтр пуст, поэтому он не будет сохранен (сохранять пустой фильтр не имеет смысла)"
   },
+  "request_modal.title": {
+    "description": "Заголовок окна, всплывающего при создании реквеста (в нем можно указать ссылку на YouTube и доп. комментарий)",
+    "eng": "Request Submission",
+    "rus": "Создание реквеста"
+  },
+  "request_modal.yt_link.label": {
+    "description": "Название поля для ввода ссылки на YouTube-шоукейс уровня",
+    "eng": "YouTube Showcase Link",
+    "rus": "Ссылка на YouTube-шоукейс уровня"
+  },
+  "request_modal.additional_comment.label": {
+    "description": "Название необязательного поля для ввода дополнительного комментария к реквесту",
+    "eng": "Comment",
+    "rus": "Комментарий"
+  },
+  "request_modal.additional_comment.placeholder": {
+    "description": "Текст, отображающийся в необязательном поле для ввода дополнительного комментария к реквесту, пока оно пустое",
+    "eng": "Anything you want to add regarding this submission (optional)",
+    "rus": "Любая дополнительная полезная информация касательно этого реквеста (необязательно)"
+  },
+  "request_modal.invalid_yt_link": {
+    "description": "Ошибка, возникающая при попытке отправить реквест с неверной ссылкой на шоукейс",
+    "eng": "Failed to submit a level request: wrong showcase link!",
+    "rus": "Не удалось отправить реквест: неверная ссылка на шоукейс!"
+  },
   "request_command.closed": {
     "description": "Сообщение, выводящееся при попытке создать новый реквест в момент, когда очередь закрыта",
     "eng": "Sorry, the requests are temporarily closed. Follow the announcements to be notified when the queue will be reopened",

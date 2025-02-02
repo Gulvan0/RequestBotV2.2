@@ -2,9 +2,10 @@ import discord
 from discord import app_commands, Interaction
 from discord.ext import commands
 
+from components.modals.RequestSubmissionModal import RequestSubmissionModal
 from facades.cooldowns import get_current_cooldown, get_current_cooldown_eagerly
 from facades.requests import assert_level_requestable, create_limbo_request, LevelAlreadyApprovedException, PreviousLevelRequestPendingException
-from services.disc import requires_permission, respond
+from services.disc import member_language, requires_permission, respond
 from services.gd import get_level, LevelGrade
 from util.datatypes import CooldownEntity
 from util.format import as_code, as_timestamp, as_user, TimestampStyle
@@ -106,9 +107,11 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
             )
             return
 
-        await create_limbo_request(level_id, inter)
+        request_language = member_language(inter.user, inter.locale).language
 
-        await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
+        request_id = await create_limbo_request(level_id, request_language, inter.user)
+
+        await inter.response.send_modal(RequestSubmissionModal(request_id, request_language))
 
 
 async def setup(bot):

@@ -14,6 +14,7 @@ from util.identifiers import TextPieceID
 import typing as tp
 
 
+# This view won't persist after restart. It is assumed to be short-lived due to its purpose
 class ConfirmationView(discord.ui.View):
     user: discord.Member
     message: discord.Message | None = None

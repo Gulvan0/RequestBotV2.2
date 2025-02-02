@@ -11,6 +11,7 @@ from util.format import as_code_block
 from util.identifiers import TextPieceID
 
 
+# No pagination persists after the bot's restart either. They are assumed to be single-use views
 class GenericPaginationView(ABC, discord.ui.View):
     def __init__(self) -> None:
         super().__init__(timeout=300)

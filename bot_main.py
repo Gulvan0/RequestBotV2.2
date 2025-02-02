@@ -7,8 +7,12 @@ import logging
 import os
 import typing as tp
 
+from discord import InteractionType
 from discord.ext import commands
 from discord.utils import _ColourFormatter
+
+from components.modals.RequestSubmissionModal import RequestSubmissionModal
+from components.views.pending_request_widget import PendingRequestWidgetApproveAndReviewBtn, PendingRequestWidgetJustApproveBtn, PendingRequestWidgetJustRejectBtn, PendingRequestWidgetRejectAndReviewBtn
 from config.texts import validate as validate_texts
 from config.routes import validate as validate_routes
 from config.parameters import validate as validate_parameters
@@ -73,6 +77,17 @@ class RequestBot(commands.Bot):
             result = await self.tree.sync(guild=guild)
             self.synced = not self.synced
             self.logger.info(f"Synced command tree: {len(result)} commands")
+
+        self.add_dynamic_items(PendingRequestWidgetApproveAndReviewBtn)
+        self.add_dynamic_items(PendingRequestWidgetRejectAndReviewBtn)
+        self.add_dynamic_items(PendingRequestWidgetJustApproveBtn)
+        self.add_dynamic_items(PendingRequestWidgetJustRejectBtn)
+
+    @staticmethod
+    async def on_interaction(inter: discord.Interaction):
+        custom_id = inter.data.get("custom_id")
+        if custom_id and custom_id.startswith("rsm:") and inter.type == InteractionType.modal_submit:
+            await RequestSubmissionModal.handle_interaction(inter)
 
     def run(self, *args: tp.Any, **kwargs: tp.Any) -> None:
         try:

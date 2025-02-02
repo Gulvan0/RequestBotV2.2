@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from os import PathLike
 
 import discord
-from discord import File, Locale, Message
+from discord import Embed, File, Locale, Message
 from discord.app_commands import commands
 
 from config.stage_parameters import get_value as get_stage_parameter_value
@@ -105,13 +105,14 @@ def requires_permission(permission: PermissionFlagID):
 
 async def post_raw_text(
     route: RouteID,
-    text: str,
-    view: discord.ui.View | None = None
+    text: str | None = None,
+    view: discord.ui.View | None = None,
+    embed: Embed | None = None
 ) -> Message | None:
     if not is_enabled(route):
         return None
     channel_id = get_channel_id(route)
-    return await CONFIG.bot.get_channel(channel_id).send(text, view=view)
+    return await CONFIG.bot.get_channel(channel_id).send(text, view=view, embed=embed)
 
 
 async def post(
