@@ -1,20 +1,17 @@
-from __future__ import annotations
-
-import traceback
-
 from discord import Interaction, TextStyle
 from discord.ui import Modal, TextInput
 
 import facades.texts  # Avoiding circular imports
 import facades.requests
+from components.modals.generic import GenericModal
 from facades.requests import InvalidYtLinkException
-from services.disc import respond, send_developers
+from services.disc import respond
 from util.datatypes import Language
 from util.identifiers import TextPieceID
 
 
-class RequestSubmissionModal(Modal):
-    def __init__(self, request_id: int = 0, language: Language = Language.EN) -> None:
+class RequestSubmissionModal(GenericModal):
+    def __init__(self, request_id: int, language: Language) -> None:
         super().__init__(
             title=facades.texts.render_text(TextPieceID.REQUEST_MODAL_TITLE, language),
             timeout=None,
@@ -43,19 +40,11 @@ class RequestSubmissionModal(Modal):
         self.add_item(self.yt_link_input)
         self.add_item(self.additional_comment_input)
 
-
     @classmethod
-    async def handle_interaction(cls, interaction: Interaction) -> None:
-        request_id = int(interaction.data.get("custom_id").split(":", 1)[1])
-        yt_link = ''
-        additional_comment = None
-        for component_row in interaction.data.get("components", []):
-            for comp in component_row.get("components", []):
-                match comp.get("custom_id"):
-                    case 'rsm:yli':
-                        yt_link = comp.get("value")
-                    case 'rsm:aci':
-                        additional_comment = comp.get("value")
+    async def process_submission(cls, interaction: Interaction, custom_id_fields: list[str], text_input_values: dict[str, str]) -> None:
+        request_id = int(custom_id_fields[0])
+        yt_link = text_input_values.get("rsm:yli") or ''
+        additional_comment = text_input_values.get("rsm:aci")
 
         try:
             await facades.requests.complete_request(request_id, yt_link, additional_comment, interaction.user)
@@ -63,9 +52,3 @@ class RequestSubmissionModal(Modal):
             await respond(interaction, TextPieceID.REQUEST_MODAL_INVALID_YT_LINK, ephemeral=True)
         else:
             await respond(interaction, TextPieceID.COMMON_SUCCESS, ephemeral=True)
-
-
-    async def on_error(self, interaction: Interaction, error: Exception) -> None:
-        error_details = "".join(traceback.format_exception(type(error), error, error.__traceback__))
-        await send_developers(error_details, "py")
-        self.stop()

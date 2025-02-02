@@ -114,6 +114,31 @@
     "eng": "Failed to submit a level request: wrong showcase link!",
     "rus": "Не удалось отправить реквест: неверная ссылка на шоукейс!"
   },
+  "request_opinion_modal.title": {
+    "description": "Заголовок окна, всплывающего, когда ревьюер оставляет свое мнение о реквесте",
+    "eng": "Submit Opinion",
+    "rus": "Отправка оценки"
+  },
+  "request_opinion_modal.reason.label": {
+    "description": "Название поля для ввода ревьюером причины отказа",
+    "eng": "Rejection Reason",
+    "rus": "Обоснование отказа"
+  },
+  "request_opinion_modal.reason.placeholder": {
+    "description": "Текст, отображающийся в поле для ввода ревьюером причины отказа, пока оно пустое",
+    "eng": "Why did you decide to reject this level?",
+    "rus": "Почему Вы решили отклонить этот уровень"
+  },
+  "request_opinion_modal.review.label": {
+    "description": "Название поля для ввода ревьюером текста обзора",
+    "eng": "Review Text",
+    "rus": "Текст обзора"
+  },
+  "request_opinion_modal.review.placeholder": {
+    "description": "Текст, отображающийся в поле для ввода ревьюером текста обзора, пока оно пустое",
+    "eng": "What are the strong and the weak sides of this level? How it can be improved? Be elaborate, but stay on-topic",
+    "rus": "Какие у этого уровня сильные и слабые стороны? Как его можно улучшить? Описывайте подробно, но говорите по существу"
+  },
   "request_command.closed": {
     "description": "Сообщение, выводящееся при попытке создать новый реквест в момент, когда очередь закрыта",
     "eng": "Sorry, the requests are temporarily closed. Follow the announcements to be notified when the queue will be reopened",

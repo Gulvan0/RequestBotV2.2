@@ -11,7 +11,10 @@ from discord import InteractionType
 from discord.ext import commands
 from discord.utils import _ColourFormatter
 
-from components.modals.RequestSubmissionModal import RequestSubmissionModal
+from components.modals.pre_approval import PreApprovalModal
+from components.modals.pre_rejection import PreRejectionModal
+from components.modals.pre_rejection_no_review import PreRejectionNoReviewModal
+from components.modals.request_submission import RequestSubmissionModal
 from components.views.pending_request_widget import PendingRequestWidgetApproveAndReviewBtn, PendingRequestWidgetJustApproveBtn, PendingRequestWidgetJustRejectBtn, PendingRequestWidgetRejectAndReviewBtn
 from config.texts import validate as validate_texts
 from config.routes import validate as validate_routes
@@ -86,8 +89,15 @@ class RequestBot(commands.Bot):
     @staticmethod
     async def on_interaction(inter: discord.Interaction):
         custom_id = inter.data.get("custom_id")
-        if custom_id and custom_id.startswith("rsm:") and inter.type == InteractionType.modal_submit:
-            await RequestSubmissionModal.handle_interaction(inter)
+        if custom_id and inter.type == InteractionType.modal_submit:
+            if custom_id.startswith("rsm:"):
+                await RequestSubmissionModal.handle_interaction(inter)
+            elif custom_id.startswith("prnrm:"):
+                await PreRejectionNoReviewModal.handle_interaction(inter)
+            elif custom_id.startswith("prm:"):
+                await PreRejectionModal.handle_interaction(inter)
+            elif custom_id.startswith("pam:"):
+                await PreApprovalModal.handle_interaction(inter)
 
     def run(self, *args: tp.Any, **kwargs: tp.Any) -> None:
         try:

@@ -1,7 +1,10 @@
 from discord import ButtonStyle, Interaction
 from discord.ui import Button, DynamicItem, View
 
-from services.disc import respond
+from components.modals.pre_approval import PreApprovalModal
+from components.modals.pre_rejection import PreRejectionModal
+from components.modals.pre_rejection_no_review import PreRejectionNoReviewModal
+from services.disc import member_language, respond
 from util.datatypes import Opinion
 from util.identifiers import TextPieceID
 
@@ -26,7 +29,7 @@ class PendingRequestWidgetApproveAndReviewBtn(DynamicItem[Button[View]], templat
         return cls(int(match.group("req_id")))
 
     async def callback(self, interaction: Interaction) -> None:
-        ...  # TODO: Show modal to provide a review, then call add_opinion
+        await interaction.response().send_modal(PreApprovalModal(self.request_id, member_language(interaction.user, interaction.locale).language))
 
 
 class PendingRequestWidgetRejectAndReviewBtn(DynamicItem[Button[View]], template=r'prw:rar:(?P<req_id>\d+)'):
@@ -46,7 +49,7 @@ class PendingRequestWidgetRejectAndReviewBtn(DynamicItem[Button[View]], template
         return cls(int(match.group("req_id")))
 
     async def callback(self, interaction: Interaction) -> None:
-        ...  # TODO: Show a modal to provide a review and an optional reason, then call add_opinion
+        await interaction.response().send_modal(PreRejectionModal(self.request_id, member_language(interaction.user, interaction.locale).language))
 
 
 class PendingRequestWidgetJustApproveBtn(DynamicItem[Button[View]], template=r'prw:ja:(?P<req_id>\d+)'):
@@ -67,7 +70,7 @@ class PendingRequestWidgetJustApproveBtn(DynamicItem[Button[View]], template=r'p
 
     async def callback(self, interaction: Interaction) -> None:
         import facades.requests
-        await facades.requests.add_opinion(interaction.user, self.request_id, interaction.message, Opinion.APPROVED)
+        await facades.requests.add_opinion(interaction.user, self.request_id, Opinion.APPROVED, interaction.message)
         await respond(interaction, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
 
@@ -88,7 +91,7 @@ class PendingRequestWidgetJustRejectBtn(DynamicItem[Button[View]], template=r'pr
         return cls(int(match.group("req_id")))
 
     async def callback(self, interaction: Interaction) -> None:
-        ...  # TODO: Show a modal to provide an optional reason, then call add_opinion
+        await interaction.response().send_modal(PreRejectionNoReviewModal(self.request_id, member_language(interaction.user, interaction.locale).language))
 
 
 class PendingRequestWidgetView(View):

@@ -174,7 +174,7 @@ async def _create_resolution_widget(
     first_reviewer: Member,
     first_opinion: Opinion,
     reasoning: str | None = None
-) -> None:
+) -> Message:
     opinion_str = _render_opinion(first_reviewer, reasoning)
     yes_text = opinion_str if first_opinion == Opinion.APPROVED else "No votes yet"
     no_text = opinion_str if first_opinion == Opinion.REJECTED else "No votes yet"
@@ -183,7 +183,7 @@ async def _create_resolution_widget(
     details_embed.colour = Colour.from_str("#128611")
     details_embed.add_field(name="Consensus", value=consensus, inline=False)
 
-    await post_raw_text(
+    return await post_raw_text(
         RouteID.RESOLUTION,
         view=ResolutionWidgetView(),
         embed=details_embed
@@ -206,7 +206,7 @@ async def _post_review(reviewer: Member, request: Request, opinion: Opinion, rev
     )
 
 
-async def add_opinion(reviewer: Member, request_id: int, review_widget_message: Message, opinion: Opinion, review_text: str | None = None, reason: str | None = None) -> None:
+async def add_opinion(reviewer: Member, request_id: int, opinion: Opinion, review_widget_message: Message | None = None, review_text: str | None = None, reason: str | None = None) -> None:
     with Session(engine) as session:
         request: Request = session.get(Request, request_id)  # noqa
         assert request
@@ -239,30 +239,34 @@ async def add_opinion(reviewer: Member, request_id: int, review_widget_message: 
         session.add(request)
         session.commit()
 
-    formatted_reasoning = None
-    if associated_review_message:
-        formatted_reasoning = as_link(associated_review_message.jump_url, "Review")
-    elif reason:
-        formatted_reasoning = as_code(reason)
+        formatted_reasoning = None
+        if associated_review_message:
+            formatted_reasoning = as_link(associated_review_message.jump_url, "Review")
+        elif reason:
+            formatted_reasoning = as_code(reason)
 
-    if resolution_message_id and resolution_message_channel_id:
-        is_first = False
-        resolution_widget = await find_message(resolution_message_channel_id, resolution_message_id)
-        if resolution_widget:
-            await _append_opinion_to_resolution_widget(
-                resolution_widget,
+        if resolution_message_id and resolution_message_channel_id:
+            is_first = False
+            resolution_widget = await find_message(resolution_message_channel_id, resolution_message_id)
+            if resolution_widget:
+                await _append_opinion_to_resolution_widget(
+                    resolution_widget,
+                    reviewer,
+                    opinion,
+                    formatted_reasoning
+                )
+        else:
+            is_first = True
+            if not review_widget_message:
+                review_widget_message = find_message(request.details_message_channel_id, request.details_message_id)
+            resolution_message = await _create_resolution_widget(
+                review_widget_message.embeds[0],
                 reviewer,
                 opinion,
                 formatted_reasoning
             )
-    else:
-        is_first = True
-        await _create_resolution_widget(
-            review_widget_message.embeds[0],
-            reviewer,
-            opinion,
-            formatted_reasoning
-        )
+            request.resolution_message_id = resolution_message.id
+            request.resolution_message_channel_id = resolution_message.channel.id
 
     await add_entry(LoggedEventTypeID.REQUEST_OPINION_ADDED, reviewer, dict(
         request_id=request_id,
