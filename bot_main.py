@@ -11,11 +11,14 @@ from discord import InteractionType
 from discord.ext import commands
 from discord.utils import _ColourFormatter
 
+from components.modals.approval import ApprovalModal
 from components.modals.pre_approval import PreApprovalModal
 from components.modals.pre_rejection import PreRejectionModal
 from components.modals.pre_rejection_no_review import PreRejectionNoReviewModal
+from components.modals.rejection import RejectionModal
 from components.modals.request_submission import RequestSubmissionModal
 from components.views.pending_request_widget import PendingRequestWidgetApproveAndReviewBtn, PendingRequestWidgetJustApproveBtn, PendingRequestWidgetJustRejectBtn, PendingRequestWidgetRejectAndReviewBtn
+from components.views.resolution_widget import ResolutionWidgetEpicBtn, ResolutionWidgetFeatureBtn, ResolutionWidgetLegendaryBtn, ResolutionWidgetMythicBtn, ResolutionWidgetRejectBtn, ResolutionWidgetStarrateBtn
 from config.texts import validate as validate_texts
 from config.routes import validate as validate_routes
 from config.parameters import validate as validate_parameters
@@ -85,6 +88,12 @@ class RequestBot(commands.Bot):
         self.add_dynamic_items(PendingRequestWidgetRejectAndReviewBtn)
         self.add_dynamic_items(PendingRequestWidgetJustApproveBtn)
         self.add_dynamic_items(PendingRequestWidgetJustRejectBtn)
+        self.add_dynamic_items(ResolutionWidgetStarrateBtn)
+        self.add_dynamic_items(ResolutionWidgetFeatureBtn)
+        self.add_dynamic_items(ResolutionWidgetEpicBtn)
+        self.add_dynamic_items(ResolutionWidgetMythicBtn)
+        self.add_dynamic_items(ResolutionWidgetLegendaryBtn)
+        self.add_dynamic_items(ResolutionWidgetRejectBtn)
 
     @staticmethod
     async def on_interaction(inter: discord.Interaction):
@@ -98,6 +107,10 @@ class RequestBot(commands.Bot):
                 await PreRejectionModal.handle_interaction(inter)
             elif custom_id.startswith("pam:"):
                 await PreApprovalModal.handle_interaction(inter)
+            elif custom_id.startswith("am:"):
+                await ApprovalModal.handle_interaction(inter)
+            elif custom_id.startswith("rm:"):
+                await RejectionModal.handle_interaction(inter)
 
     def run(self, *args: tp.Any, **kwargs: tp.Any) -> None:
         try:

@@ -23,6 +23,7 @@ class LoggedEventTypeID(Enum):
 class TextPieceID(Enum):
     COMMON_SUCCESS = "common.success"
     COMMON_LANGUAGE_SELECTION_PROPOSAL_SUBTEXT = "common.language_selection_proposal_subtext"
+    COMMON_NOT_SPECIFIED = "common.not_specified"
     PERMISSION_NO_ASSIGNED_ROLES = "permission.no_assigned_roles"
     PERMISSION_MEMBER_HAS_NO_PERMISSIONS = "permission.member_has_no_permissions"
     PAGINATION_TOP_REACHED = "pagination.top_reached"
@@ -92,6 +93,7 @@ class RouteID(Enum):
     REVIEW_TEXT = "review_text"
     REQUESTS_CLOSED = "requests_closed"
     REQUESTS_REOPENED = "requests_reopened"
+    ARCHIVE = "archive"
 
 
 @unique

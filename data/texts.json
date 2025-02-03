@@ -9,6 +9,11 @@
     "eng": "If you don't speak Russian or you don't want to see this note, use `/language` to set the bot's language",
     "rus": "Если Вы говорите по-русски или не хотите видеть это примечание, установите язык бота командой `/language`"
   },
+  "common.not_specified": {
+    "description": "Фрагмент текста, отображающийся везде, где требуется значение опционального поля, когда оно не было указано. Например, причина отклонения реквеста",
+    "eng": "Not specified",
+    "rus": "Не указано"
+  },
   "permission.no_assigned_roles": {
     "description": "Сообщение, которое выводится при попытке вывести роли, связанные с разрешениями бота, когда ни одной такой роли нет",
     "eng": "No role is granted with bot permissions",

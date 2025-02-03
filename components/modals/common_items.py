@@ -6,11 +6,11 @@ from util.datatypes import Language
 from util.identifiers import TextPieceID
 
 
-def get_review_text_input(custom_id: str, language: Language) -> TextInput:
+def get_review_text_input(custom_id: str, language: Language, required: bool = True) -> TextInput:
     return TextInput(
         label=facades.texts.render_text(TextPieceID.REQUEST_OPINION_MODAL_REVIEW_LABEL, language),
         placeholder=facades.texts.render_text(TextPieceID.REQUEST_OPINION_MODAL_REVIEW_PLACEHOLDER, language),
-        required=True,
+        required=required,
         min_length=40,
         max_length=400,
         style=TextStyle.long,

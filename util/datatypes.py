@@ -89,3 +89,12 @@ class CooldownEntity(StrEnum):
 class Opinion(StrEnum):
     APPROVED = auto()
     REJECTED = auto()
+
+
+@unique
+class SendType(StrEnum):
+    STARRATE = 's'
+    FEATURE = 'f'
+    EPIC = 'e'
+    LEGENDARY = 'l'
+    MYTHIC = 'm'

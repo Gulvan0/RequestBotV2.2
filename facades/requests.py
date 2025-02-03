@@ -13,7 +13,7 @@ from facades.eventlog import add_entry
 from services.disc import find_message, post, post_raw_text
 from services.gd import get_level
 from services.yt import get_video_id_by_url
-from util.datatypes import Opinion
+from util.datatypes import Opinion, SendType
 from util.format import as_code, as_link, as_user
 from util.identifiers import LoggedEventTypeID, RouteID, TextPieceID
 
@@ -141,6 +141,14 @@ async def complete_request(request_id: int, yt_link: str, additional_comment: st
     ))
 
 
+def _render_reasoning(associated_review_message: Message | None, reason: str | None) -> str | None:
+    if associated_review_message:
+        return as_link(associated_review_message.jump_url, "Review")
+    elif reason:
+        return as_code(reason)
+    return None
+
+
 def _render_opinion(reviewer: Member, reasoning: str | None = None) -> str:
     text = as_user(reviewer.id)
     if reasoning:
@@ -153,23 +161,58 @@ async def _append_opinion_to_resolution_widget(resolution_widget: Message, revie
     row_prefix = f":{emoji_short_name}~1:: "
     rendered_opinion = _render_opinion(reviewer, reasoning)
 
-    lines = resolution_widget.content.split('\n')
-    for i, line in enumerate(lines):
-        if not line.startswith(row_prefix):
-            continue
-        remainder = line.removeprefix(row_prefix).strip()
-        if remainder == "No votes yet":
-            remainder = rendered_opinion
-        else:
-            remainder += f", {rendered_opinion}"
-        lines[i] = row_prefix + remainder
+    resolution_embed = resolution_widget.embeds[0]
+    for field in resolution_embed.fields:
+        if field.name == "Consensus":
+            lines = field.value.split('\n')
+            line_index = 0 if opinion == Opinion.APPROVED else 1
+            remainder = lines[line_index].removeprefix(row_prefix).strip()
+            if remainder == "No votes yet":
+                remainder = rendered_opinion
+            else:
+                remainder += f", {rendered_opinion}"
+            lines[line_index] = row_prefix + remainder
+            field.value = '\n'.join(lines)
+            break
 
     await resolution_widget.edit(
-        content="\n".join(lines)
+        embed=resolution_embed
     )
 
 
+async def _append_resolution_to_resolution_widget(resolution_widget: Message, reviewer: Member, opinion: Opinion, reasoning: str | None = None) -> bool:
+    emoji_short_name = "yes" if opinion == Opinion.APPROVED else "no"
+    rendered_resolution = f":{emoji_short_name}~1::{_render_opinion(reviewer, reasoning)}"
+
+    resolution_embed = resolution_widget.embeds[0]
+    resolutions_field = None
+    for field in resolution_embed.fields:
+        if field.name == "Resolutions":
+            resolutions_field = field
+            break
+
+    if resolutions_field:
+        is_first = False
+        resolutions_field.value += f", {rendered_resolution}"
+    else:
+        is_first = True
+        resolution_embed.add_field(
+            name="Resolutions",
+            value=rendered_resolution,
+            inline=False
+        )
+
+    resolution_embed.colour = Colour.from_str("#128611")
+
+    await resolution_widget.edit(
+        embed=resolution_embed
+    )
+
+    return is_first
+
+
 async def _create_resolution_widget(
+    request_id: int,
     details_embed: Embed,
     first_reviewer: Member,
     first_opinion: Opinion,
@@ -180,12 +223,12 @@ async def _create_resolution_widget(
     no_text = opinion_str if first_opinion == Opinion.REJECTED else "No votes yet"
     consensus = f":yes~1:: {yes_text}\n:no~1:: {no_text}"
 
-    details_embed.colour = Colour.from_str("#128611")
+    details_embed.colour = Colour.from_str("#990000")
     details_embed.add_field(name="Consensus", value=consensus, inline=False)
 
     return await post_raw_text(
         RouteID.RESOLUTION,
-        view=ResolutionWidgetView(),
+        view=ResolutionWidgetView(request_id),
         embed=details_embed
     )
 
@@ -239,11 +282,7 @@ async def add_opinion(reviewer: Member, request_id: int, opinion: Opinion, revie
         session.add(request)
         session.commit()
 
-        formatted_reasoning = None
-        if associated_review_message:
-            formatted_reasoning = as_link(associated_review_message.jump_url, "Review")
-        elif reason:
-            formatted_reasoning = as_code(reason)
+        formatted_reasoning = _render_reasoning(associated_review_message, reason)
 
         if resolution_message_id and resolution_message_channel_id:
             is_first = False
@@ -260,6 +299,7 @@ async def add_opinion(reviewer: Member, request_id: int, opinion: Opinion, revie
             if not review_widget_message:
                 review_widget_message = find_message(request.details_message_channel_id, request.details_message_id)
             resolution_message = await _create_resolution_widget(
+                request_id,
                 review_widget_message.embeds[0],
                 reviewer,
                 opinion,
@@ -269,6 +309,101 @@ async def add_opinion(reviewer: Member, request_id: int, opinion: Opinion, revie
             request.resolution_message_channel_id = resolution_message.channel.id
 
     await add_entry(LoggedEventTypeID.REQUEST_OPINION_ADDED, reviewer, dict(
+        request_id=request_id,
+        level_id=str(level_id),
+        level_name=level_name,
+        opinion=opinion.value,
+        is_first=str(is_first),
+        review_msg_url=associated_review_message.jump_url if associated_review_message else "NO_REVIEW",
+        reason=reason or "NO_REASON"
+    ))
+
+
+async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | None, review_text: str | None = None, reason: str | None = None):
+    opinion = Opinion.APPROVED if sent_for else Opinion.REJECTED
+
+    with Session(engine) as session:
+        request: Request = session.get(Request, request_id)  # noqa
+        assert request
+
+        # Eagerly reading all the properties so as not to trigger entity refresh later
+        level_id = request.level_id
+        level_name = request.level_name
+
+        associated_review = None
+        associated_review_message = None
+        if review_text:
+            associated_review_message = await _post_review(resolving_mod, request, opinion, review_text)
+            associated_review = RequestReview(
+                author_user_id=resolving_mod.id,
+                text=review_text,
+                message_id=associated_review_message.id,
+                opinion=opinion,
+                request=request
+            )
+
+        request.opinions.append(RequestOpinion(
+            author_user_id=resolving_mod.id,
+            opinion=opinion,
+            is_resolution=True,
+            request_id=request_id,
+            associated_review=associated_review
+        ))
+
+        formatted_reasoning = _render_reasoning(associated_review_message, reason)
+        resolution_widget = await find_message(request.resolution_message_channel_id, request.resolution_message_id)
+        assert resolution_widget
+        is_first = await _append_resolution_to_resolution_widget(resolution_widget, resolving_mod, opinion, formatted_reasoning)
+
+        if is_first:
+            review_widget = await find_message(request.details_message_channel_id, request.details_message_id)
+            assert review_widget
+
+            archive_message = await post_raw_text(RouteID.ARCHIVE, embed=review_widget.embeds[0])
+
+            request.details_message_id = archive_message.id
+            request.details_message_channel_id = archive_message.channel.id
+
+            await review_widget.delete()
+
+        session.add(request)
+        session.commit()
+
+        if opinion == Opinion.APPROVED:
+            grade_text_pieces = {
+                SendType.STARRATE: TextPieceID.REQUEST_GRADE_STARRATE,
+                SendType.FEATURE: TextPieceID.REQUEST_GRADE_FEATURED,
+                SendType.EPIC: TextPieceID.REQUEST_GRADE_EPIC,
+                SendType.MYTHIC: TextPieceID.REQUEST_GRADE_MYTHIC,
+                SendType.LEGENDARY: TextPieceID.REQUEST_GRADE_LEGENDARY,
+            }
+            await post(
+                RouteID.APPROVAL_NOTIFICATION,
+                TextPieceID.REQUEST_APPROVED,
+                request.language,
+                substitutions=dict(
+                    request_author=request.request_author_mention,
+                    responsible_mod_mention=resolving_mod.mention,
+                    level_id=request.level_id,
+                    level_name=request.level_name,
+                    grade=grade_text_pieces[sent_for]
+                )
+            )
+        else:
+            await post(
+                RouteID.REJECTION_NOTIFICATION,
+                TextPieceID.REQUEST_REJECTED,
+                request.language,
+                substitutions=dict(
+                    request_author=request.request_author_mention,
+                    responsible_mod_mention=resolving_mod.mention,
+                    level_id=request.level_id,
+                    level_name=request.level_name,
+                    reason=reason or TextPieceID.COMMON_NOT_SPECIFIED
+                )
+            )
+
+    await add_entry(LoggedEventTypeID.REQUEST_RESOLUTION_ADDED, resolving_mod, dict(
         request_id=request_id,
         level_id=str(level_id),
         level_name=level_name,

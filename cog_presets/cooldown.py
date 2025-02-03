@@ -59,7 +59,7 @@ class CooldownPreset:
                     ends_at=ends_at_str,
                     casted_at=casted_at_str,
                     caster_mention=as_user(cooldown.caster_user_id),
-                    reason=cooldown.reason or as_code("-")
+                    reason=cooldown.reason or TextPieceID.COMMON_NOT_SPECIFIED
                 ),
                 ephemeral=True
             )
