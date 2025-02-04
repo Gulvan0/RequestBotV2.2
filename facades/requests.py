@@ -157,8 +157,8 @@ def _render_opinion(reviewer: Member, reasoning: str | None = None) -> str:
 
 
 async def _append_opinion_to_resolution_widget(resolution_widget: Message, reviewer: Member, opinion: Opinion, reasoning: str | None = None) -> None:
-    emoji_short_name = "yes" if opinion == Opinion.APPROVED else "no"
-    row_prefix = f":{emoji_short_name}~1:: "
+    emoji = "<:yes:1154748625251999744>" if opinion == Opinion.APPROVED else "<:no:1154748651827110010>"
+    row_prefix = f"{emoji}: "
     rendered_opinion = _render_opinion(reviewer, reasoning)
 
     resolution_embed = resolution_widget.embeds[0]
@@ -181,8 +181,8 @@ async def _append_opinion_to_resolution_widget(resolution_widget: Message, revie
 
 
 async def _append_resolution_to_resolution_widget(resolution_widget: Message, reviewer: Member, opinion: Opinion, reasoning: str | None = None) -> bool:
-    emoji_short_name = "yes" if opinion == Opinion.APPROVED else "no"
-    rendered_resolution = f":{emoji_short_name}~1::{_render_opinion(reviewer, reasoning)}"
+    emoji = "<:yes:1154748625251999744>" if opinion == Opinion.APPROVED else "<:no:1154748651827110010>"
+    rendered_resolution = f"{emoji}:{_render_opinion(reviewer, reasoning)}"
 
     resolution_embed = resolution_widget.embeds[0]
     resolutions_field = None
@@ -221,7 +221,7 @@ async def _create_resolution_widget(
     opinion_str = _render_opinion(first_reviewer, reasoning)
     yes_text = opinion_str if first_opinion == Opinion.APPROVED else "No votes yet"
     no_text = opinion_str if first_opinion == Opinion.REJECTED else "No votes yet"
-    consensus = f":yes~1:: {yes_text}\n:no~1:: {no_text}"
+    consensus = f"<:yes:1154748625251999744>: {yes_text}\n<:no:1154748651827110010>: {no_text}"
 
     details_embed.colour = Colour.from_str("#990000")
     details_embed.add_field(name="Consensus", value=consensus, inline=False)
@@ -271,6 +271,7 @@ async def add_opinion(reviewer: Member, request_id: int, opinion: Opinion, revie
                 opinion=opinion,
                 request=request
             )
+            session.add(associated_review)
 
         request.opinions.append(RequestOpinion(
             author_user_id=reviewer.id,
@@ -278,9 +279,6 @@ async def add_opinion(reviewer: Member, request_id: int, opinion: Opinion, revie
             request_id=request_id,
             associated_review=associated_review
         ))
-
-        session.add(request)
-        session.commit()
 
         formatted_reasoning = _render_reasoning(associated_review_message, reason)
 
@@ -297,7 +295,7 @@ async def add_opinion(reviewer: Member, request_id: int, opinion: Opinion, revie
         else:
             is_first = True
             if not review_widget_message:
-                review_widget_message = find_message(request.details_message_channel_id, request.details_message_id)
+                review_widget_message = await find_message(request.details_message_channel_id, request.details_message_id)
             resolution_message = await _create_resolution_widget(
                 request_id,
                 review_widget_message.embeds[0],
@@ -307,6 +305,9 @@ async def add_opinion(reviewer: Member, request_id: int, opinion: Opinion, revie
             )
             request.resolution_message_id = resolution_message.id
             request.resolution_message_channel_id = resolution_message.channel.id
+
+        session.add(request)
+        session.commit()
 
     await add_entry(LoggedEventTypeID.REQUEST_OPINION_ADDED, reviewer, dict(
         request_id=request_id,
@@ -341,6 +342,7 @@ async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | N
                 opinion=opinion,
                 request=request
             )
+            session.add(associated_review)
 
         request.opinions.append(RequestOpinion(
             author_user_id=resolving_mod.id,

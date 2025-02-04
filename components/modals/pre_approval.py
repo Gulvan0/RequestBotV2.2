@@ -1,7 +1,6 @@
 from discord import Interaction
 
 import facades.texts  # Avoiding circular imports
-import facades.requests
 from components.modals.common_items import get_review_text_input
 from components.modals.generic import GenericModal
 from services.disc import respond
@@ -24,5 +23,6 @@ class PreApprovalModal(GenericModal):
         request_id = int(custom_id_fields[0])
         review_text = text_input_values.get("pam:rti")
 
+        import facades.requests
         await facades.requests.add_opinion(interaction.user, request_id, Opinion.APPROVED, review_text=review_text)
         await respond(interaction, TextPieceID.COMMON_SUCCESS, ephemeral=True)

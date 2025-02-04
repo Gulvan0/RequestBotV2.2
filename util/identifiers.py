@@ -47,6 +47,7 @@ class TextPieceID(Enum):
     REQUEST_OPINION_MODAL_REASON_PLACEHOLDER = "request_opinion_modal.reason.placeholder"
     REQUEST_OPINION_MODAL_REVIEW_LABEL = "request_opinion_modal.review.label"
     REQUEST_OPINION_MODAL_REVIEW_PLACEHOLDER = "request_opinion_modal.review.placeholder"
+    REQUEST_COMMAND_SUBMITTED = "request_command.submitted"
     REQUEST_COMMAND_CLOSED = "request_command.closed"
     REQUEST_COMMAND_ALREADY_RATED = "request_command.already_rated"
     REQUEST_COMMAND_NOT_FOUND = "request_command.not_found"

@@ -1,7 +1,6 @@
 from discord import Interaction
 
 import facades.texts  # Avoiding circular imports
-import facades.requests
 from components.modals.common_items import get_reason_text_input, get_review_text_input
 from components.modals.generic import GenericModal
 from services.disc import respond
@@ -26,5 +25,6 @@ class PreRejectionModal(GenericModal):
         review_text = text_input_values.get("prm:rti")
         reason = text_input_values.get("prm:ri")
 
+        import facades.requests
         await facades.requests.add_opinion(interaction.user, request_id, Opinion.REJECTED, review_text=review_text, reason=reason)
         await respond(interaction, TextPieceID.COMMON_SUCCESS, ephemeral=True)

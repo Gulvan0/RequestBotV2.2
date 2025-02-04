@@ -63,11 +63,11 @@ async def add_entry(event_type: LoggedEventTypeID, user: discord.Member | None =
         timestamp=datetime.now().isoformat()
     )
     event_dict.update(custom_data)
-    posted_message = as_code_block(yaml.safe_dump(event_dict, sort_keys=False), "yaml")
+    posted_message = as_code_block(yaml.safe_dump(event_dict, sort_keys=False, allow_unicode=True), "yaml")
     import services.disc
     await services.disc.post_raw_text(RouteID.LOG, posted_message)
 
-    custom_data_str = json.dumps(custom_data) if custom_data else "{}"
+    custom_data_str = json.dumps(custom_data, ensure_ascii=False) if custom_data else "{}"
     with Session(engine) as session:
         new_entry = LoggedEvent(event_type=event_type, user_id=user.id if user else None, custom_data=custom_data_str)
         session.add(new_entry)
@@ -152,7 +152,7 @@ def update_filter_custom_field(current_filter_owner: discord.Member, key: str, v
         custom_data_dict[key] = value
     else:
         custom_data_dict.pop(key, None)
-    stored_filter.custom_data_values = json.dumps(custom_data_dict)
+    stored_filter.custom_data_values = json.dumps(custom_data_dict, ensure_ascii=False)
 
     with Session(engine) as session:
         session.add(stored_filter)

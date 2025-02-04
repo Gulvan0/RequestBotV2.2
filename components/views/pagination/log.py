@@ -45,7 +45,7 @@ class LogPaginationView(GenericPaginationView):
                 timestamp=event.timestamp.isoformat()
             )
             event_info.update(json.loads(event.custom_data))
-            line = as_code_block(yaml.safe_dump(event_info, sort_keys=False), "yaml")
+            line = as_code_block(yaml.safe_dump(event_info, sort_keys=False, allow_unicode=True), "yaml")
             lines.append(line)
 
         return lines

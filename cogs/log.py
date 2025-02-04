@@ -130,7 +130,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
             filter_dict.update(json.loads(log_filter.custom_data_values))
 
             # Here we don't format it as code block to preserve individual formats of values
-            await respond(inter, yaml.safe_dump(filter_dict, sort_keys=False), ephemeral=True)
+            await respond(inter, yaml.safe_dump(filter_dict, sort_keys=False, allow_unicode=True), ephemeral=True)
         elif not log_filter and name is not None:
             await respond(inter, TextPieceID.ERROR_FILTER_DOESNT_EXIST, substitutions=dict(name=as_code(name)), ephemeral=True)
         else:

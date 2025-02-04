@@ -51,4 +51,4 @@ class RequestSubmissionModal(GenericModal):
         except InvalidYtLinkException:
             await respond(interaction, TextPieceID.REQUEST_MODAL_INVALID_YT_LINK, ephemeral=True)
         else:
-            await respond(interaction, TextPieceID.COMMON_SUCCESS, ephemeral=True)
+            await respond(interaction, TextPieceID.REQUEST_COMMAND_SUBMITTED, ephemeral=True)

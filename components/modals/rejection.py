@@ -1,7 +1,6 @@
 from discord import Interaction
 
 import facades.texts  # Avoiding circular imports
-import facades.requests
 from components.modals.common_items import get_reason_text_input, get_review_text_input
 from components.modals.generic import GenericModal
 from services.disc import respond
@@ -26,6 +25,7 @@ class RejectionModal(GenericModal):
         review_text = text_input_values.get("rm:rti")
         reason = text_input_values.get("rm:ri")
 
+        import facades.requests
         await facades.requests.resolve(
             resolving_mod=interaction.user,
             request_id=request_id,

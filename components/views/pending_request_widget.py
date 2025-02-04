@@ -29,7 +29,7 @@ class PendingRequestWidgetApproveAndReviewBtn(DynamicItem[Button[View]], templat
         return cls(int(match.group("req_id")))
 
     async def callback(self, interaction: Interaction) -> None:
-        await interaction.response().send_modal(PreApprovalModal(self.request_id, member_language(interaction.user, interaction.locale).language))
+        await interaction.response.send_modal(PreApprovalModal(self.request_id, member_language(interaction.user, interaction.locale).language))
 
 
 class PendingRequestWidgetRejectAndReviewBtn(DynamicItem[Button[View]], template=r'prw:rar:(?P<req_id>\d+)'):
@@ -49,7 +49,7 @@ class PendingRequestWidgetRejectAndReviewBtn(DynamicItem[Button[View]], template
         return cls(int(match.group("req_id")))
 
     async def callback(self, interaction: Interaction) -> None:
-        await interaction.response().send_modal(PreRejectionModal(self.request_id, member_language(interaction.user, interaction.locale).language))
+        await interaction.response.send_modal(PreRejectionModal(self.request_id, member_language(interaction.user, interaction.locale).language))
 
 
 class PendingRequestWidgetJustApproveBtn(DynamicItem[Button[View]], template=r'prw:ja:(?P<req_id>\d+)'):
@@ -91,7 +91,7 @@ class PendingRequestWidgetJustRejectBtn(DynamicItem[Button[View]], template=r'pr
         return cls(int(match.group("req_id")))
 
     async def callback(self, interaction: Interaction) -> None:
-        await interaction.response().send_modal(PreRejectionNoReviewModal(self.request_id, member_language(interaction.user, interaction.locale).language))
+        await interaction.response.send_modal(PreRejectionNoReviewModal(self.request_id, member_language(interaction.user, interaction.locale).language))
 
 
 class PendingRequestWidgetView(View):
