@@ -1,6 +1,6 @@
 from discord import Interaction
 
-import facades.texts  # Avoiding circular imports
+import facades.texts
 from components.modals.common_items import get_reason_text_input, get_review_text_input
 from components.modals.generic import GenericModal
 from services.disc import respond

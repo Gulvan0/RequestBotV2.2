@@ -1,10 +1,10 @@
 from discord import Interaction
 
-import facades.texts  # Avoiding circular imports
+import facades.texts
 from components.modals.common_items import get_reason_text_input, get_review_text_input
 from components.modals.generic import GenericModal
 from services.disc import respond
-from util.datatypes import Language
+from util.datatypes import CooldownEntity, Language
 from util.identifiers import TextPieceID
 
 
@@ -26,6 +26,8 @@ class RejectionModal(GenericModal):
         reason = text_input_values.get("rm:ri")
 
         import facades.requests
+        import facades.cooldowns
+        
         await facades.requests.resolve(
             resolving_mod=interaction.user,
             request_id=request_id,
@@ -33,4 +35,8 @@ class RejectionModal(GenericModal):
             review_text=review_text,
             reason=reason
         )
+
+        request = await facades.requests.get_request_by_id(request_id)
+        await facades.cooldowns.cast_after_request(CooldownEntity.LEVEL, request.level_id, request_id)
+
         await respond(interaction, TextPieceID.COMMON_SUCCESS, ephemeral=True)

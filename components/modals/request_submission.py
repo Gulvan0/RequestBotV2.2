@@ -1,12 +1,13 @@
 from discord import Interaction, TextStyle
-from discord.ui import Modal, TextInput
+from discord.ui import TextInput
 
-import facades.texts  # Avoiding circular imports
+import facades.texts
 import facades.requests
+import facades.cooldowns
 from components.modals.generic import GenericModal
 from facades.requests import InvalidYtLinkException
 from services.disc import respond
-from util.datatypes import Language
+from util.datatypes import CooldownEntity, Language
 from util.identifiers import TextPieceID
 
 
@@ -51,4 +52,5 @@ class RequestSubmissionModal(GenericModal):
         except InvalidYtLinkException:
             await respond(interaction, TextPieceID.REQUEST_MODAL_INVALID_YT_LINK, ephemeral=True)
         else:
+            await facades.cooldowns.cast_after_request(CooldownEntity.USER, interaction.user.id, request_id)
             await respond(interaction, TextPieceID.REQUEST_COMMAND_SUBMITTED, ephemeral=True)

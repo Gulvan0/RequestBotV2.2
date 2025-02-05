@@ -1,7 +1,7 @@
 from discord import TextStyle
 from discord.ui import TextInput
 
-import facades.texts  # Avoiding circular imports
+import facades.texts
 from util.datatypes import Language
 from util.identifiers import TextPieceID
 

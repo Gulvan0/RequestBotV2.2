@@ -98,8 +98,8 @@ def _stringify_cooldown(ends_at: datetime | None | type[NO_COOLDOWN]) -> str:
         return "forever"
 
 
-async def __log_user_cooldown_update(
-    updater: Member,
+async def __log_cooldown_update(
+    updater: Member | None,
     entity: CooldownEntity,
     entity_id: int,
     old_ends_at: datetime | None | type[NO_COOLDOWN],
@@ -154,8 +154,9 @@ def get_current_cooldown_eagerly(entity_type: CooldownEntity, entity_id: int) ->
         return None
 
 
-def cast_after_request(entity_type: CooldownEntity, entity_id: int, request_id: int) -> None:
-    raw_cooldown_duration = facades.parameters.get_value(ParameterID.COOLDOWN_POST_REQUEST_USER_CD)
+async def cast_after_request(entity_type: CooldownEntity, entity_id: int, request_id: int) -> None:
+    amount_parameter = ParameterID.COOLDOWN_POST_REQUEST_USER_CD if entity_type == CooldownEntity.USER else ParameterID.COOLDOWN_POST_REJECT_LEVEL_CD
+    raw_cooldown_duration = facades.parameters.get_value(amount_parameter)
     if is_null_duration(raw_cooldown_duration):
         return
 
@@ -163,11 +164,13 @@ def cast_after_request(entity_type: CooldownEntity, entity_id: int, request_id: 
 
     now_datetime = datetime.now(UTC)
     new_ends_at = None if is_infinite_duration(raw_cooldown_duration) else now_datetime + parse_abs_duration(raw_cooldown_duration)
+    old_ends_at = current.exact_ends_at if current else None
 
     if current and not exceeds_current(current.exact_ends_at, new_ends_at):
         return
 
     reason_main_part = "Recently requested a level" if entity_type == CooldownEntity.USER else "Was recently requested"
+    reason = f"{reason_main_part} (request ID: {request_id})"
 
     current = _update_or_create(
         current=current,
@@ -175,13 +178,15 @@ def cast_after_request(entity_type: CooldownEntity, entity_id: int, request_id: 
         entity_id=entity_id,
         casted_at=now_datetime,
         ends_at=new_ends_at,
-        reason=f"{reason_main_part} (request ID: {request_id})",
+        reason=reason,
         causing_request_id=request_id
     )
 
     with Session(engine) as session:
         session.add(current)
         session.commit()
+
+    await __log_cooldown_update(None, entity_type, entity_id, old_ends_at, new_ends_at, reason)
 
 
 async def manually_set(entity_type: CooldownEntity, entity_id: int, caster: Member, duration: timedelta | None = None, reason: str | None = None, force: bool = False) -> None:
@@ -211,7 +216,7 @@ async def manually_set(entity_type: CooldownEntity, entity_id: int, caster: Memb
         session.add(current)
         session.commit()
 
-    await __log_user_cooldown_update(caster, entity_type, entity_id, old_ends_at, new_ends_at, reason)
+    await __log_cooldown_update(caster, entity_type, entity_id, old_ends_at, new_ends_at, reason)
 
 
 async def manually_modify(entity_type: CooldownEntity, entity_id: int, caster: Member, delta_with_current: timedelta, reason: str | None = None) -> None:
@@ -242,7 +247,7 @@ async def manually_modify(entity_type: CooldownEntity, entity_id: int, caster: M
         session.add(current)
         session.commit()
 
-    await __log_user_cooldown_update(caster, entity_type, entity_id, old_ends_at, new_ends_at, reason)
+    await __log_cooldown_update(caster, entity_type, entity_id, old_ends_at, new_ends_at, reason)
 
 
 async def manually_amend(entity_type: CooldownEntity, entity_id: int,  amending_user: Member, reason: str | None = None) -> None:
@@ -257,7 +262,7 @@ async def manually_amend(entity_type: CooldownEntity, entity_id: int,  amending_
         session.delete(current)
         session.commit()
 
-    await __log_user_cooldown_update(amending_user, entity_type, entity_id, old_ends_at, NO_COOLDOWN, reason)
+    await __log_cooldown_update(amending_user, entity_type, entity_id, old_ends_at, NO_COOLDOWN, reason)
 
 
 def list_temporary_cooldowns(entity: CooldownEntity, limit: int, offset: int = 0) -> list[CooldownInfo]:
