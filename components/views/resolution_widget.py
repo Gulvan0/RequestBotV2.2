@@ -17,6 +17,7 @@ class ResolutionWidgetStarrateBtn(DynamicItem[Button[View]], template=r'rw:sr:(?
             Button(
                 style=ButtonStyle.green,
                 label="Star Rate",
+                emoji="<:star:1154760039526043728>",
                 row=0,
                 custom_id=f"rw:sr:{request_id}"
             )
@@ -37,6 +38,7 @@ class ResolutionWidgetFeatureBtn(DynamicItem[Button[View]], template=r'rw:f:(?P<
             Button(
                 style=ButtonStyle.green,
                 label="Feature",
+                emoji="<:feature:1338215651633922099>",
                 row=0,
                 custom_id=f"rw:f:{request_id}"
             )
@@ -57,6 +59,7 @@ class ResolutionWidgetEpicBtn(DynamicItem[Button[View]], template=r'rw:e:(?P<req
             Button(
                 style=ButtonStyle.green,
                 label="Epic",
+                emoji="<:epic:1214976925202653224>",
                 row=0,
                 custom_id=f"rw:e:{request_id}"
             )
@@ -77,6 +80,7 @@ class ResolutionWidgetMythicBtn(DynamicItem[Button[View]], template=r'rw:m:(?P<r
             Button(
                 style=ButtonStyle.green,
                 label="Mythic",
+                emoji="<:mythic:1214976991783161948>",
                 row=0,
                 custom_id=f"rw:m:{request_id}"
             )
@@ -97,6 +101,7 @@ class ResolutionWidgetLegendaryBtn(DynamicItem[Button[View]], template=r'rw:l:(?
             Button(
                 style=ButtonStyle.green,
                 label="Legendary",
+                emoji="<:legendary:1214976961726906378>",
                 row=0,
                 custom_id=f"rw:l:{request_id}"
             )
@@ -117,6 +122,7 @@ class ResolutionWidgetRejectBtn(DynamicItem[Button[View]], template=r'rw:r:(?P<r
             Button(
                 style=ButtonStyle.red,
                 label="Reject",
+                emoji="<:no:1154748651827110010>",
                 row=1,
                 custom_id=f"rw:r:{request_id}"
             )

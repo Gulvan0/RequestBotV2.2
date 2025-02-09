@@ -4,12 +4,13 @@ from discord.ext import commands
 
 from components.modals.request_submission import RequestSubmissionModal
 from facades.cooldowns import get_current_cooldown_eagerly
+from facades.permissions import has_permission
 from facades.requests import assert_level_requestable, create_limbo_request, LevelAlreadyApprovedException, PreviousLevelRequestPendingException
 from services.disc import member_language, respond
 from services.gd import get_level, LevelGrade
 from util.datatypes import CooldownEntity
 from util.format import as_code, as_timestamp, as_user
-from util.identifiers import StageParameterID, TextPieceID
+from util.identifiers import PermissionFlagID, StageParameterID, TextPieceID
 from config.stage_parameters import get_value as get_stage_parameter_value
 
 
@@ -57,7 +58,7 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
     async def create(self, inter: discord.Interaction, level_id: app_commands.Range[int, 200, 1000000000]) -> None:
         # TODO (iterations 11.1-11.3): is queue open
 
-        if await self.check_request_cooldown(inter, CooldownEntity.USER, inter.user.id):
+        if not has_permission(inter.user, PermissionFlagID.NO_REQUEST_COOLDOWN) and await self.check_request_cooldown(inter, CooldownEntity.USER, inter.user.id):
             return
 
         try:

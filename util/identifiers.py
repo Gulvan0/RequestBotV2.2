@@ -117,6 +117,7 @@ class PermissionFlagID(Enum):
     GD_MOD = "gd_mod"
     BAN_LEVELS = "ban_levels"
     BAN_USERS = "ban_users"
+    NO_REQUEST_COOLDOWN = "no_request_cooldown"
     REMOVE_OTHER_LEVEL_BANS = "remove_other_level_bans"
     REMOVE_OTHER_USER_BANS = "remove_other_user_bans"
 

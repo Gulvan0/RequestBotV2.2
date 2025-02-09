@@ -5,10 +5,11 @@ import facades.texts
 import facades.requests
 import facades.cooldowns
 from components.modals.generic import GenericModal
+from facades.permissions import has_permission
 from facades.requests import InvalidYtLinkException
 from services.disc import respond
 from util.datatypes import CooldownEntity, Language
-from util.identifiers import TextPieceID
+from util.identifiers import PermissionFlagID, TextPieceID
 
 
 class RequestSubmissionModal(GenericModal):
@@ -52,5 +53,6 @@ class RequestSubmissionModal(GenericModal):
         except InvalidYtLinkException:
             await respond(interaction, TextPieceID.REQUEST_MODAL_INVALID_YT_LINK, ephemeral=True)
         else:
-            await facades.cooldowns.cast_after_request(CooldownEntity.USER, interaction.user.id, request_id)
+            if not has_permission(interaction.user, PermissionFlagID.NO_REQUEST_COOLDOWN):
+                await facades.cooldowns.cast_after_request(CooldownEntity.USER, interaction.user.id, request_id)
             await respond(interaction, TextPieceID.REQUEST_COMMAND_SUBMITTED, ephemeral=True)

@@ -5,6 +5,7 @@ import discord
 import typing as tp
 
 from components.views.confirmation import ConfirmationView
+from components.views.pagination.cooldown_history import CooldownHistoryPaginationView
 from components.views.pagination.endless_cooldown import EndlessCooldownPaginationView
 from components.views.pagination.log import LogPaginationView
 from components.views.pagination.temporary_cooldown import TemporaryCooldownPaginationView
@@ -165,18 +166,4 @@ class CooldownPreset:
                 tp.assert_never(normalized_duration)
 
     async def history(self, inter: discord.Interaction, entity_id: int) -> None:
-        if self.entity == CooldownEntity.USER:
-            event_type = LoggedEventTypeID.USER_COOLDOWN_UPDATED
-            entity_id_key = "target_user_id"
-        else:
-            event_type = LoggedEventTypeID.LEVEL_COOLDOWN_UPDATED
-            entity_id_key = "target_level_id"
-
-        await LogPaginationView(
-            log_filter=LoadedLogFilter(
-                event_type=event_type,
-                custom_data_values={
-                    entity_id_key: str(entity_id)
-                }
-            )
-        ).respond_with_view(inter, True)
+        await CooldownHistoryPaginationView(self.entity, entity_id).respond_with_view(inter, True)
