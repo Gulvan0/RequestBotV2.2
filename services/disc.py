@@ -42,8 +42,7 @@ async def respond(
     inter: discord.Interaction,
     template: str | list[str] | Template | TextPieceID,
     substitutions: dict[str, str | TextPieceID] | None = None,
-    ephemeral: bool = False,
-    followup: bool = False
+    ephemeral: bool = False
 ) -> None:
     if isinstance(template, TextPieceID):
         member_language_info = member_language(inter.user, inter.locale)
@@ -61,7 +60,7 @@ async def respond(
         else:
             message_text = str_template
 
-    if followup:
+    if inter.response.is_done():
         await inter.edit_original_response(content=message_text)
     else:
         try:

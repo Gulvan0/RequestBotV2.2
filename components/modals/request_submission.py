@@ -44,6 +44,8 @@ class RequestSubmissionModal(GenericModal):
 
     @classmethod
     async def process_submission(cls, interaction: Interaction, custom_id_fields: list[str], text_input_values: dict[str, str]) -> None:
+        await interaction.response.defer(ephemeral=True, thinking=True)
+
         request_id = int(custom_id_fields[0])
         yt_link = text_input_values.get("rsm:yli") or ''
         additional_comment = text_input_values.get("rsm:aci")

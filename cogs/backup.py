@@ -47,7 +47,7 @@ class BackupCog(commands.GroupCog, name="backup", description="Commands for mana
         downloaded_file_path = Path('data/new.db')
         await file.save(downloaded_file_path)
         await replace_file(downloaded_file_path)
-        await respond(inter, TextPieceID.COMMON_SUCCESS, followup=True)
+        await respond(inter, TextPieceID.COMMON_SUCCESS)
 
 
 async def setup(bot):

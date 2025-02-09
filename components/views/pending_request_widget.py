@@ -51,6 +51,8 @@ class PendingRequestWidgetJustApproveBtn(DynamicItem[Button[View]], template=r'p
         return cls(int(match.group("req_id")))
 
     async def callback(self, interaction: Interaction) -> None:
+        await interaction.response.defer(ephemeral=True, thinking=True)
+
         import facades.requests
         await facades.requests.add_opinion(interaction.user, self.request_id, Opinion.APPROVED, interaction.message)
         await respond(interaction, TextPieceID.COMMON_SUCCESS, ephemeral=True)

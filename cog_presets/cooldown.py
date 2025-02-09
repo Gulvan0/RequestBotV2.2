@@ -105,7 +105,7 @@ class CooldownPreset:
                     question_substitutions=dict(
                         old=as_timestamp(e.current.exact_ends_at) if e.current.exact_ends_at else as_code("∞"),
                         old_caster_mention=as_user(e.current.caster_user_id),
-                        old_reason=as_code(e.current.reason or "-"),
+                        old_reason=as_code(e.current.reason) if e.current.reason else TextPieceID.COMMON_NOT_SPECIFIED,
                         new=as_code("∞")
                     )
                 )

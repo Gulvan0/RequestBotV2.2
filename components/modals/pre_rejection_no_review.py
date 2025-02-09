@@ -20,6 +20,8 @@ class PreRejectionNoReviewModal(GenericModal):
 
     @classmethod
     async def process_submission(cls, interaction: Interaction, custom_id_fields: list[str], text_input_values: dict[str, str]) -> None:
+        await interaction.response.defer(ephemeral=True, thinking=True)
+
         request_id = int(custom_id_fields[0])
         reason = text_input_values.get("prnrm:ri")
 

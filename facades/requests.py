@@ -361,7 +361,9 @@ async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | N
             review_widget = await find_message(request.details_message_channel_id, request.details_message_id)
             assert review_widget
 
-            archive_message = await post_raw_text(RouteID.ARCHIVE, embed=review_widget.embeds[0])
+            embed = review_widget.embeds[0]
+            embed.colour = Colour.from_str("#666666")
+            archive_message = await post_raw_text(RouteID.ARCHIVE, embed=embed)
 
             request.details_message_id = archive_message.id
             request.details_message_channel_id = archive_message.channel.id

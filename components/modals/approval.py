@@ -20,6 +20,8 @@ class ApprovalModal(GenericModal):
 
     @classmethod
     async def process_submission(cls, interaction: Interaction, custom_id_fields: list[str], text_input_values: dict[str, str]) -> None:
+        await interaction.response.defer(ephemeral=True, thinking=True)
+
         request_id = int(custom_id_fields[0])
         send_type = SendType(custom_id_fields[1])
         review_text = text_input_values.get("am:rti")
