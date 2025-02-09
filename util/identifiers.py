@@ -42,6 +42,8 @@ class TextPieceID(Enum):
     REQUEST_MODAL_ADDITIONAL_COMMENT_LABEL = "request_modal.additional_comment.label"
     REQUEST_MODAL_ADDITIONAL_COMMENT_PLACEHOLDER = "request_modal.additional_comment.placeholder"
     REQUEST_MODAL_INVALID_YT_LINK = "request_modal.invalid_yt_link"
+    REQUEST_PENDING_WIDGET_OPINION_ALREADY_EXISTS = "request_pending_widget.opinion_already_exists"
+    REQUEST_RESOLUTION_WIDGET_RESOLUTION_ALREADY_EXISTS = "request_resolution_widget.resolution_already_exists"
     REQUEST_OPINION_MODAL_TITLE = "request_opinion_modal.title"
     REQUEST_OPINION_MODAL_REASON_LABEL = "request_opinion_modal.reason.label"
     REQUEST_OPINION_MODAL_REASON_PLACEHOLDER = "request_opinion_modal.reason.placeholder"

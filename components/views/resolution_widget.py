@@ -6,8 +6,32 @@ from discord.ui import DynamicItem, View, Button
 
 from components.modals.approval import ApprovalModal
 from components.modals.rejection import RejectionModal
-from services.disc import member_language
+from facades.permissions import has_permission
+from services.disc import member_language, respond, respond_forbidden
 from util.datatypes import SendType
+from util.format import as_timestamp
+from util.identifiers import PermissionFlagID, TextPieceID
+
+
+async def pass_common_checks(interaction: Interaction, request_id: int) -> bool:
+    if not has_permission(interaction.user, PermissionFlagID.GD_MOD):
+        await respond_forbidden(interaction)
+        return False
+    
+    import facades.requests
+    previous_opinion = await facades.requests.get_existing_opinion(interaction.user, request_id, resolution_only=True)
+    if previous_opinion:
+        await respond(
+            interaction,
+            TextPieceID.REQUEST_RESOLUTION_WIDGET_RESOLUTION_ALREADY_EXISTS,
+            substitutions=dict(
+                prev_resolution_ts=as_timestamp(previous_opinion.created_at)
+            ),
+            ephemeral=True
+        )
+        return False
+
+    return True
 
 
 class ResolutionWidgetStarrateBtn(DynamicItem[Button[View]], template=r'rw:sr:(?P<req_id>\d+)'):
@@ -28,7 +52,8 @@ class ResolutionWidgetStarrateBtn(DynamicItem[Button[View]], template=r'rw:sr:(?
         return cls(int(match.group("req_id")))
 
     async def callback(self, interaction: Interaction) -> None:
-        await interaction.response.send_modal(ApprovalModal(self.request_id, SendType.STARRATE, member_language(interaction.user, interaction.locale).language))
+        if await pass_common_checks(interaction, self.request_id):
+            await interaction.response.send_modal(ApprovalModal(self.request_id, SendType.STARRATE, member_language(interaction.user, interaction.locale).language))
 
 
 class ResolutionWidgetFeatureBtn(DynamicItem[Button[View]], template=r'rw:f:(?P<req_id>\d+)'):
@@ -49,7 +74,8 @@ class ResolutionWidgetFeatureBtn(DynamicItem[Button[View]], template=r'rw:f:(?P<
         return cls(int(match.group("req_id")))
 
     async def callback(self, interaction: Interaction) -> None:
-        await interaction.response.send_modal(ApprovalModal(self.request_id, SendType.FEATURE, member_language(interaction.user, interaction.locale).language))
+        if await pass_common_checks(interaction, self.request_id):
+            await interaction.response.send_modal(ApprovalModal(self.request_id, SendType.FEATURE, member_language(interaction.user, interaction.locale).language))
 
 
 class ResolutionWidgetEpicBtn(DynamicItem[Button[View]], template=r'rw:e:(?P<req_id>\d+)'):
@@ -70,7 +96,8 @@ class ResolutionWidgetEpicBtn(DynamicItem[Button[View]], template=r'rw:e:(?P<req
         return cls(int(match.group("req_id")))
 
     async def callback(self, interaction: Interaction) -> None:
-        await interaction.response.send_modal(ApprovalModal(self.request_id, SendType.EPIC, member_language(interaction.user, interaction.locale).language))
+        if await pass_common_checks(interaction, self.request_id):
+            await interaction.response.send_modal(ApprovalModal(self.request_id, SendType.EPIC, member_language(interaction.user, interaction.locale).language))
 
 
 class ResolutionWidgetMythicBtn(DynamicItem[Button[View]], template=r'rw:m:(?P<req_id>\d+)'):
@@ -91,7 +118,8 @@ class ResolutionWidgetMythicBtn(DynamicItem[Button[View]], template=r'rw:m:(?P<r
         return cls(int(match.group("req_id")))
 
     async def callback(self, interaction: Interaction) -> None:
-        await interaction.response.send_modal(ApprovalModal(self.request_id, SendType.MYTHIC, member_language(interaction.user, interaction.locale).language))
+        if await pass_common_checks(interaction, self.request_id):
+            await interaction.response.send_modal(ApprovalModal(self.request_id, SendType.MYTHIC, member_language(interaction.user, interaction.locale).language))
 
 
 class ResolutionWidgetLegendaryBtn(DynamicItem[Button[View]], template=r'rw:l:(?P<req_id>\d+)'):
@@ -112,7 +140,8 @@ class ResolutionWidgetLegendaryBtn(DynamicItem[Button[View]], template=r'rw:l:(?
         return cls(int(match.group("req_id")))
 
     async def callback(self, interaction: Interaction) -> None:
-        await interaction.response.send_modal(ApprovalModal(self.request_id, SendType.LEGENDARY, member_language(interaction.user, interaction.locale).language))
+        if await pass_common_checks(interaction, self.request_id):
+            await interaction.response.send_modal(ApprovalModal(self.request_id, SendType.LEGENDARY, member_language(interaction.user, interaction.locale).language))
 
 
 class ResolutionWidgetRejectBtn(DynamicItem[Button[View]], template=r'rw:r:(?P<req_id>\d+)'):
@@ -133,7 +162,8 @@ class ResolutionWidgetRejectBtn(DynamicItem[Button[View]], template=r'rw:r:(?P<r
         return cls(int(match.group("req_id")))
 
     async def callback(self, interaction: Interaction) -> None:
-        await interaction.response.send_modal(RejectionModal(self.request_id, member_language(interaction.user, interaction.locale).language))
+        if await pass_common_checks(interaction, self.request_id):
+            await interaction.response.send_modal(RejectionModal(self.request_id, member_language(interaction.user, interaction.locale).language))
 
 
 class ResolutionWidgetView(View):

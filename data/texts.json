@@ -119,6 +119,22 @@
     "eng": "Failed to submit a level request: wrong showcase link!",
     "rus": "Не удалось отправить реквест: неверная ссылка на шоукейс!"
   },
+  "request_pending_widget.opinion_already_exists": {
+    "description": "Ошибка, возникающая, когда ревьюер, уже оставлявший мнение о реквесте, пытается сделать это снова",
+    "param_descriptions": {
+      "prev_opinion_ts": "Предварительно отформатированный таймстемп момента, когда этот ревьюер в прошлый раз оставил мнение об этом реквесте"
+    },
+    "eng": "You have already responded to this request {prev_opinion_ts}",
+    "rus": "Вы уже оставляли мнение об этом реквесте {prev_opinion_ts}"
+  },
+  "request_resolution_widget.resolution_already_exists": {
+    "description": "Ошибка, возникающая, когда игровой модератор, уже выносивший резолюцию по реквесту, пытается сделать это снова",
+    "param_descriptions": {
+      "prev_resolution_ts": "Предварительно отформатированный таймстемп момента предыдущего вынесения резолюции по этому реквесту этим модератором"
+    },
+    "eng": "You have already resolved this request {prev_resolution_ts}",
+    "rus": "Вы уже вынесли резолюцию по этому реквесту {prev_resolution_ts}"
+  },
   "request_opinion_modal.title": {
     "description": "Заголовок окна, всплывающего, когда ревьюер оставляет свое мнение о реквесте",
     "eng": "Submit Opinion",
@@ -292,28 +308,28 @@
   },
   "request.approved.grade.starrate": {
     "description": "На что был отправлен уровень (старрейт)",
-    "eng": "star rate",
-    "rus": "старрейт"
+    "eng": "star rate <:star:1154760039526043728>",
+    "rus": "старрейт <:star:1154760039526043728>"
   },
   "request.approved.grade.featured": {
     "description": "На что был отправлен уровень (фичур)",
-    "eng": "feature",
-    "rus": "фичур"
+    "eng": "feature <:feature:1338215651633922099>",
+    "rus": "фичур <:feature:1338215651633922099>"
   },
   "request.approved.grade.epic": {
     "description": "На что был отправлен уровень (эпик)",
-    "eng": "epic",
-    "rus": "эпик"
+    "eng": "epic <:epic:1214976925202653224>",
+    "rus": "эпик <:epic:1214976925202653224>"
   },
   "request.approved.grade.mythic": {
     "description": "На что был отправлен уровень (мифик)",
-    "eng": "mythic",
-    "rus": "мифик"
+    "eng": "mythic <:mythic:1214976991783161948>",
+    "rus": "мифик <:mythic:1214976991783161948>"
   },
   "request.approved.grade.legendary": {
     "description": "На что был отправлен уровень (лега)",
-    "eng": "legendary",
-    "rus": "легу"
+    "eng": "legendary <:legendary:1214976961726906378>",
+    "rus": "легу <:legendary:1214976961726906378>"
   },
   "request.rejected": {
     "description": "Уведомление об отклонении реквеста (с призывом его автора)",

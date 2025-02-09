@@ -162,7 +162,7 @@ async def _append_opinion_to_resolution_widget(resolution_widget: Message, revie
     rendered_opinion = _render_opinion(reviewer, reasoning)
 
     resolution_embed = resolution_widget.embeds[0]
-    for field in resolution_embed.fields:
+    for field_index, field in enumerate(resolution_embed.fields):
         if field.name == "Consensus":
             lines = field.value.split('\n')
             line_index = 0 if opinion == Opinion.APPROVED else 1
@@ -172,7 +172,10 @@ async def _append_opinion_to_resolution_widget(resolution_widget: Message, revie
             else:
                 remainder += f", {rendered_opinion}"
             lines[line_index] = row_prefix + remainder
-            field.value = '\n'.join(lines)
+
+            # Setting field's value doesn't work, so we have to re-add it
+            resolution_embed.remove_field(field_index)
+            resolution_embed.add_field(name="Consensus", value='\n'.join(lines), inline=False)
             break
 
     await resolution_widget.edit(
@@ -185,22 +188,23 @@ async def _append_resolution_to_resolution_widget(resolution_widget: Message, re
     rendered_resolution = f"{emoji}:{_render_opinion(reviewer, reasoning)}"
 
     resolution_embed = resolution_widget.embeds[0]
-    resolutions_field = None
-    for field in resolution_embed.fields:
+    resolutions_field_value = None
+    is_first = True
+    for field_index, field in enumerate(resolution_embed.fields):
         if field.name == "Resolutions":
-            resolutions_field = field
+            is_first = False
+            resolutions_field_value = field.value
+            resolution_embed.remove_field(field_index)
             break
 
-    if resolutions_field:
-        is_first = False
-        resolutions_field.value += f", {rendered_resolution}"
-    else:
-        is_first = True
-        resolution_embed.add_field(
-            name="Resolutions",
-            value=rendered_resolution,
-            inline=False
-        )
+    if resolutions_field_value:
+        rendered_resolution = resolutions_field_value + f", {rendered_resolution}"
+
+    resolution_embed.add_field(
+        name="Resolutions",
+        value=rendered_resolution,
+        inline=False
+    )
 
     resolution_embed.colour = Colour.from_str("#128611")
 
@@ -247,6 +251,16 @@ async def _post_review(reviewer: Member, request: Request, opinion: Opinion, rev
             summary=TextPieceID.REQUEST_SUMMARY_GOOD if opinion == Opinion.APPROVED else TextPieceID.REQUEST_SUMMARY_BAD
         )
     )
+
+
+async def get_existing_opinion(reviewer: Member, request_id: int, resolution_only: bool = False) -> RequestOpinion | None:
+    with Session(engine) as session:
+        query = select(RequestOpinion).where(RequestOpinion.request_id == request_id, RequestOpinion.author_user_id == reviewer.id)
+        if resolution_only:
+            query = query.where(RequestOpinion.is_resolution == True)
+        query = query.order_by(col(RequestOpinion.created_at).desc())
+        request_opinion: RequestOpinion | None = session.exec(query).first()  # noqa
+        return request_opinion
 
 
 async def add_opinion(reviewer: Member, request_id: int, opinion: Opinion, review_widget_message: Message | None = None, review_text: str | None = None, reason: str | None = None) -> None:
@@ -363,6 +377,7 @@ async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | N
 
             embed = review_widget.embeds[0]
             embed.colour = Colour.from_str("#666666")
+            embed.add_field(name="Opinions and Resolutions", value=f"See {as_link(resolution_widget.jump_url, 'widget')}")
             archive_message = await post_raw_text(RouteID.ARCHIVE, embed=embed)
 
             request.details_message_id = archive_message.id
