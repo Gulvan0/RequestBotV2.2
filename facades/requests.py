@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime, UTC
 
 from discord import Colour, Embed, Member, Message
+from sqlalchemy import func
 from sqlmodel import col, select, Session
 
 from apps_script import Language
@@ -10,12 +11,14 @@ from components.views.resolution_widget import ResolutionWidgetView
 from database.db import engine
 from database.models import Request, RequestOpinion, RequestReview
 from facades.eventlog import add_entry
+from facades.parameters import get_value as get_parameter_value, update_value as update_parameter_value
 from services.disc import find_message, post, post_raw_text
 from services.gd import get_level
 from services.yt import get_video_id_by_url
 from util.datatypes import Opinion, SendType
+from util.exceptions import AlreadySatisfiesError
 from util.format import as_code, as_link, as_user
-from util.identifiers import LoggedEventTypeID, RouteID, TextPieceID
+from util.identifiers import LoggedEventTypeID, ParameterID, RouteID, TextPieceID
 
 
 @dataclass
@@ -133,6 +136,17 @@ async def complete_request(request_id: int, yt_link: str, additional_comment: st
 
         session.add(request)
         session.commit()
+
+    if get_parameter_value(ParameterID.QUEUE_BLOCK_ENABLED, bool) and get_parameter_value(ParameterID.QUEUE_BLOCK_AT, int) <= await count_pending_requests():
+        try:
+            await update_parameter_value(ParameterID.QUEUE_BLOCKED, "true")
+        except AlreadySatisfiesError:
+            pass
+        else:
+            await post_raw_text(
+                RouteID.REQUESTS_CLOSED,
+                "<@everyone> Requests are temporarily closed / Реквесты временно закрыты"
+            )
 
     await add_entry(LoggedEventTypeID.REQUEST_REQUESTED, invoker, dict(
         request_id=request_id,
@@ -261,6 +275,16 @@ async def get_existing_opinion(reviewer: Member, request_id: int, resolution_onl
         query = query.order_by(col(RequestOpinion.created_at).desc())
         request_opinion: RequestOpinion | None = session.exec(query).first()  # noqa
         return request_opinion
+
+
+async def count_pending_requests() -> int:
+    resolved_request_ids = select(RequestOpinion.request_id).where(RequestOpinion.is_resolution == True)
+    query = select(func.count(Request.id)).where(
+        Request.requested_at != None,    # noqa
+        ~col(Request.id).in_(resolved_request_ids)
+    )
+    with Session(engine) as session:
+        return session.exec(query).one() or 0  # noqa
 
 
 async def add_opinion(reviewer: Member, request_id: int, opinion: Opinion, review_widget_message: Message | None = None, review_text: str | None = None, reason: str | None = None) -> None:
@@ -420,6 +444,17 @@ async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | N
                     level_name=request.level_name,
                     reason=reason or TextPieceID.COMMON_NOT_SPECIFIED
                 )
+            )
+
+    if is_first and get_parameter_value(ParameterID.QUEUE_UNBLOCK_ENABLED, bool) and get_parameter_value(ParameterID.QUEUE_UNBLOCK_AT, int) >= await count_pending_requests():
+        try:
+            await update_parameter_value(ParameterID.QUEUE_BLOCKED, "false")
+        except AlreadySatisfiesError:
+            pass
+        else:
+            await post_raw_text(
+                RouteID.REQUESTS_REOPENED,
+                "<@everyone> Requests have been reopened / Реквесты были открыты"
             )
 
     await add_entry(LoggedEventTypeID.REQUEST_RESOLUTION_ADDED, resolving_mod, dict(

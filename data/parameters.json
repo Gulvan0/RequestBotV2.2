@@ -19,8 +19,8 @@
         "value_type": "bool",
         "default": "false"
     },
-    "queue.blocked_manually": {
-        "description": "Закрыты ли реквесты вручную",
+    "queue.blocked": {
+        "description": "Закрыты ли реквесты (может переключаться как вручную, так и автоматически)",
         "value_type": "bool",
         "default": "false"
     },

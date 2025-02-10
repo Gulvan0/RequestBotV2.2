@@ -343,6 +343,37 @@
     "eng": "{request_author}, your level {level_name} (ID: {level_id}) was rejected by {responsible_mod_mention} with a following reason:\n{reason}",
     "rus": "{request_author}, модератор {responsible_mod_mention} отклонил уровень {level_name} (ID: {level_id}). Причина:\n{reason}"
   },
+  "queue.queue_closed_error": {
+    "description": "Ошибка, возникающая при попытке зареквестить уровень, когда очередь закрыта",
+    "eng": "A level was not requested, because the request queue is temporarily closed. Please wait until moderators resolve previous requests",
+    "rus": "Реквест не был создан, поскольку очередь реквестов закрыта. Пожалуйста, подождите, пока модераторы примут решения по предыдущим реквестам"
+  },
+  "queue.info": {
+    "description": "Информация по текущему состоянию очереди реквестов",
+    "param_descriptions": {
+      "header": "Фрагмент текста, указывающий, открыта или закрыта очередь. Варианты представлены отдельными шаблонами",
+      "pending_cnt": "Количество реквестов на рассмотрении в данный момент",
+      "blocks_at": "Количество реквестов для закрытия очереди",
+      "unblocks_at": "Количество реквестов для открытия очереди"
+    },
+    "eng": "**{header}**\nPending requests: {pending_cnt}\nBlocks at: {blocks_at}\nUnblocks at: {unblocks_at}",
+    "rus": "**{header}**\nРеквестов на рассмотрении: {pending_cnt}\nРеквестов для закрытия: {blocks_at}\nРеквестов для открытия: {unblocks_at}"
+  },
+  "queue.info.open_header": {
+    "description": "Заголовок сообщения с информацией об очереди, свидетельствующий о том, что очередь открыта",
+    "eng": ":green_square: Queue is open",
+    "rus": ":green_square: Очередь открыта"
+  },
+  "queue.info.closed_header": {
+    "description": "Заголовок сообщения с информацией об очереди, свидетельствующий о том, что очередь закрыта",
+    "eng": ":red_square: Queue is closed",
+    "rus": ":red_square: Очередь закрыта"
+  },
+  "queue.info.disabled": {
+    "description": "Пометка, оставляемая в сообщении с информацией об очереди вместо количества реквестов для закрытия/открытия очереди, когда это автоматическое закрытие/открытие отключено",
+    "eng": "_disabled_",
+    "rus": "_отключено_"
+  },
   "confirmation.override_filter": {
     "description": "Подтверждение перезаписи существующего фильтра",
     "param_descriptions": {

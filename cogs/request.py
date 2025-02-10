@@ -4,14 +4,15 @@ from discord.ext import commands
 from discord.ui import Button, View
 
 from components.modals.request_submission import RequestSubmissionModal
+from facades.parameters import get_value as get_parameter_value
 from facades.cooldowns import get_current_cooldown_eagerly
 from facades.permissions import has_permission
-from facades.requests import assert_level_requestable, create_limbo_request, LevelAlreadyApprovedException, PreviousLevelRequestPendingException
+from facades.requests import assert_level_requestable, count_pending_requests, create_limbo_request, LevelAlreadyApprovedException, PreviousLevelRequestPendingException
 from services.disc import member_language, respond
 from services.gd import get_level, LevelGrade
 from util.datatypes import CooldownEntity
 from util.format import as_code, as_timestamp, as_user
-from util.identifiers import PermissionFlagID, StageParameterID, TextPieceID
+from util.identifiers import ParameterID, PermissionFlagID, StageParameterID, TextPieceID
 from config.stage_parameters import get_value as get_stage_parameter_value
 
 
@@ -67,7 +68,9 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
     async def create(self, inter: discord.Interaction, level_id: app_commands.Range[int, 200, 1000000000]) -> None:
         await inter.response.defer(ephemeral=True)
 
-        # TODO (iterations 11.1-11.3): is queue open
+        if get_parameter_value(ParameterID.QUEUE_BLOCKED, bool):
+            await respond(inter, TextPieceID.QUEUE_QUEUE_CLOSED_ERROR, ephemeral=True)
+            return
 
         if not has_permission(inter.user, PermissionFlagID.NO_REQUEST_COOLDOWN) and await self.check_request_cooldown(inter, CooldownEntity.USER, inter.user.id):
             return
@@ -131,7 +134,6 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
         btn.callback = show_modal
         continue_view.add_item(btn)
         await inter.edit_original_response(content="", view=continue_view)
-
 
 
 async def setup(bot):
