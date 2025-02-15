@@ -373,6 +373,11 @@
     "eng": "No reviews yet",
     "rus": "На данный уровень пока нет ни одного ревью"
   },
+  "request_insert_command.creator_must_be_specified": {
+    "description": "Ошибка, возникающая при попытке искусственно создать реквест, когда ни тег, ни имя креатора не предоставлены",
+    "eng": "You have to specify either `creator_mention` (preferred) or `creator_name`",
+    "rus": "Вы должны указать креатора: укажите либо `creator_mention` (предпочтительно), либо `creator_name`"
+  },
   "queue.queue_closed_error": {
     "description": "Ошибка, возникающая при попытке зареквестить уровень, когда очередь закрыта",
     "eng": "A level was not requested, because the request queue is temporarily closed. Please wait until moderators resolve previous requests",

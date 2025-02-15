@@ -5,7 +5,6 @@ from discord import Colour, Embed, Member, Message
 from sqlalchemy import func
 from sqlmodel import col, select, Session
 
-from apps_script import Language
 from components.views.pending_request_widget import PendingRequestWidgetView
 from components.views.resolution_widget import ResolutionWidgetView
 from database.db import engine
@@ -15,7 +14,7 @@ from facades.parameters import get_value as get_parameter_value, update_value as
 from services.disc import find_message, post, post_raw_text
 from services.gd import get_level
 from services.yt import get_video_id_by_url
-from util.datatypes import Opinion, SendType
+from util.datatypes import Language, Opinion, SendType
 from util.exceptions import AlreadySatisfiesError
 from util.format import as_code, as_link, as_user
 from util.identifiers import LoggedEventTypeID, ParameterID, RouteID, TextPieceID
@@ -95,12 +94,24 @@ async def get_level_reviews(level_id: int) -> list[RequestReview]:
         return [x for x in session.exec(query)]  # noqa
 
 
-async def create_limbo_request(level_id: int, request_language: Language, invoker: Member) -> int:
+async def create_limbo_request(level_id: int, request_language: Language, invoker: Member, creator: Member | str | None = None) -> int:
+    match creator:
+        case Member():
+            request_author = str(creator.id)
+            is_author_user_id = True
+        case str():
+            request_author = creator
+            is_author_user_id = False
+        case _:
+            request_author = str(invoker.id)
+            is_author_user_id = True
+
     with Session(engine) as session:
         new_entry = Request(
             level_id=level_id,
             language=request_language,
-            request_author=invoker.id
+            request_author=request_author,
+            is_author_user_id=is_author_user_id
         )
         session.add(new_entry)
         session.commit()

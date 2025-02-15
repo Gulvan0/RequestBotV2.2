@@ -77,6 +77,7 @@ class TextPieceID(Enum):
     REQUEST_NO_IGNORED = "request.no_ignored"
     REQUEST_NO_UNRESOLVED = "request.no_unresolved"
     REQUEST_NO_REVIEWS = "request.no_reviews"
+    REQUEST_INSERT_COMMAND_CREATOR_MUST_BE_SPECIFIED = "request_insert_command.creator_must_be_specified"
     QUEUE_QUEUE_CLOSED_ERROR = "queue.queue_closed_error"
     QUEUE_INFO = "queue.info"
     QUEUE_INFO_OPEN_HEADER = "queue.info.open_header"
@@ -133,6 +134,7 @@ class PermissionFlagID(Enum):
     BAN_USERS = "ban_users"
     NO_REQUEST_COOLDOWN = "no_request_cooldown"
     REQUEST_WHILE_QUEUE_CLOSED = "request_while_queue_closed"
+    INSERT_REQUESTS = "insert_requests"
     REMOVE_OTHER_LEVEL_BANS = "remove_other_level_bans"
     REMOVE_OTHER_USER_BANS = "remove_other_user_bans"
 

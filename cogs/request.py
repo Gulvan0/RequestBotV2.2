@@ -1,5 +1,5 @@
 import discord
-from discord import app_commands, Interaction
+from discord import app_commands, Interaction, Member
 from discord.ext import commands
 from discord.ui import Button, View
 
@@ -8,13 +8,14 @@ from facades.parameters import get_value as get_parameter_value
 from facades.cooldowns import get_current_cooldown_eagerly
 from facades.permissions import has_permission
 from facades.requests import (
-    assert_level_requestable, count_pending_requests, create_limbo_request, get_last_complete_request, get_level_reviews, get_oldest_ignored_request, get_oldest_unresolved_request, LevelAlreadyApprovedException,
+    assert_level_requestable, complete_request, count_pending_requests, create_limbo_request, get_last_complete_request, get_level_reviews, get_oldest_ignored_request, get_oldest_unresolved_request, InvalidYtLinkException,
+    LevelAlreadyApprovedException,
     PreviousLevelRequestPendingException,
 )
 from facades.texts import render_text
 from services.disc import find_message, member_language, requires_permission, respond
 from services.gd import get_level, LevelGrade
-from util.datatypes import CooldownEntity
+from util.datatypes import CommandChoiceOption, CooldownEntity, Language
 from util.format import as_code, as_link, as_timestamp, as_user
 from util.identifiers import ParameterID, PermissionFlagID, StageParameterID, TextPieceID
 from config.stage_parameters import get_value as get_stage_parameter_value
@@ -209,6 +210,87 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
             response_lines.append(as_link(review_message.jump_url, str(review_message.id)))
 
         await respond(inter, response_lines, ephemeral=True)
+
+    @app_commands.command(description="Request a level on behalf of another creator bypassing all restrictions")
+    @app_commands.describe(
+        level_id="ID of a level you want to request",
+        language="Language of the reviews. Will also be used to notify the author",
+        yt_link="YouTube link for a showcase",
+        creator_mention="Creator mention for notifications. Specify creator_name instead if you can't tag a creator",
+        creator_name="Creator's name. Provide only if creator_mention cannot be specified",
+        additional_comment="Additional info about the submission. Optional",
+    )
+    @app_commands.choices(language=CommandChoiceOption.from_str_enum(Language))
+    @requires_permission(PermissionFlagID.INSERT_REQUESTS)
+    async def insert(
+        self,
+        inter: discord.Interaction,
+        level_id: app_commands.Range[int, 200, 1000000000],
+        language: Language,
+        yt_link: str,
+        creator_mention: Member | None = None,
+        creator_name: str | None = None,
+        additional_comment: str | None = None
+    ) -> None:
+        await inter.response.defer(ephemeral=True)
+
+        if not creator_mention and not creator_name:
+            await respond(inter, TextPieceID.REQUEST_INSERT_COMMAND_CREATOR_MUST_BE_SPECIFIED, ephemeral=True)
+            return
+
+        try:
+            assert_level_requestable(level_id)
+        except LevelAlreadyApprovedException as e:
+            await respond(
+                inter,
+                TextPieceID.REQUEST_COMMAND_ALREADY_APPROVED,
+                dict(
+                    approval_ts=as_timestamp(e.resolved_at),
+                    request_ts=as_timestamp(e.requested_at),
+                    orig_author=e.request_author_mention
+                ),
+                ephemeral=True
+            )
+            return
+        except PreviousLevelRequestPendingException as e:
+            await respond(
+                inter,
+                TextPieceID.REQUEST_COMMAND_PREVIOUS_PENDING,
+                dict(
+                    request_ts=as_timestamp(e.requested_at),
+                    orig_author=e.request_author_mention
+                ),
+                ephemeral=True
+            )
+            return
+
+        level = await get_level(level_id)
+
+        if not level:
+            await respond(inter, TextPieceID.REQUEST_COMMAND_NOT_FOUND, dict(level_id=str(level_id)), ephemeral=True)
+            return
+
+        if level.grade != LevelGrade.UNRATED:
+            await respond(
+                inter,
+                TextPieceID.REQUEST_COMMAND_ALREADY_RATED,
+                dict(
+                    level_name=as_code(level.name),
+                    level_quality=level.grade.to_str()
+                ),
+                ephemeral=True
+            )
+            return
+
+        request_id = await create_limbo_request(level_id, language, inter.user, creator_mention or creator_name)
+        try:
+            await complete_request(request_id, yt_link, additional_comment, inter.user)
+        except InvalidYtLinkException:
+            await respond(inter, TextPieceID.REQUEST_MODAL_INVALID_YT_LINK, ephemeral=True)
+            return
+
+        await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
+
 
 async def setup(bot):
     await bot.add_cog(RequestCog(bot))
