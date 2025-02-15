@@ -68,7 +68,7 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
     async def create(self, inter: discord.Interaction, level_id: app_commands.Range[int, 200, 1000000000]) -> None:
         await inter.response.defer(ephemeral=True)
 
-        if get_parameter_value(ParameterID.QUEUE_BLOCKED, bool):
+        if get_parameter_value(ParameterID.QUEUE_BLOCKED, bool) and not has_permission(inter.user, PermissionFlagID.REQUEST_WHILE_QUEUE_CLOSED):
             await respond(inter, TextPieceID.QUEUE_QUEUE_CLOSED_ERROR, ephemeral=True)
             return
 

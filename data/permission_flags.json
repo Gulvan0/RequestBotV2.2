@@ -23,6 +23,9 @@
     "no_request_cooldown": {
         "description": "Дает право на реквест уровней без кд"
     },
+    "request_while_queue_closed": {
+        "description": "Дает право реквестить уровни, когда очередь закрыта"
+    },
     "remove_other_level_bans": {
         "description": "Дает право отменять баны уровней, наложенные другими членами стаффа"
     },

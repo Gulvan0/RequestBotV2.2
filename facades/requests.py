@@ -145,7 +145,7 @@ async def complete_request(request_id: int, yt_link: str, additional_comment: st
         else:
             await post_raw_text(
                 RouteID.REQUESTS_CLOSED,
-                "<@everyone> Requests are temporarily closed / Реквесты временно закрыты"
+                "@everyone Requests are temporarily closed / Реквесты временно закрыты"
             )
 
     await add_entry(LoggedEventTypeID.REQUEST_REQUESTED, invoker, dict(
@@ -454,7 +454,7 @@ async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | N
         else:
             await post_raw_text(
                 RouteID.REQUESTS_REOPENED,
-                "<@everyone> Requests have been reopened / Реквесты были открыты"
+                "@everyone Requests are open again / Реквесты снова открыты"
             )
 
     await add_entry(LoggedEventTypeID.REQUEST_RESOLUTION_ADDED, resolving_mod, dict(

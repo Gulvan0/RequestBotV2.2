@@ -16,13 +16,13 @@ class QueueCog(commands.GroupCog, name="queue", description="Commands for contro
     @requires_permission(PermissionFlagID.ADMIN)
     async def open(self, inter: discord.Interaction) -> None:
         try:
-            await update_parameter_value(ParameterID.QUEUE_BLOCKED, "false")
+            await update_parameter_value(ParameterID.QUEUE_BLOCKED, "false", inter.user)
         except AlreadySatisfiesError:
             await respond(inter, TextPieceID.WARNING_NO_EFFECT, ephemeral=True)
         else:
             await post_raw_text(
                 RouteID.REQUESTS_REOPENED,
-                "<@everyone> Requests have been reopened / Реквесты были открыты"
+                "@everyone Requests are open again / Реквесты снова открыты"
             )
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
@@ -30,13 +30,13 @@ class QueueCog(commands.GroupCog, name="queue", description="Commands for contro
     @requires_permission(PermissionFlagID.ADMIN)
     async def close(self, inter: discord.Interaction) -> None:
         try:
-            await update_parameter_value(ParameterID.QUEUE_BLOCKED, "false")
+            await update_parameter_value(ParameterID.QUEUE_BLOCKED, "true", inter.user)
         except AlreadySatisfiesError:
             await respond(inter, TextPieceID.WARNING_NO_EFFECT, ephemeral=True)
         else:
             await post_raw_text(
                 RouteID.REQUESTS_CLOSED,
-                "<@everyone> Requests are temporarily closed / Реквесты временно закрыты"
+                "@everyone Requests are temporarily closed / Реквесты временно закрыты"
             )
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
@@ -58,7 +58,12 @@ class QueueCog(commands.GroupCog, name="queue", description="Commands for contro
     @app_commands.command(description="Get block/unblock history")
     @requires_permission(PermissionFlagID.ADMIN)
     async def history(self, inter: discord.Interaction) -> None:
-        await LogPaginationView(log_filter=LoadedLogFilter(event_type=LoggedEventTypeID.PARAMETER_EDITED)).respond_with_view(inter, True)
+        await LogPaginationView(
+            log_filter=LoadedLogFilter(
+                event_type=LoggedEventTypeID.PARAMETER_EDITED,
+                custom_data_values=dict(parameter_id="queue.blocked")
+            )
+        ).respond_with_view(inter, True)
 
 
 async def setup(bot):

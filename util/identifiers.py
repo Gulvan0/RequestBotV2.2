@@ -125,6 +125,7 @@ class PermissionFlagID(Enum):
     BAN_LEVELS = "ban_levels"
     BAN_USERS = "ban_users"
     NO_REQUEST_COOLDOWN = "no_request_cooldown"
+    REQUEST_WHILE_QUEUE_CLOSED = "request_while_queue_closed"
     REMOVE_OTHER_LEVEL_BANS = "remove_other_level_bans"
     REMOVE_OTHER_USER_BANS = "remove_other_user_bans"
 
