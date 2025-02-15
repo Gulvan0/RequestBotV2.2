@@ -3,9 +3,10 @@ from discord import Interaction
 import facades.texts
 from components.modals.common_items import get_reason_text_input, get_review_text_input
 from components.modals.generic import GenericModal
+from facades.permissions import has_permission
 from services.disc import respond
 from util.datatypes import Language, Opinion
-from util.identifiers import TextPieceID
+from util.identifiers import PermissionFlagID, TextPieceID
 
 
 class PreRejectionModal(GenericModal):
@@ -28,5 +29,8 @@ class PreRejectionModal(GenericModal):
         reason = text_input_values.get("prm:ri")
 
         import facades.requests
-        await facades.requests.add_opinion(interaction.user, request_id, Opinion.REJECTED, review_text=review_text, reason=reason)
+        if has_permission(interaction.user, PermissionFlagID.TRAINEE, allow_admin=False):
+            await facades.requests.add_trainee_review(interaction.user, request_id, Opinion.REJECTED, review_text, reason)
+        else:
+            await facades.requests.add_opinion(interaction.user, request_id, Opinion.REJECTED, review_text=review_text, reason=reason)
         await respond(interaction, TextPieceID.COMMON_SUCCESS, ephemeral=True)

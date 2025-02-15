@@ -127,6 +127,19 @@
     "eng": "You have already responded to this request {prev_opinion_ts}",
     "rus": "Вы уже оставляли мнение об этом реквесте {prev_opinion_ts}"
   },
+  "request_pending_widget.review_already_exists": {
+    "description": "Ошибка, возникающая, когда кандидат в ревьюеры, уже написавший ревью на уровень, пытается сделать это снова",
+    "param_descriptions": {
+      "prev_review_ts": "Предварительно отформатированный таймстемп момента, когда этот ревьюер в прошлый раз написал ревью на этот уровень"
+    },
+    "eng": "You have already reviewed this level {prev_review_ts}",
+    "rus": "Вы уже написали обзор на этот уровень {prev_review_ts}"
+  },
+  "request_pending_widget.trainee_review_required": {
+    "description": "Ошибка, возникающая, когда трейни пытается оставить мнение об уровне без ревью",
+    "eng": "As a trainee reviewer, you cannot leave opinions about levels without the review",
+    "rus": "Как кандидат в обзорщики, Вы не можете оставлять мнение об уровне без ревью"
+  },
   "request_resolution_widget.resolution_already_exists": {
     "description": "Ошибка, возникающая, когда игровой модератор, уже выносивший резолюцию по реквесту, пытается сделать это снова",
     "param_descriptions": {

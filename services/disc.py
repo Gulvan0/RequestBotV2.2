@@ -96,7 +96,7 @@ async def send_developers(message: str, code_syntax: str | None = None, file_pat
         )
 
 
-def requires_permission(permission: PermissionFlagID):
+def requires_permission(permission: PermissionFlagID | list[PermissionFlagID]):
     async def predicate(inter: discord.Interaction):
         return has_permission(inter.user, permission)
     return commands.check(predicate)

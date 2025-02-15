@@ -3,7 +3,7 @@ from collections import defaultdict
 import discord
 from discord import Member
 from sqlalchemy import Select
-from sqlmodel import select, Session, or_
+from sqlmodel import col, select, Session, or_
 
 from database.db import engine
 from database.models import PermissionFlag
@@ -12,11 +12,17 @@ from util.exceptions import AlreadySatisfiesError
 from util.identifiers import LoggedEventTypeID, PermissionFlagID
 
 
-def has_permission(member: discord.Member, permission: PermissionFlagID) -> bool:
+def has_permission(member: discord.Member, permission: PermissionFlagID | list[PermissionFlagID], allow_admin: bool = True) -> bool:
     member_roles = set(map(lambda role: role.id, member.roles))
 
     with Session(engine) as session:
-        query: Select = select(PermissionFlag.role_id).where(or_(PermissionFlag.id == permission, PermissionFlag.id == PermissionFlagID.ADMIN))
+        if isinstance(permission, PermissionFlagID):
+            checked_flags = [permission]
+        else:
+            checked_flags = permission
+        if allow_admin:
+            checked_flags.append(PermissionFlagID.ADMIN)
+        query: Select = select(PermissionFlag.role_id).where(or_(col(PermissionFlag.id).in_(checked_flags)))
         required_roles = set(session.exec(query))
 
     return bool(member_roles & required_roles)

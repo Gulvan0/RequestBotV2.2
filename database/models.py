@@ -134,6 +134,7 @@ class RequestReview(SQLModel, table=True):
     message_id: int
     message_channel_id: int
     opinion: Opinion
+    is_trainee: bool = False
 
     request_id: int = Field(foreign_key="request.id")
     request: Request = Relationship(back_populates="reviews")

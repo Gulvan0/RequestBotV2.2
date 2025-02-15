@@ -15,10 +15,10 @@ import typing as tp
 
 
 async def pass_common_checks(interaction: Interaction, request_id: int) -> bool:
-    if not has_permission(interaction.user, PermissionFlagID.REVIEWER):
+    if not has_permission(interaction.user, [PermissionFlagID.REVIEWER, PermissionFlagID.TRAINEE]):
         await respond_forbidden(interaction)
         return False
-    
+
     import facades.requests
     previous_opinion = await facades.requests.get_existing_opinion(interaction.user, request_id)
     if previous_opinion:
@@ -31,6 +31,19 @@ async def pass_common_checks(interaction: Interaction, request_id: int) -> bool:
             ephemeral=True
         )
         return False
+
+    if has_permission(interaction.user, PermissionFlagID.TRAINEE, allow_admin=False):
+        previous_review = await facades.requests.get_existing_review(interaction.user, request_id)
+        if previous_review:
+            await respond(
+                interaction,
+                TextPieceID.REQUEST_PENDING_WIDGET_REVIEW_ALREADY_EXISTS,
+                substitutions=dict(
+                    prev_review_ts=as_timestamp(previous_review.created_at)
+                ),
+                ephemeral=True
+            )
+            return False
 
     return True
 
@@ -78,9 +91,12 @@ class PendingRequestWidgetJustApproveBtn(DynamicItem[Button[View]], template=r'p
         await interaction.response.defer(ephemeral=True, thinking=True)
 
         if await pass_common_checks(interaction, self.request_id):
-            import facades.requests
-            await facades.requests.add_opinion(interaction.user, self.request_id, Opinion.APPROVED, interaction.message)
-            await respond(interaction, TextPieceID.COMMON_SUCCESS, ephemeral=True)
+            if has_permission(interaction.user, PermissionFlagID.TRAINEE, allow_admin=False):
+                await respond(interaction, TextPieceID.REQUEST_PENDING_WIDGET_TRAINEE_REVIEW_REQUIRED, ephemeral=True)
+            else:
+                import facades.requests
+                await facades.requests.add_opinion(interaction.user, self.request_id, Opinion.APPROVED, interaction.message)
+                await respond(interaction, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
 
 class PendingRequestWidgetRejectAndReviewBtn(DynamicItem[Button[View]], template=r'prw:rar:(?P<req_id>\d+)'):
@@ -124,7 +140,10 @@ class PendingRequestWidgetJustRejectBtn(DynamicItem[Button[View]], template=r'pr
 
     async def callback(self, interaction: Interaction) -> None:
         if await pass_common_checks(interaction, self.request_id):
-            await interaction.response.send_modal(PreRejectionNoReviewModal(self.request_id, member_language(interaction.user, interaction.locale).language))
+            if has_permission(interaction.user, PermissionFlagID.TRAINEE, allow_admin=False):
+                await respond(interaction, TextPieceID.REQUEST_PENDING_WIDGET_TRAINEE_REVIEW_REQUIRED, ephemeral=True)
+            else:
+                await interaction.response.send_modal(PreRejectionNoReviewModal(self.request_id, member_language(interaction.user, interaction.locale).language))
 
 
 class PendingRequestWidgetView(View):
