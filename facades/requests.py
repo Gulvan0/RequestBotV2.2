@@ -89,6 +89,12 @@ async def get_oldest_unresolved_request() -> Request | None:
         return session.exec(query).first()  # noqa
 
 
+async def get_level_reviews(level_id: int) -> list[RequestReview]:
+    with Session(engine) as session:
+        query = select(RequestReview).join(Request).where(Request.level_id == level_id).order_by(RequestReview.created_at)  # noqa
+        return [x for x in session.exec(query)]  # noqa
+
+
 async def create_limbo_request(level_id: int, request_language: Language, invoker: Member) -> int:
     with Session(engine) as session:
         new_entry = Request(
@@ -334,6 +340,7 @@ async def add_opinion(reviewer: Member, request_id: int, opinion: Opinion, revie
                 author_user_id=reviewer.id,
                 text=review_text,
                 message_id=associated_review_message.id,
+                message_channel_id=associated_review_message.channel.id,
                 opinion=opinion,
                 request=request
             )
@@ -405,6 +412,7 @@ async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | N
                 author_user_id=resolving_mod.id,
                 text=review_text,
                 message_id=associated_review_message.id,
+                message_channel_id=associated_review_message.channel.id,
                 opinion=opinion,
                 request=request
             )

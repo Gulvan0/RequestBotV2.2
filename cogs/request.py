@@ -8,7 +8,7 @@ from facades.parameters import get_value as get_parameter_value
 from facades.cooldowns import get_current_cooldown_eagerly
 from facades.permissions import has_permission
 from facades.requests import (
-    assert_level_requestable, count_pending_requests, create_limbo_request, get_last_complete_request, get_oldest_ignored_request, get_oldest_unresolved_request, LevelAlreadyApprovedException,
+    assert_level_requestable, count_pending_requests, create_limbo_request, get_last_complete_request, get_level_reviews, get_oldest_ignored_request, get_oldest_unresolved_request, LevelAlreadyApprovedException,
     PreviousLevelRequestPendingException,
 )
 from facades.texts import render_text
@@ -159,7 +159,7 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
 
         await respond(inter, response_text, ephemeral=True)
 
-    @app_commands.command(description="Get widget links for a requested level")
+    @app_commands.command(description="Get the oldest pending request without opinions")
     @requires_permission(PermissionFlagID.REVIEWER)
     async def ignored(self, inter: discord.Interaction) -> None:
         await inter.response.defer(ephemeral=True)
@@ -175,7 +175,7 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
 
         await respond(inter, response_text, ephemeral=True)
 
-    @app_commands.command(description="Get widget links for a requested level")
+    @app_commands.command(description="Get the oldest request waiting for the final decision")
     @requires_permission(PermissionFlagID.GD_MOD)
     async def unresolved(self, inter: discord.Interaction) -> None:
         await inter.response.defer(ephemeral=True)
@@ -190,6 +190,25 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
         response_text = as_link(resolution_widget.jump_url, render_text(TextPieceID.REQUEST_INFO_MODERATORS_WIDGET_LINK_TEXT, user_lang))
 
         await respond(inter, response_text, ephemeral=True)
+
+    @app_commands.command(description="Get all reviews written for a certain level")
+    @app_commands.describe(level_id="ID of a level you want to retrieve all reviews for")
+    async def reviews(self, inter: discord.Interaction, level_id: app_commands.Range[int, 200, 1000000000]) -> None:
+        await inter.response.defer(ephemeral=True)
+
+        reviews = await get_level_reviews(level_id)
+        if not reviews:
+            await respond(inter, TextPieceID.REQUEST_NO_REVIEWS, ephemeral=True)
+            return
+
+        response_lines = []
+        for review in reviews:
+            review_message = await find_message(review.message_channel_id, review.message_id)
+            if not review_message:
+                continue
+            response_lines.append(as_link(review_message.jump_url, str(review_message.id)))
+
+        await respond(inter, response_lines, ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(RequestCog(bot))

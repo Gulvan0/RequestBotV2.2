@@ -132,6 +132,7 @@ class RequestReview(SQLModel, table=True):
     author_user_id: int
     text: str
     message_id: int
+    message_channel_id: int
     opinion: Opinion
 
     request_id: int = Field(foreign_key="request.id")

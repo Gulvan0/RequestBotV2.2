@@ -368,6 +368,11 @@
     "eng": "No request is currently awaiting the final decision",
     "rus": "Нет реквестов в ожидании финального решения"
   },
+  "request.no_reviews": {
+    "description": "Сообщение, выводящееся при запросе всех ревью на уровень, когда ни одного ревью на этот уровень еще не было написано",
+    "eng": "No reviews yet",
+    "rus": "На данный уровень пока нет ни одного ревью"
+  },
   "queue.queue_closed_error": {
     "description": "Ошибка, возникающая при попытке зареквестить уровень, когда очередь закрыта",
     "eng": "A level was not requested, because the request queue is temporarily closed. Please wait until moderators resolve previous requests",
