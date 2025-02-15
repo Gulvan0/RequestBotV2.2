@@ -281,18 +281,18 @@
       "review_text": "Текст ревью",
       "summary": "Итоговое мнение ревьюера об уровне (хороший/плохой). Варианты представлены отдельными шаблонами"
     },
-    "eng": "{request_author}, {reviewer_mention} wrote a review of your level {level_name} (ID: {level_id}):\n{review_text}\n**Summary:** {summary}",
-    "rus": "{request_author}, {reviewer_mention} написал обзор на уровень {level_name} (ID: {level_id}):\n{review_text}\n**Итог:** {summary}"
+    "eng": "{request_author}, {reviewer_mention} wrote a review of your level {level_name} (ID: {level_id}):\n{review_text}\n{summary}",
+    "rus": "{request_author}, {reviewer_mention} написал обзор на уровень {level_name} (ID: {level_id}):\n{review_text}\n{summary}"
   },
   "request.review.summary.good": {
     "description": "Итоговая оценка уровня в ревью (хороший)",
-    "eng": "Good level <:yes:1154748625251999744>",
-    "rus": "Хороший уровень <:yes:1154748625251999744>"
+    "eng": "**Summary:** Good level <:yes:1154748625251999744>",
+    "rus": "**Итог:** Хороший уровень <:yes:1154748625251999744>"
   },
   "request.review.summary.bad": {
     "description": "Итоговая оценка уровня в ревью (плохой)",
-    "eng": "Needs improvement <:no:1154748651827110010>",
-    "rus": "Требует доработок <:no:1154748651827110010>"
+    "eng": "**Summary:** Needs improvement <:no:1154748651827110010>",
+    "rus": "**Итог:** Требует доработок <:no:1154748651827110010>"
   },
   "request.approved": {
     "description": "Уведомление об одобрении реквеста (с призывом его автора)",

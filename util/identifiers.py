@@ -113,6 +113,7 @@ class ParameterID(Enum):
     QUEUE_BLOCKED = "queue.blocked"
     COOLDOWN_POST_REQUEST_USER_CD = "cooldown.post_request_user_cd"
     COOLDOWN_POST_REJECT_LEVEL_CD = "cooldown.post_reject_level_cd"
+    REQUEST_APPEND_CONCLUSION_TO_REVIEW = "request.append_conclusion_to_review"
 
 
 @unique

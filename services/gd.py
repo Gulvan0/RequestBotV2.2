@@ -22,6 +22,7 @@ class LevelFieldKey(IntEnum):
     FEATURE_SCORE = 19
     AUTO = 25
     COPIED_ID = 30
+    REQUESTED_STARS = 39
     EPIC = 42
     DEMON_DIFFICULTY = 43
 
@@ -128,6 +129,7 @@ class Level:
     author_name: str
     difficulty: LevelDifficulty
     stars: int | None
+    stars_requested: int | None
     game_version: str
     length: LevelLength
     grade: LevelGrade
@@ -228,6 +230,7 @@ async def get_level(level_id: int) -> Level | None:
         game_version = f'{game_version_number / 10:.1f}'
 
     stars = int(level_fields[LevelFieldKey.STARS]) or None
+    stars_requested = int(level_fields[LevelFieldKey.REQUESTED_STARS]) or None
 
     if not stars:
         grade = LevelGrade.UNRATED
@@ -249,6 +252,7 @@ async def get_level(level_id: int) -> Level | None:
         author_name=author_name,
         difficulty=difficulty,
         stars=stars,
+        stars_requested=stars_requested,
         game_version=game_version,
         length=LevelLength(int(level_fields[LevelFieldKey.LENGTH])),
         grade=grade,

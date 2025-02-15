@@ -63,7 +63,7 @@ class PendingRequestWidgetJustApproveBtn(DynamicItem[Button[View]], template=r'p
         super().__init__(
             Button(
                 style=ButtonStyle.green,
-                label="Just Approve",
+                label="Approve (no review)",
                 emoji="<:yes:1154748625251999744>",
                 row=0,
                 custom_id=f"prw:ja:{request_id}"
@@ -111,7 +111,7 @@ class PendingRequestWidgetJustRejectBtn(DynamicItem[Button[View]], template=r'pr
         super().__init__(
             Button(
                 style=ButtonStyle.red,
-                label="Just Reject",
+                label="Reject (no review)",
                 emoji="<:no:1154748651827110010>",
                 row=1,
                 custom_id=f"prw:jr:{request_id}"

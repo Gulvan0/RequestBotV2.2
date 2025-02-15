@@ -116,6 +116,7 @@ async def complete_request(request_id: int, yt_link: str, additional_comment: st
         embed.add_field(name="Review Language", value=lang_str, inline=False)
         embed.add_field(name="Showcase", value=yt_link, inline=False)
         embed.add_field(name="Copied Level ID", value=copied_id_str, inline=False)
+        embed.add_field(name="Stars Requested", value=str(level.stars_requested) or "NA", inline=False)
         embed.add_field(name="Length", value=level.length.to_str(), inline=True)
         embed.add_field(name="Current Difficulty", value=level.difficulty.to_str(), inline=True)
         embed.add_field(name="Game Version", value=level.game_version, inline=True)
@@ -251,7 +252,14 @@ async def _create_resolution_widget(
     )
 
 
-async def _post_review(reviewer: Member, request: Request, opinion: Opinion, review_text: str) -> Message:
+async def _post_review(reviewer: Member, request: Request, opinion: Opinion, review_text: str, append_summary: bool) -> Message:
+    if not append_summary:
+        summary = ""
+    elif opinion == Opinion.APPROVED:
+        summary = TextPieceID.REQUEST_SUMMARY_GOOD
+    else:
+        summary = TextPieceID.REQUEST_SUMMARY_BAD
+
     return await post(
         RouteID.REVIEW_TEXT,
         TextPieceID.REQUEST_REVIEW,
@@ -262,7 +270,7 @@ async def _post_review(reviewer: Member, request: Request, opinion: Opinion, rev
             level_id=request.level_id,
             level_name=request.level_name,
             review_text=review_text,
-            summary=TextPieceID.REQUEST_SUMMARY_GOOD if opinion == Opinion.APPROVED else TextPieceID.REQUEST_SUMMARY_BAD
+            summary=summary
         )
     )
 
@@ -301,7 +309,8 @@ async def add_opinion(reviewer: Member, request_id: int, opinion: Opinion, revie
         associated_review = None
         associated_review_message = None
         if review_text:
-            associated_review_message = await _post_review(reviewer, request, opinion, review_text)
+            append_summary = get_parameter_value(ParameterID.REQUEST_APPEND_CONCLUSION_TO_REVIEW, bool)
+            associated_review_message = await _post_review(reviewer, request, opinion, review_text, append_summary)
             associated_review = RequestReview(
                 author_user_id=reviewer.id,
                 text=review_text,
@@ -372,7 +381,7 @@ async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | N
         associated_review = None
         associated_review_message = None
         if review_text:
-            associated_review_message = await _post_review(resolving_mod, request, opinion, review_text)
+            associated_review_message = await _post_review(resolving_mod, request, opinion, review_text, True)
             associated_review = RequestReview(
                 author_user_id=resolving_mod.id,
                 text=review_text,
