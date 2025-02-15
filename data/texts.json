@@ -358,6 +358,16 @@
     "eng": "This level hasn't been requested yet",
     "rus": "Этот левел еще не был реквестнут"
   },
+  "request.no_ignored": {
+    "description": "Сообщение, выводящееся при запросе активного реквеста без оценок ревьюеров, когда таковых нет",
+    "eng": "All pending requests have at least one reviewer's opinion",
+    "rus": "У каждого активного реквеста есть хотя бы одна оценка от ревьюера"
+  },
+  "request.no_unresolved": {
+    "description": "Сообщение, выводящееся при запросе активного реквеста без оценок ревьюеров, когда таковых нет",
+    "eng": "No request is currently awaiting the final decision",
+    "rus": "Нет реквестов в ожидании финального решения"
+  },
   "queue.queue_closed_error": {
     "description": "Ошибка, возникающая при попытке зареквестить уровень, когда очередь закрыта",
     "eng": "A level was not requested, because the request queue is temporarily closed. Please wait until moderators resolve previous requests",

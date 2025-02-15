@@ -7,7 +7,10 @@ from components.modals.request_submission import RequestSubmissionModal
 from facades.parameters import get_value as get_parameter_value
 from facades.cooldowns import get_current_cooldown_eagerly
 from facades.permissions import has_permission
-from facades.requests import assert_level_requestable, count_pending_requests, create_limbo_request, get_last_complete_request, LevelAlreadyApprovedException, PreviousLevelRequestPendingException
+from facades.requests import (
+    assert_level_requestable, count_pending_requests, create_limbo_request, get_last_complete_request, get_oldest_ignored_request, get_oldest_unresolved_request, LevelAlreadyApprovedException,
+    PreviousLevelRequestPendingException,
+)
 from facades.texts import render_text
 from services.disc import find_message, member_language, requires_permission, respond
 from services.gd import get_level, LevelGrade
@@ -153,6 +156,38 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
         if request.resolution_message_channel_id and request.resolution_message_id:
             resolution_widget = await find_message(request.resolution_message_channel_id, request.resolution_message_id)
             response_text += "\n" + as_link(resolution_widget.jump_url, render_text(TextPieceID.REQUEST_INFO_MODERATORS_WIDGET_LINK_TEXT, user_lang))
+
+        await respond(inter, response_text, ephemeral=True)
+
+    @app_commands.command(description="Get widget links for a requested level")
+    @requires_permission(PermissionFlagID.REVIEWER)
+    async def ignored(self, inter: discord.Interaction) -> None:
+        await inter.response.defer(ephemeral=True)
+
+        request = await get_oldest_ignored_request()
+        if not request or not request.details_message_channel_id or not request.details_message_id:
+            await respond(inter, TextPieceID.REQUEST_NO_IGNORED, ephemeral=True)
+            return
+
+        user_lang = member_language(inter.user, inter.locale).language
+        details_message = await find_message(request.details_message_channel_id, request.details_message_id)
+        response_text = as_link(details_message.jump_url, render_text(TextPieceID.REQUEST_INFO_REVIEWERS_WIDGET_LINK_TEXT, user_lang))
+
+        await respond(inter, response_text, ephemeral=True)
+
+    @app_commands.command(description="Get widget links for a requested level")
+    @requires_permission(PermissionFlagID.GD_MOD)
+    async def unresolved(self, inter: discord.Interaction) -> None:
+        await inter.response.defer(ephemeral=True)
+
+        request = await get_oldest_unresolved_request()
+        if not request or not request.resolution_message_id or not request.resolution_message_channel_id:
+            await respond(inter, TextPieceID.REQUEST_NO_UNRESOLVED, ephemeral=True)
+            return
+
+        user_lang = member_language(inter.user, inter.locale).language
+        resolution_widget = await find_message(request.resolution_message_channel_id, request.resolution_message_id)
+        response_text = as_link(resolution_widget.jump_url, render_text(TextPieceID.REQUEST_INFO_MODERATORS_WIDGET_LINK_TEXT, user_lang))
 
         await respond(inter, response_text, ephemeral=True)
 

@@ -72,8 +72,21 @@ async def get_request_by_id(request_id: int) -> Request | None:
 
 async def get_last_complete_request(level_id: int) -> Request | None:
     with Session(engine) as session:
-        req_query = select(Request).where(Request.level_id == level_id, Request.requested_at != None).order_by(col(Request.requested_at).desc())
-        return session.exec(req_query).first()
+        query = select(Request).where(Request.level_id == level_id, Request.requested_at != None).order_by(col(Request.requested_at).desc())  # noqa
+        return session.exec(query).first()  # noqa
+
+
+async def get_oldest_ignored_request() -> Request | None:
+    with Session(engine) as session:
+        query = select(Request).where(Request.resolution_message_id == None, Request.requested_at != None).order_by(Request.requested_at)  # noqa
+        return session.exec(query).first()  # noqa
+
+
+async def get_oldest_unresolved_request() -> Request | None:
+    with Session(engine) as session:
+        resolved_request_ids = select(RequestOpinion.request_id).where(RequestOpinion.is_resolution == True)
+        query = select(Request).where(~col(Request.id).in_(resolved_request_ids), Request.requested_at != None).order_by(Request.requested_at)  # noqa
+        return session.exec(query).first()  # noqa
 
 
 async def create_limbo_request(level_id: int, request_language: Language, invoker: Member) -> int:

@@ -74,6 +74,8 @@ class TextPieceID(Enum):
     REQUEST_INFO_REVIEWERS_WIDGET_LINK_TEXT = "request_info.reviewers_widget_link_text"
     REQUEST_INFO_MODERATORS_WIDGET_LINK_TEXT = "request_info.moderators_widget_link_text"
     REQUEST_INFO_REQUEST_NOT_FOUND = "request_info.request_not_found"
+    REQUEST_NO_IGNORED = "request.no_ignored"
+    REQUEST_NO_UNRESOLVED = "request.no_unresolved"
     QUEUE_QUEUE_CLOSED_ERROR = "queue.queue_closed_error"
     QUEUE_INFO = "queue.info"
     QUEUE_INFO_OPEN_HEADER = "queue.info.open_header"
