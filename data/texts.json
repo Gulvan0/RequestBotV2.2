@@ -343,6 +343,21 @@
     "eng": "{request_author}, your level {level_name} (ID: {level_id}) was rejected by {responsible_mod_mention} with a following reason:\n{reason}",
     "rus": "{request_author}, модератор {responsible_mod_mention} отклонил уровень {level_name} (ID: {level_id}). Причина:\n{reason}"
   },
+  "request_info.reviewers_widget_link_text": {
+    "description": "Текст на ссылке на сообщение с виджетом ревьюеров",
+    "eng": "Reviewer's widget",
+    "rus": "Виджет ревьюеров"
+  },
+  "request_info.moderators_widget_link_text": {
+    "description": "Текст на ссылке на сообщение с виджетом модераторов",
+    "eng": "Moderator's widget",
+    "rus": "Виджет модераторов"
+  },
+  "request_info.request_not_found": {
+    "description": "Сообщение, выводящееся при попытке посмотреть информацию по реквестнутому уровню в случае, когда этот левел еще не реквестили",
+    "eng": "This level hasn't been requested yet",
+    "rus": "Этот левел еще не был реквестнут"
+  },
   "queue.queue_closed_error": {
     "description": "Ошибка, возникающая при попытке зареквестить уровень, когда очередь закрыта",
     "eng": "A level was not requested, because the request queue is temporarily closed. Please wait until moderators resolve previous requests",

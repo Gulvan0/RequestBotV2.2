@@ -70,6 +70,12 @@ async def get_request_by_id(request_id: int) -> Request | None:
         return session.get(Request, request_id)
 
 
+async def get_last_complete_request(level_id: int) -> Request | None:
+    with Session(engine) as session:
+        req_query = select(Request).where(Request.level_id == level_id, Request.requested_at != None).order_by(col(Request.requested_at).desc())
+        return session.exec(req_query).first()
+
+
 async def create_limbo_request(level_id: int, request_language: Language, invoker: Member) -> int:
     with Session(engine) as session:
         new_entry = Request(

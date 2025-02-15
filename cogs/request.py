@@ -7,11 +7,12 @@ from components.modals.request_submission import RequestSubmissionModal
 from facades.parameters import get_value as get_parameter_value
 from facades.cooldowns import get_current_cooldown_eagerly
 from facades.permissions import has_permission
-from facades.requests import assert_level_requestable, count_pending_requests, create_limbo_request, LevelAlreadyApprovedException, PreviousLevelRequestPendingException
-from services.disc import member_language, respond
+from facades.requests import assert_level_requestable, count_pending_requests, create_limbo_request, get_last_complete_request, LevelAlreadyApprovedException, PreviousLevelRequestPendingException
+from facades.texts import render_text
+from services.disc import find_message, member_language, requires_permission, respond
 from services.gd import get_level, LevelGrade
 from util.datatypes import CooldownEntity
-from util.format import as_code, as_timestamp, as_user
+from util.format import as_code, as_link, as_timestamp, as_user
 from util.identifiers import ParameterID, PermissionFlagID, StageParameterID, TextPieceID
 from config.stage_parameters import get_value as get_stage_parameter_value
 
@@ -135,6 +136,25 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
         continue_view.add_item(btn)
         await inter.edit_original_response(content="", view=continue_view)
 
+    @app_commands.command(description="Get widget links for a requested level")
+    @app_commands.describe(level_id="ID of a level you want to get the widgets of")
+    @requires_permission(PermissionFlagID.GD_MOD)
+    async def widgets(self, inter: discord.Interaction, level_id: app_commands.Range[int, 200, 1000000000]) -> None:
+        await inter.response.defer(ephemeral=True)
+
+        request = await get_last_complete_request(level_id)
+        if not request or not request.details_message_channel_id or not request.details_message_id:
+            await respond(inter, TextPieceID.REQUEST_INFO_REQUEST_NOT_FOUND, ephemeral=True)
+            return
+
+        user_lang = member_language(inter.user, inter.locale).language
+        details_message = await find_message(request.details_message_channel_id, request.details_message_id)
+        response_text = as_link(details_message.jump_url, render_text(TextPieceID.REQUEST_INFO_REVIEWERS_WIDGET_LINK_TEXT, user_lang))
+        if request.resolution_message_channel_id and request.resolution_message_id:
+            resolution_widget = await find_message(request.resolution_message_channel_id, request.resolution_message_id)
+            response_text += "\n" + as_link(resolution_widget.jump_url, render_text(TextPieceID.REQUEST_INFO_MODERATORS_WIDGET_LINK_TEXT, user_lang))
+
+        await respond(inter, response_text, ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(RequestCog(bot))
