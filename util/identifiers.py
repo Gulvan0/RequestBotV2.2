@@ -17,6 +17,10 @@ class LoggedEventTypeID(Enum):
     REQUEST_REQUESTED = "REQUEST_REQUESTED"
     REQUEST_OPINION_ADDED = "REQUEST_OPINION_ADDED"
     REQUEST_RESOLUTION_ADDED = "REQUEST_RESOLUTION_ADDED"
+    TRAINEE_REVIEW_ADDED = "TRAINEE_REVIEW_ADDED"
+    TRAINEE_REVIEW_RESOLVED = "TRAINEE_REVIEW_RESOLVED"
+    TRAINEE_PROMOTED = "TRAINEE_PROMOTED"
+    TRAINEE_EXPELLED = "TRAINEE_EXPELLED"
 
 
 @unique
@@ -80,6 +84,11 @@ class TextPieceID(Enum):
     REQUEST_NO_UNRESOLVED = "request.no_unresolved"
     REQUEST_NO_REVIEWS = "request.no_reviews"
     REQUEST_INSERT_COMMAND_CREATOR_MUST_BE_SPECIFIED = "request_insert_command.creator_must_be_specified"
+    TRAINEE_REVIEW_MODAL_TITLE = "trainee_review_modal.title"
+    TRAINEE_REVIEW_MODAL_FEEDBACK_LABEL = "trainee_review_modal.feedback.label"
+    TRAINEE_REVIEW_MODAL_FEEDBACK_PLACEHOLDER = "trainee_review_modal.feedback.placeholder"
+    TRAINEE_REVIEW_RESOLUTION_RESPONSE_FEW_REVIEWS = "trainee_review.resolution_response.few_reviews"
+    TRAINEE_REVIEW_RESOLUTION_RESPONSE_PROMOTION_READY = "trainee_review.resolution_response.promotion_ready"
     QUEUE_QUEUE_CLOSED_ERROR = "queue.queue_closed_error"
     QUEUE_INFO = "queue.info"
     QUEUE_INFO_OPEN_HEADER = "queue.info.open_header"
@@ -124,6 +133,7 @@ class ParameterID(Enum):
     COOLDOWN_POST_REQUEST_USER_CD = "cooldown.post_request_user_cd"
     COOLDOWN_POST_REJECT_LEVEL_CD = "cooldown.post_reject_level_cd"
     REQUEST_APPEND_CONCLUSION_TO_REVIEW = "request.append_conclusion_to_review"
+    TRAINEE_RESOLVED_REVIEWS_FOR_PROMOTION_DECISION = "trainee.resolved_reviews_for_promotion_decision"
 
 
 @unique
@@ -132,6 +142,7 @@ class PermissionFlagID(Enum):
     LOG_VIEWER = "log_viewer"
     REVIEWER = "reviewer"
     TRAINEE = "trainee"
+    TRAINEE_SUPERVISOR = "trainee_supervisor"
     GD_MOD = "gd_mod"
     BAN_LEVELS = "ban_levels"
     BAN_USERS = "ban_users"
@@ -144,6 +155,7 @@ class PermissionFlagID(Enum):
 
 @unique
 class StageParameterID(Enum):
+    GUILD_ID = "guild_id"
     SPEAKS_RUSSIAN_ROLE_ID = "speaks_russian_role_id"
     ADMIN_USER_ID = "admin_user_id"
     DEVELOPER_USER_IDS = "developer_user_ids"

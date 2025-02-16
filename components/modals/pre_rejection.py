@@ -28,9 +28,10 @@ class PreRejectionModal(GenericModal):
         review_text = text_input_values.get("prm:rti")
         reason = text_input_values.get("prm:ri")
 
-        import facades.requests
         if has_permission(interaction.user, PermissionFlagID.TRAINEE, allow_admin=False):
-            await facades.requests.add_trainee_review(interaction.user, request_id, Opinion.REJECTED, review_text, reason)
+            import facades.trainee
+            await facades.trainee.add_trainee_review(interaction.user, request_id, Opinion.REJECTED, review_text, reason)
         else:
+            import facades.requests
             await facades.requests.add_opinion(interaction.user, request_id, Opinion.REJECTED, review_text=review_text, reason=reason)
         await respond(interaction, TextPieceID.COMMON_SUCCESS, ephemeral=True)

@@ -11,7 +11,6 @@ from database.db import engine
 from database.models import Request, RequestOpinion, RequestReview
 from facades.eventlog import add_entry
 from facades.parameters import get_value as get_parameter_value, update_value as update_parameter_value
-from facades.texts import render_text
 from services.disc import find_message, post, post_raw_text
 from services.gd import get_level
 from services.yt import get_video_id_by_url
@@ -336,51 +335,6 @@ async def count_pending_requests() -> int:
     )
     with Session(engine) as session:
         return session.exec(query).one() or 0  # noqa
-
-
-async def add_trainee_review(reviewer: Member, request_id: int, opinion: Opinion, review_text: str, rejection_reason: str | None = None) -> None:
-    with Session(engine) as session:
-        request: Request = session.get(Request, request_id)  # noqa
-
-    assert request
-
-    details_widget = None
-    if request.details_message_id and request.details_message_channel_id:
-        details_widget = await find_message(request.details_message_channel_id, request.details_message_id)
-
-    message_lines = [
-        f"Review by {reviewer.mention}",
-        f"Level: {request.level_name} (ID: {request.level_id})",
-    ]
-
-    if details_widget:
-        message_lines.append(as_link(details_widget.jump_url, "Info Widget"))
-
-    message_lines += [
-        "Review:",
-        review_text,
-        render_text(TextPieceID.REQUEST_SUMMARY_GOOD if opinion == Opinion.APPROVED else TextPieceID.REQUEST_SUMMARY_BAD, request.language)
-    ]
-
-    if rejection_reason:
-        message_lines.append(f"**Rejection reason**: {as_code(rejection_reason)}")
-
-    review_message = await post_raw_text(
-        RouteID.TRAINEE_REVIEW_TEXT,
-        "\n".join(message_lines)
-    )
-
-    with Session(engine) as session:
-        session.add(RequestReview(
-            author_user_id=reviewer.id,
-            text=review_text,
-            message_id=review_message.id,
-            message_channel_id=review_message.channel.id,
-            opinion=opinion,
-            request=request,
-            is_trainee=True
-        ))
-        session.commit()
 
 
 async def add_opinion(reviewer: Member, request_id: int, opinion: Opinion, review_widget_message: Message | None = None, review_text: str | None = None, reason: str | None = None) -> None:

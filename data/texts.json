@@ -120,17 +120,17 @@
     "rus": "Не удалось отправить реквест: неверная ссылка на шоукейс!"
   },
   "request_pending_widget.opinion_already_exists": {
-    "description": "Ошибка, возникающая, когда ревьюер, уже оставлявший мнение о реквесте, пытается сделать это снова",
+    "description": "Ошибка, возникающая, когда обзорщик, уже оставлявший мнение о реквесте, пытается сделать это снова",
     "param_descriptions": {
-      "prev_opinion_ts": "Предварительно отформатированный таймстемп момента, когда этот ревьюер в прошлый раз оставил мнение об этом реквесте"
+      "prev_opinion_ts": "Предварительно отформатированный таймстемп момента, когда этот обзорщик в прошлый раз оставил мнение об этом реквесте"
     },
     "eng": "You have already responded to this request {prev_opinion_ts}",
     "rus": "Вы уже оставляли мнение об этом реквесте {prev_opinion_ts}"
   },
   "request_pending_widget.review_already_exists": {
-    "description": "Ошибка, возникающая, когда кандидат в ревьюеры, уже написавший ревью на уровень, пытается сделать это снова",
+    "description": "Ошибка, возникающая, когда кандидат в обзорщик, уже написавший ревью на уровень, пытается сделать это снова",
     "param_descriptions": {
-      "prev_review_ts": "Предварительно отформатированный таймстемп момента, когда этот ревьюер в прошлый раз написал ревью на этот уровень"
+      "prev_review_ts": "Предварительно отформатированный таймстемп момента, когда этот обзорщик в прошлый раз написал обзор на этот уровень"
     },
     "eng": "You have already reviewed this level {prev_review_ts}",
     "rus": "Вы уже написали обзор на этот уровень {prev_review_ts}"
@@ -149,27 +149,27 @@
     "rus": "Вы уже вынесли резолюцию по этому реквесту {prev_resolution_ts}"
   },
   "request_opinion_modal.title": {
-    "description": "Заголовок окна, всплывающего, когда ревьюер оставляет свое мнение о реквесте",
+    "description": "Заголовок окна, всплывающего, когда обзорщик оставляет свое мнение о реквесте",
     "eng": "Submit Opinion",
     "rus": "Отправка оценки"
   },
   "request_opinion_modal.reason.label": {
-    "description": "Название поля для ввода ревьюером причины отказа",
+    "description": "Название поля для ввода обзорщиком причины отказа",
     "eng": "Rejection Reason",
     "rus": "Обоснование отказа"
   },
   "request_opinion_modal.reason.placeholder": {
-    "description": "Текст, отображающийся в поле для ввода ревьюером причины отказа, пока оно пустое",
+    "description": "Текст, отображающийся в поле для ввода обзорщиком причины отказа, пока оно пустое",
     "eng": "Why did you decide to reject this level?",
     "rus": "Почему Вы решили отклонить этот уровень"
   },
   "request_opinion_modal.review.label": {
-    "description": "Название поля для ввода ревьюером текста обзора",
+    "description": "Название поля для ввода обзорщиком текста обзора",
     "eng": "Review Text",
     "rus": "Текст обзора"
   },
   "request_opinion_modal.review.placeholder": {
-    "description": "Текст, отображающийся в поле для ввода ревьюером текста обзора, пока оно пустое",
+    "description": "Текст, отображающийся в поле для ввода обзорщиком текста обзора, пока оно пустое",
     "eng": "What are the strong and the weak sides of this level? How it can be improved?",
     "rus": "Какие у этого уровня сильные и слабые стороны? Как его можно улучшить?"
   },
@@ -292,7 +292,7 @@
       "level_id": "ID уровня, на который написан обзор",
       "level_name": "Название уровня, на который написан обзор. Ожидается, что уже отформатировано как код",
       "review_text": "Текст ревью",
-      "summary": "Итоговое мнение ревьюера об уровне (хороший/плохой). Варианты представлены отдельными шаблонами"
+      "summary": "Итоговое мнение обзорщика об уровне (хороший/плохой). Варианты представлены отдельными шаблонами"
     },
     "eng": "{request_author}, {reviewer_mention} wrote a review of your level {level_name} (ID: {level_id}):\n{review_text}\n{summary}",
     "rus": "{request_author}, {reviewer_mention} написал обзор на уровень {level_name} (ID: {level_id}):\n{review_text}\n{summary}"
@@ -390,6 +390,41 @@
     "description": "Ошибка, возникающая при попытке искусственно создать реквест, когда ни тег, ни имя креатора не предоставлены",
     "eng": "You have to specify either `creator_mention` (preferred) or `creator_name`",
     "rus": "Вы должны указать креатора: укажите либо `creator_mention` (предпочтительно), либо `creator_name`"
+  },
+  "trainee_review_modal.title": {
+    "description": "Заголовок окна для дачи фидбека, всплывающего при оценке обзора кандидата в обзорщики",
+    "eng": "Submit Feedback",
+    "rus": "Отправка фидбека"
+  },
+  "trainee_review_modal.feedback.label": {
+    "description": "Название поля для ввода фидбека на обзор",
+    "eng": "Feedback (optional)",
+    "rus": "Фидбек (не обязательно)"
+  },
+  "trainee_review_modal.feedback.placeholder": {
+    "description": "Текст, отображающийся в поле для ввода фидбека на обзор, пока оно пустое",
+    "eng": "Which aspects of this review are implemented nicely? How this review can be improved?",
+    "rus": "Какие аспекты этого обзора реализованы хорошо? Что нужно доработать?"
+  },
+  "trainee_review.resolution_response.few_reviews": {
+    "description": "Сообщение, выводящееся после оценки обзора кандидата в обзорщики, когда порог количества оцененных ревью для принятия решения о повышении еще не пройден",
+    "param_descriptions": {
+      "resolved_review_cnt": "Сколько обзоров кандидата оценено",
+      "pending_review_cnt": "Сколько обзоров кандидата готовы и ожидают оценки",
+      "reviews_left_until_threshold_cnt": "Сколько обзоров кандидата осталось оценить, чтобы достичь порога принятия решения о повышении",
+      "acceptance_percent": "Доля одобренных ревью в процентах (без знака процента)"
+    },
+    "eng": "**Resolved reviews by this trainee:** {resolved_review_cnt}\n**Reviews by this trainee awaiting resolution:** {pending_review_cnt}\n**Reviews left until promotion decision:** {reviews_left_until_threshold_cnt}\n\n**Accepted reviews ratio:** {acceptance_percent}%",
+    "rus": "**Оценено обзоров кандидата:** {resolved_review_cnt}\n**Готовых обзоров кандидата, ожидающих оценки:** {pending_review_cnt}\n**Осталось оценить до принятия решения о повышении:** {reviews_left_until_threshold_cnt}\n\n**Доля одобренных обзоров кандидата:** {acceptance_percent}%"
+  },
+  "trainee_review.resolution_response.promotion_ready": {
+    "description": "Сообщение, выводящееся после оценки обзора кандидата в обзорщики, когда пройден порог количества оцененных ревью для принятия решения о повышении",
+    "param_descriptions": {
+      "resolved_review_cnt": "Сколько обзоров кандидата оценено",
+      "acceptance_percent": "Доля одобренных ревью в процентах (без знака процента)"
+    },
+    "eng": "**Resolved reviews by this trainee:** {resolved_review_cnt}\n**Accepted reviews ratio:** {acceptance_percent}%",
+    "rus": "**Оценено обзоров кандидата:** {resolved_review_cnt}\n**Доля одобренных обзоров:** {acceptance_percent}%"
   },
   "queue.queue_closed_error": {
     "description": "Ошибка, возникающая при попытке зареквестить уровень, когда очередь закрыта",

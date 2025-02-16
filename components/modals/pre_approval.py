@@ -26,9 +26,10 @@ class PreApprovalModal(GenericModal):
         request_id = int(custom_id_fields[0])
         review_text = text_input_values.get("pam:rti")
 
-        import facades.requests
         if has_permission(interaction.user, PermissionFlagID.TRAINEE, allow_admin=False):
-            await facades.requests.add_trainee_review(interaction.user, request_id, Opinion.APPROVED, review_text)
+            import facades.trainee
+            await facades.trainee.add_trainee_review(interaction.user, request_id, Opinion.APPROVED, review_text)
         else:
+            import facades.requests
             await facades.requests.add_opinion(interaction.user, request_id, Opinion.APPROVED, review_text=review_text)
         await respond(interaction, TextPieceID.COMMON_SUCCESS, ephemeral=True)

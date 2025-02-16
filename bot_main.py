@@ -17,17 +17,20 @@ from components.modals.pre_rejection import PreRejectionModal
 from components.modals.pre_rejection_no_review import PreRejectionNoReviewModal
 from components.modals.rejection import RejectionModal
 from components.modals.request_submission import RequestSubmissionModal
+from components.modals.trainee_review_feedback import TraineeReviewFeedbackModal
 from components.views.pending_request_widget import PendingRequestWidgetApproveAndReviewBtn, PendingRequestWidgetJustApproveBtn, PendingRequestWidgetJustRejectBtn, PendingRequestWidgetRejectAndReviewBtn
 from components.views.resolution_widget import ResolutionWidgetEpicBtn, ResolutionWidgetFeatureBtn, ResolutionWidgetLegendaryBtn, ResolutionWidgetMythicBtn, ResolutionWidgetRejectBtn, ResolutionWidgetStarrateBtn
+from components.views.trainee_review_widget import TraineeReviewWidgetAcceptBtn, TraineeReviewWidgetRejectBtn
 from config.texts import validate as validate_texts
 from config.routes import validate as validate_routes
 from config.parameters import validate as validate_parameters
-from config.stage_parameters import validate as validate_stage_parameters
+from config.stage_parameters import validate as validate_stage_parameters, get_value as get_stage_parameter_value
 from config.permission_flags import validate as validate_permission_flags
 from database.db import create_db_and_tables
 from database.models import *  # noqa
 from globalconf import CONFIG
 from util.datatypes import Stage
+from util.identifiers import StageParameterID
 
 
 class RequestBot(commands.Bot):
@@ -75,7 +78,7 @@ class RequestBot(commands.Bot):
         self.client = aiohttp.ClientSession()
         await self._load_extensions()
 
-        guild_id = 992102986052534292 if CONFIG.stage == Stage.PROD else 942429314434088990
+        guild_id = get_stage_parameter_value(StageParameterID.GUILD_ID)
         guild = discord.Object(id=guild_id)
 
         if not self.synced:
@@ -94,6 +97,8 @@ class RequestBot(commands.Bot):
         self.add_dynamic_items(ResolutionWidgetMythicBtn)
         self.add_dynamic_items(ResolutionWidgetLegendaryBtn)
         self.add_dynamic_items(ResolutionWidgetRejectBtn)
+        self.add_dynamic_items(TraineeReviewWidgetAcceptBtn)
+        self.add_dynamic_items(TraineeReviewWidgetRejectBtn)
 
     @staticmethod
     async def on_interaction(inter: discord.Interaction):
@@ -111,6 +116,8 @@ class RequestBot(commands.Bot):
                 await ApprovalModal.handle_interaction(inter)
             elif custom_id.startswith("rm:"):
                 await RejectionModal.handle_interaction(inter)
+            elif custom_id.startswith("trf:"):
+                await TraineeReviewFeedbackModal.handle_interaction(inter)
 
     def run(self, *args: tp.Any, **kwargs: tp.Any) -> None:
         try:
