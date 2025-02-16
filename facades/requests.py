@@ -88,12 +88,6 @@ async def get_oldest_unresolved_request() -> Request | None:
         return session.exec(query).first()  # noqa
 
 
-async def get_level_reviews(level_id: int) -> list[RequestReview]:
-    with Session(engine) as session:
-        query = select(RequestReview).join(Request).where(Request.level_id == level_id, RequestReview.is_trainee == False).order_by(RequestReview.created_at)  # noqa
-        return [x for x in session.exec(query)]  # noqa
-
-
 async def create_limbo_request(level_id: int, request_language: Language, invoker: Member, creator: Member | str | None = None) -> int:
     match creator:
         case Member():
