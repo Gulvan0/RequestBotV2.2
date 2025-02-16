@@ -12,7 +12,7 @@ from util.identifiers import LoggedEventTypeID, ParameterID, PermissionFlagID, R
 
 
 class QueueCog(commands.GroupCog, name="queue", description="Commands for controlling request queue"):
-    @app_commands.command(description="Open a queue manually. Note that you might also want to disable auto-block")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_QUEUE_OPEN.as_locale_str())
     @requires_permission(PermissionFlagID.ADMIN)
     async def open(self, inter: discord.Interaction) -> None:
         try:
@@ -26,7 +26,7 @@ class QueueCog(commands.GroupCog, name="queue", description="Commands for contro
             )
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Close a queue manually. Note that you might also want to disable auto-unblock")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_QUEUE_CLOSE.as_locale_str())
     @requires_permission(PermissionFlagID.ADMIN)
     async def close(self, inter: discord.Interaction) -> None:
         try:
@@ -40,7 +40,7 @@ class QueueCog(commands.GroupCog, name="queue", description="Commands for contro
             )
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Get info regarding the current state of the queue")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_QUEUE_INFO.as_locale_str())
     @requires_permission(PermissionFlagID.ADMIN)
     async def info(self, inter: discord.Interaction) -> None:
         await respond(
@@ -55,7 +55,7 @@ class QueueCog(commands.GroupCog, name="queue", description="Commands for contro
             ephemeral=True
         )
 
-    @app_commands.command(description="Get block/unblock history")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_QUEUE_HISTORY.as_locale_str())
     @requires_permission(PermissionFlagID.ADMIN)
     async def history(self, inter: discord.Interaction) -> None:
         await LogPaginationView(

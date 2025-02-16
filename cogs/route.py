@@ -13,8 +13,8 @@ from util.identifiers import PermissionFlagID, RouteID, TextPieceID
 
 
 class RouteCog(commands.GroupCog, name="route", description="Utilities for working with routes, which dictate whether and where the messages are delivered"):
-    @app_commands.command(description="View details about a route")
-    @app_commands.describe(route="Route to describe")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_ROUTE_DESCRIBE.as_locale_str())
+    @app_commands.describe(route=TextPieceID.COMMAND_OPTION_ROUTE_DESCRIBE_ROUTE.as_locale_str())
     @app_commands.choices(route=CommandChoiceOption.from_enum(RouteID))
     @requires_permission(PermissionFlagID.ADMIN)
     async def describe(self, inter: discord.Interaction, route: RouteID) -> None:
@@ -32,10 +32,10 @@ class RouteCog(commands.GroupCog, name="route", description="Utilities for worki
 
         await respond(inter, lines, ephemeral=True)
 
-    @app_commands.command(description="Update a route's destination channel")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_ROUTE_UPDATE_CHANNEL.as_locale_str())
     @app_commands.describe(
-        route="Route to update",
-        new_value="New destination channel"
+        route=TextPieceID.COMMAND_OPTION_ROUTE_UPDATE_CHANNEL_ROUTE.as_locale_str(),
+        new_value=TextPieceID.COMMAND_OPTION_ROUTE_UPDATE_CHANNEL_NEW_VALUE.as_locale_str()
     )
     @app_commands.choices(route=CommandChoiceOption.from_enum(RouteID))
     @requires_permission(PermissionFlagID.ADMIN)
@@ -47,8 +47,8 @@ class RouteCog(commands.GroupCog, name="route", description="Utilities for worki
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Reset a route's destination channel to its default value")
-    @app_commands.describe(route="Route to reset")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_ROUTE_RESET_CHANNEL.as_locale_str())
+    @app_commands.describe(route=TextPieceID.COMMAND_OPTION_ROUTE_RESET_CHANNEL_ROUTE.as_locale_str())
     @app_commands.choices(route=CommandChoiceOption.from_enum(RouteID))
     @requires_permission(PermissionFlagID.ADMIN)
     async def reset_channel(self, inter: discord.Interaction, route: RouteID) -> None:
@@ -59,8 +59,8 @@ class RouteCog(commands.GroupCog, name="route", description="Utilities for worki
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Enable a route, allowing the messages to be delivered through it")
-    @app_commands.describe(route="Route to enable")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_ROUTE_ENABLE.as_locale_str())
+    @app_commands.describe(route=TextPieceID.COMMAND_OPTION_ROUTE_ENABLE_ROUTE.as_locale_str())
     @app_commands.choices(route=CommandChoiceOption.from_enum(RouteID))
     @requires_permission(PermissionFlagID.ADMIN)
     async def enable(self, inter: discord.Interaction, route: RouteID) -> None:
@@ -71,8 +71,8 @@ class RouteCog(commands.GroupCog, name="route", description="Utilities for worki
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Disable a route, preventing the messages sent through it to be delivered")
-    @app_commands.describe(route="Route to disable")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_ROUTE_DISABLE.as_locale_str())
+    @app_commands.describe(route=TextPieceID.COMMAND_OPTION_ROUTE_DISABLE_ROUTE.as_locale_str())
     @app_commands.choices(route=CommandChoiceOption.from_enum(RouteID))
     @requires_permission(PermissionFlagID.ADMIN)
     async def disable(self, inter: discord.Interaction, route: RouteID) -> None:
@@ -83,7 +83,7 @@ class RouteCog(commands.GroupCog, name="route", description="Utilities for worki
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="List all available routes")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_ROUTE_LIST.as_locale_str())
     @requires_permission(PermissionFlagID.ADMIN)
     async def list(self, inter: discord.Interaction) -> None:
         await respond(inter, list_described_values(enlist()), ephemeral=True)

@@ -9,8 +9,8 @@ from util.identifiers import TextPieceID
 
 
 class ReviewsCog(commands.GroupCog, name="reviews", description="Commands for managing reviews"):
-    @app_commands.command(description="Get all reviews written for a certain level. Won't include reviews written by trainees")
-    @app_commands.describe(level_id="ID of a level you want to retrieve all reviews for")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REVIEWS_LEVEL.as_locale_str())
+    @app_commands.describe(level_id=TextPieceID.COMMAND_OPTION_REVIEWS_LEVEL_LEVEL_ID.as_locale_str())
     async def level(self, inter: discord.Interaction, level_id: app_commands.Range[int, 200, 1000000000]) -> None:
         await inter.response.defer(ephemeral=True)
 
@@ -29,8 +29,8 @@ class ReviewsCog(commands.GroupCog, name="reviews", description="Commands for ma
 
         await respond(inter, response_lines, ephemeral=True)
 
-    @app_commands.command(description="Get last 20 reviews written by a certain reviewer")
-    @app_commands.describe(author="Author of the reviews to be retrieved")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REVIEWS_USER.as_locale_str())
+    @app_commands.describe(author=TextPieceID.COMMAND_OPTION_REVIEWS_USER_AUTHOR.as_locale_str())
     async def user(self, inter: discord.Interaction, author: Member) -> None:
         await inter.response.defer(ephemeral=True)
 

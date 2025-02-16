@@ -9,8 +9,8 @@ from util.identifiers import PermissionFlagID, TextPieceID
 
 
 class TraineeCog(commands.GroupCog, name="trainee", description="Commands for working with the trainee system"):
-    @app_commands.command(description="Promote a trainee to a regular reviewer")
-    @app_commands.describe(trainee="Trainee to be promoted")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_TRAINEE_PROMOTE.as_locale_str())
+    @app_commands.describe(trainee=TextPieceID.COMMAND_OPTION_TRAINEE_PROMOTE_TRAINEE.as_locale_str())
     @requires_permission(PermissionFlagID.TRAINEE_SUPERVISOR)
     async def promote(self, inter: Interaction, trainee: Member) -> None:
         try:
@@ -22,8 +22,8 @@ class TraineeCog(commands.GroupCog, name="trainee", description="Commands for wo
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Expel a member from the trainees")
-    @app_commands.describe(trainee="Trainee to be expelled")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_TRAINEE_EXPEL.as_locale_str())
+    @app_commands.describe(trainee=TextPieceID.COMMAND_OPTION_TRAINEE_EXPEL_TRAINEE.as_locale_str())
     @requires_permission(PermissionFlagID.TRAINEE_SUPERVISOR)
     async def expel(self, inter: Interaction, trainee: Member) -> None:
         try:
@@ -35,7 +35,7 @@ class TraineeCog(commands.GroupCog, name="trainee", description="Commands for wo
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Pick a random request to review")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_TRAINEE_PICK.as_locale_str())
     @requires_permission(PermissionFlagID.TRAINEE)
     async def pick(self, inter: Interaction) -> None:
         picked_data = await pick_random_request(inter.user)

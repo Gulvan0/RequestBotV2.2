@@ -14,14 +14,14 @@ from util.identifiers import PermissionFlagID, StageParameterID, TextPieceID
 
 
 class PermissionCog(commands.GroupCog, name="permission", description="Utilities for working with permissions"):
-    @app_commands.command(description="List all available permission flags")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_PERMISSION_LIST_FLAGS.as_locale_str())
     async def list_flags(self, inter: discord.Interaction) -> None:
         await respond(inter, list_described_values(enlist()), ephemeral=True)
 
-    @app_commands.command(description="Bind the permission to the role")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_PERMISSION_BIND.as_locale_str())
     @app_commands.describe(
-        permission="Permission to bind to a role",
-        role="Role to which a permission is bound"
+        permission=TextPieceID.COMMAND_OPTION_PERMISSION_BIND_PERMISSION.as_locale_str(),
+        role=TextPieceID.COMMAND_OPTION_PERMISSION_BIND_ROLE.as_locale_str()
     )
     @app_commands.choices(permission=CommandChoiceOption.from_enum(PermissionFlagID))
     async def bind(self, inter: discord.Interaction, permission: PermissionFlagID, role: discord.Role):
@@ -37,10 +37,10 @@ class PermissionCog(commands.GroupCog, name="permission", description="Utilities
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Unbind the permission from the role")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_PERMISSION_UNBIND.as_locale_str())
     @app_commands.describe(
-        permission="Permission to unbind from a role",
-        role="Role from which a permission is unbound"
+        permission=TextPieceID.COMMAND_OPTION_PERMISSION_UNBIND_PERMISSION.as_locale_str(),
+        role=TextPieceID.COMMAND_OPTION_PERMISSION_UNBIND_ROLE.as_locale_str()
     )
     @app_commands.choices(permission=CommandChoiceOption.from_enum(PermissionFlagID))
     @requires_permission(PermissionFlagID.ADMIN)
@@ -57,8 +57,8 @@ class PermissionCog(commands.GroupCog, name="permission", description="Utilities
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Unbind all the permissions from the role")
-    @app_commands.describe(role="Role to be cleared from permissions")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_PERMISSION_CLEAR.as_locale_str())
+    @app_commands.describe(role=TextPieceID.COMMAND_OPTION_PERMISSION_CLEAR_ROLE.as_locale_str())
     @requires_permission(PermissionFlagID.ADMIN)
     async def clear(self, inter: discord.Interaction, role: discord.Role):
         try:
@@ -68,7 +68,7 @@ class PermissionCog(commands.GroupCog, name="permission", description="Utilities
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="List all the permission-associated roles along with the permissions bound to them")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_PERMISSION_LIST_ROLES.as_locale_str())
     @requires_permission(PermissionFlagID.ADMIN)
     async def list_roles(self, inter: discord.Interaction):
         lines = []
@@ -79,8 +79,8 @@ class PermissionCog(commands.GroupCog, name="permission", description="Utilities
 
         await respond(inter, lines or TextPieceID.PERMISSION_NO_ASSIGNED_ROLES, ephemeral=True)
 
-    @app_commands.command(description="List all the permissions a member has and the roles that grant him/her those permissions")
-    @app_commands.describe(member="Member whose permissions to list")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_PERMISSION_DESCRIBE_MEMBER.as_locale_str())
+    @app_commands.describe(member=TextPieceID.COMMAND_OPTION_PERMISSION_DESCRIBE_MEMBER_MEMBER.as_locale_str())
     @requires_permission(PermissionFlagID.ADMIN)
     async def describe_member(self, inter: discord.Interaction, member: discord.Member):
         lines = []

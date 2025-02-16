@@ -13,8 +13,8 @@ from util.identifiers import PermissionFlagID, TextPieceID
 
 
 class TextCog(commands.GroupCog, name="text", description="Utilities for working with message templates"):
-    @app_commands.command(description="View details about a message template")
-    @app_commands.describe(template_name="Template name (aka. text piece ID)")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_TEXT_DESCRIBE.as_locale_str())
+    @app_commands.describe(template_name=TextPieceID.COMMAND_OPTION_TEXT_DESCRIBE_TEMPLATE_NAME.as_locale_str())
     @app_commands.choices(template_name=[])
     @app_commands.autocomplete(template_name=CommandChoiceOption.autocomplete_from_enum(TextPieceID))
     @requires_permission(PermissionFlagID.ADMIN)
@@ -42,11 +42,11 @@ class TextCog(commands.GroupCog, name="text", description="Utilities for working
 
         await respond(inter, lines, ephemeral=True)
 
-    @app_commands.command(description="Edit a message template")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_TEXT_EDIT.as_locale_str())
     @app_commands.describe(
-        template_name="Template name (aka. text piece ID)",
-        language="Template language",
-        new_value="Updated template text"
+        template_name=TextPieceID.COMMAND_OPTION_TEXT_EDIT_TEMPLATE_NAME.as_locale_str(),
+        language=TextPieceID.COMMAND_OPTION_TEXT_EDIT_LANGUAGE.as_locale_str(),
+        new_value=TextPieceID.COMMAND_OPTION_TEXT_EDIT_NEW_VALUE.as_locale_str()
     )
     @app_commands.autocomplete(template_name=CommandChoiceOption.autocomplete_from_enum(TextPieceID))
     @app_commands.choices(language=CommandChoiceOption.from_str_enum(Language), template_name=[])
@@ -59,10 +59,10 @@ class TextCog(commands.GroupCog, name="text", description="Utilities for working
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Reset a message template to its default value")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_TEXT_RESET.as_locale_str())
     @app_commands.describe(
-        template_name="Template name (aka. text piece ID)",
-        language="Template language"
+        template_name=TextPieceID.COMMAND_OPTION_TEXT_RESET_TEMPLATE_NAME.as_locale_str(),
+        language=TextPieceID.COMMAND_OPTION_TEXT_RESET_LANGUAGE.as_locale_str()
     )
     @app_commands.autocomplete(template_name=CommandChoiceOption.autocomplete_from_enum(TextPieceID))
     @app_commands.choices(language=CommandChoiceOption.from_str_enum(Language), template_name=[])
@@ -75,7 +75,7 @@ class TextCog(commands.GroupCog, name="text", description="Utilities for working
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="List all available message templates")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_TEXT_LIST.as_locale_str())
     @requires_permission(PermissionFlagID.ADMIN)
     async def list(self, inter: discord.Interaction) -> None:
         await respond(inter, list_described_values(enlist()), ephemeral=True)

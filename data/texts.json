@@ -587,15 +587,630 @@
     "eng": "Cannot cast the cooldown as its end ({new_ends_at}) is already in the past",
     "rus": "Не удалось наложить кулдаун, поскольку его конец ({new_ends_at}) уже в прошлом"
   },
-  "command_description.request_create": {
+  "command_description.request.create": {
     "description": "Описание команды `/request create`",
     "eng": "Request a level",
     "rus": "Зареквестить уровень"
   },
-  "command_option.request_create.level_id": {
+  "command_description.request.widgets": {
+    "description": "Описание команды `/request widgets`",
+    "eng": "Get widget links for a requested level",
+    "rus": "Получить ссылки на виджеты, связанные с реквестнутым уровнем"
+  },
+  "command_description.request.ignored": {
+    "description": "Описание команды `/request ignored`",
+    "eng": "Get the oldest pending request without opinions",
+    "rus": "Получить самый старый активный реквест без оценок"
+  },
+  "command_description.request.unresolved": {
+    "description": "Описание команды `/request unresolved`",
+    "eng": "Get the oldest request waiting for the final decision",
+    "rus": "Получить самый старый реквест, ожидающий финального решения"
+  },
+  "command_description.request.insert": {
+    "description": "Описание команды `/request insert`",
+    "eng": "Request a level on behalf of another creator bypassing all restrictions",
+    "rus": "Зареквестить уровень от имени другого пользователя. Обходит все ограничения"
+  },
+  "command_description.backup.save": {
+    "description": "Описание команды `/backup save`",
+    "eng": "Backup the database immediately",
+    "rus": "Сохранить бекап базы данных"
+  },
+  "command_description.backup.load": {
+    "description": "Описание команды `/backup load`",
+    "eng": "Overwrite the database from the file",
+    "rus": "Перезаписать содержимое базы данных из файла"
+  },
+  "command_description.language": {
+    "description": "Описание команды `/language`",
+    "eng": "Set the bot's language",
+    "rus": "Установить язык бота"
+  },
+  "command_description.help.duration": {
+    "description": "Описание команды `/help duration`",
+    "eng": "Explain how to specify a duration when passing it as a command argument",
+    "rus": "Объяснить, как указать продолжительность в качестве аргумента команды"
+  },
+  "command_description.help.timestamp": {
+    "description": "Описание команды `/help timestamp`",
+    "eng": "Explain how to specify a timestamp when passing it as a command argument",
+    "rus": "Объяснить, как указать временную метку в качестве аргумента команды"
+  },
+  "command_description.levelcd.list": {
+    "description": "Описание команды `/levelcd list`",
+    "eng": "List levels currently on cooldown",
+    "rus": "Перечислить уровни, находящиеся на кулдауне"
+  },
+  "command_description.levelcd.describe": {
+    "description": "Описание команды `/levelcd describe`",
+    "eng": "Describe the given level's current cooldown",
+    "rus": "Показать информацию по текущему кулдауну конкретного уровня"
+  },
+  "command_description.levelcd.amend": {
+    "description": "Описание команды `/levelcd amend`",
+    "eng": "Remove current cooldown for level",
+    "rus": "Снять уровень с кулдауна"
+  },
+  "command_description.levelcd.update": {
+    "description": "Описание команды `/levelcd update`",
+    "eng": "Put a level on a cooldown or modify the cooldown this level currently has",
+    "rus": "Отправить уровень на кулдаун или изменить его текущий кулдаун"
+  },
+  "command_description.levelcd.history": {
+    "description": "Описание команды `/levelcd history`",
+    "eng": "Show a cooldown history for a certain level",
+    "rus": "Показать историю кулдаунов конкретного уровня"
+  },
+  "command_description.usercd.list": {
+    "description": "Описание команды `/usercd list`",
+    "eng": "List users currently on cooldown",
+    "rus": "Перечислить пользователей, находящихся на кулдауне"
+  },
+  "command_description.usercd.describe": {
+    "description": "Описание команды `/usercd describe`",
+    "eng": "Describe the given user's current cooldown",
+    "rus": "Показать информацию по текущему кулдауну конкретного пользователя"
+  },
+  "command_description.usercd.amend": {
+    "description": "Описание команды `/usercd amend`",
+    "eng": "Remove current cooldown for user",
+    "rus": "Снять пользователя с кулдауна"
+  },
+  "command_description.usercd.update": {
+    "description": "Описание команды `/usercd update`",
+    "eng": "Put a user on a cooldown or modify the cooldown this user currently has",
+    "rus": "Отправить пользователя на кулдаун или изменить его текущий кулдаун"
+  },
+  "command_description.usercd.history": {
+    "description": "Описание команды `/usercd history`",
+    "eng": "Show a cooldown history for a certain user",
+    "rus": "Показать историю кулдаунов конкретного пользователя"
+  },
+  "command_description.log.restrict_user": {
+    "description": "Описание команды `/log restrict_user`",
+    "eng": "Only query actions performed by a provided user. Successive calls change the selected user",
+    "rus": "Выводить только события, вызванные конкретным пользователем. Повторный вызов заменит пользователя"
+  },
+  "command_description.log.restrict_type": {
+    "description": "Описание команды `/log restrict_type`",
+    "eng": "Only query events of a provided type",
+    "rus": "Выводить события только с указанным типом"
+  },
+  "command_description.log.restrict_custom_field": {
+    "description": "Описание команды `/log restrict_custom_field`",
+    "eng": "Only query events with a provided value of a provided custom field",
+    "rus": "Выводить только события, значение конкретного кастомного поля которых равно указанному"
+  },
+  "command_description.log.unrestrict_user": {
+    "description": "Описание команды `/log unrestrict_user`",
+    "eng": "Remove a user restriction in a current log filter",
+    "rus": "Удалить ограничение на пользователя в активном фильтре"
+  },
+  "command_description.log.unrestrict_type": {
+    "description": "Описание команды `/log unrestrict_type`",
+    "eng": "Remove an event type restriction in a current log filter",
+    "rus": "Удалить ограничение на тип события в активном фильтре"
+  },
+  "command_description.log.unrestrict_custom_field": {
+    "description": "Описание команды `/log unrestrict_custom_field`",
+    "eng": "Remove one custom field value restriction in a current log filter",
+    "rus": "Удалить ограничение на одно из кастомных полей в активном фильтре"
+  },
+  "command_description.log.clear_custom_field_restrictions": {
+    "description": "Описание команды `/log clear_custom_field_restrictions`",
+    "eng": "Remove all custom field value restrictions in a current log filter",
+    "rus": "Удалить все ограничения на кастомные поля в активном фильтре"
+  },
+  "command_description.log.clear_filter": {
+    "description": "Описание команды `/log clear_filter`",
+    "eng": "Remove all restrictions in a current log filter",
+    "rus": "Очистить все ограничения в активном фильтре"
+  },
+  "command_description.log.describe_filter": {
+    "description": "Описание команды `/log describe_filter`",
+    "eng": "Describe the filter",
+    "rus": "Описать фильтр"
+  },
+  "command_description.log.view": {
+    "description": "Описание команды `/log view`",
+    "eng": "Display logs matching the currently selected filter",
+    "rus": "Отобразить логи, подходящие под активный фильтр"
+  },
+  "command_description.log.list_filters": {
+    "description": "Описание команды `/log list_filters`",
+    "eng": "Lists all the available filters",
+    "rus": "Перечислить все доступные фильтры"
+  },
+  "command_description.log.select_filter": {
+    "description": "Описание команды `/log select_filter`",
+    "eng": "Select a saved filter",
+    "rus": "Выбрать сохраненный фильтр в качестве активного"
+  },
+  "command_description.log.save_filter": {
+    "description": "Описание команды `/log save_filter`",
+    "eng": "Save a currently selected filter. This allows it to be reused later",
+    "rus": "Сохранить активный фильтр. Это позволит переиспользовать его в дальнейшем"
+  },
+  "command_description.log.delete_filter": {
+    "description": "Описание команды `/log delete_filter`",
+    "eng": "Delete a certain filter",
+    "rus": "Удалить конкретный фильтр"
+  },
+  "command_description.parameter.describe": {
+    "description": "Описание команды `/parameter describe`",
+    "eng": "View details about a certain parameter",
+    "rus": "Отобразить информацию о конкретном параметре"
+  },
+  "command_description.parameter.set": {
+    "description": "Описание команды `/parameter set`",
+    "eng": "Update the value of a parameter",
+    "rus": "Обновить значение параметра"
+  },
+  "command_description.parameter.reset": {
+    "description": "Описание команды `/parameter reset`",
+    "eng": "Reset a parameter to its default value",
+    "rus": "Сбросить значение параметра до значения по умолчанию"
+  },
+  "command_description.parameter.list": {
+    "description": "Описание команды `/parameter list`",
+    "eng": "List all available parameters",
+    "rus": "Перечислить все доступные параметры"
+  },
+  "command_description.permission.list_flags": {
+    "description": "Описание команды `/permission list_flags`",
+    "eng": "List all permission flags present in the bot",
+    "rus": "Перечислить все существующие разрешения"
+  },
+  "command_description.permission.bind": {
+    "description": "Описание команды `/permission bind`",
+    "eng": "Bind the permission to the role",
+    "rus": "Присвоить разрешение роли"
+  },
+  "command_description.permission.unbind": {
+    "description": "Описание команды `/permission unbind`",
+    "eng": "Unbind the permission from the role",
+    "rus": "Забрать разрешение у роли"
+  },
+  "command_description.permission.clear": {
+    "description": "Описание команды `/permission clear`",
+    "eng": "Unbind all the permissions from the role",
+    "rus": "Забрать все разрешения у роли"
+  },
+  "command_description.permission.list_roles": {
+    "description": "Описание команды `/permission list_roles`",
+    "eng": "List all the permission-associated roles along with the permissions bound to them",
+    "rus": "Перечислить все роли, имеющие разрешения, вместе с этими разрешениями"
+  },
+  "command_description.permission.describe_member": {
+    "description": "Описание команды `/permission describe_member`",
+    "eng": "List all the permissions a member has and the roles that grant him/her those permissions",
+    "rus": "Перечислить все разрешения участника сервера вместе с ролями, обеспечивающими ему эти разрешения"
+  },
+  "command_description.queue.open": {
+    "description": "Описание команды `/queue open`",
+    "eng": "Open a queue manually. Note that you might also want to disable auto-block",
+    "rus": "Открыть очередь реквестов вручную. Возможно, пригодится также отключить автоблокировку"
+  },
+  "command_description.queue.close": {
+    "description": "Описание команды `/queue close`",
+    "eng": "Close a queue manually. Note that you might also want to disable auto-unblock",
+    "rus": "Закрыть очередь реквестов вручную. Возможно, пригодится также отключить авторазблокировку"
+  },
+  "command_description.queue.info": {
+    "description": "Описание команды `/queue info`",
+    "eng": "Get info regarding the current state of the queue",
+    "rus": "Вывести информацию касательно текущего состояния очереди реквестов"
+  },
+  "command_description.queue.history": {
+    "description": "Описание команды `/queue history`",
+    "eng": "Get queue block/unblock history",
+    "rus": "Вывести историю открытия/закрытия очереди реквестов"
+  },
+  "command_description.reviews.level": {
+    "description": "Описание команды `/reviews level`",
+    "eng": "Get all reviews written for a certain level. Won't include reviews written by trainees",
+    "rus": "Получить все обзоры, написанные для конкретного уровня (исключая написанные кандидатами)"
+  },
+  "command_description.reviews.user": {
+    "description": "Описание команды `/reviews user`",
+    "eng": "Get last 20 reviews written by a certain user",
+    "rus": "Получить последние 20 обзоров, написанных указанным пользователем"
+  },
+  "command_description.route.describe": {
+    "description": "Описание команды `/route describe`",
+    "eng": "View details about a route",
+    "rus": "Отобразить информацию о роуте"
+  },
+  "command_description.route.update_channel": {
+    "description": "Описание команды `/route update_channel`",
+    "eng": "Update a route's destination channel",
+    "rus": "Изменить канал роута"
+  },
+  "command_description.route.reset_channel": {
+    "description": "Описание команды `/route reset_channel`",
+    "eng": "Reset a route's destination channel to its default value",
+    "rus": "Сбросить канал роута до значения по умолчанию"
+  },
+  "command_description.route.enable": {
+    "description": "Описание команды `/route enable`",
+    "eng": "Enable a route, allowing the messages to be delivered through it",
+    "rus": "Включить роут, позволяя отправлять сообщения через него"
+  },
+  "command_description.route.disable": {
+    "description": "Описание команды `/route disable`",
+    "eng": "Disable a route, preventing the messages sent through it to be delivered",
+    "rus": "Выключить роут, блокируя отправку сообщений через него"
+  },
+  "command_description.route.list": {
+    "description": "Описание команды `/route list`",
+    "eng": "List all available routes",
+    "rus": "Вывести все существующие роуты"
+  },
+  "command_description.text.describe": {
+    "description": "Описание команды `/text describe`",
+    "eng": "View details about a message template",
+    "rus": "Отобразить информацию о шаблоне сообщения"
+  },
+  "command_description.text.edit": {
+    "description": "Описание команды `/text edit`",
+    "eng": "Edit a message template",
+    "rus": "Изменить шаблон сообщения"
+  },
+  "command_description.text.reset": {
+    "description": "Описание команды `/text reset`",
+    "eng": "Reset a message template to its default value",
+    "rus": "Вернуть шаблону сообщения значение по умолчанию"
+  },
+  "command_description.text.list": {
+    "description": "Описание команды `/text list`",
+    "eng": "List all available message templates",
+    "rus": "Перечислить все существующие шаблоны сообщений"
+  },
+  "command_description.trainee.promote": {
+    "description": "Описание команды `/trainee promote`",
+    "eng": "Promote a trainee to a regular reviewer",
+    "rus": "Повысить кандидата в обзорщики до обычного ревьюера"
+  },
+  "command_description.trainee.expel": {
+    "description": "Описание команды `/trainee expel`",
+    "eng": "Expel a member from the trainees",
+    "rus": "Выгнать участника сервера из кандидатов в обзорщики"
+  },
+  "command_description.trainee.pick": {
+    "description": "Описание команды `/trainee pick`",
+    "eng": "Pick a random request to review",
+    "rus": "Подобрать случайный реквест для написания ревью"
+  },
+  "command_option.request.create.level_id": {
     "description": "Описание параметра `level_id` команды `/request create`",
     "eng": "ID of a level you want to request",
     "rus": "ID уровня, который Вы хотите зареквестить"
+  },
+  "command_option.request.widgets.level_id": {
+    "description": "Описание параметра `level_id` команды `/request widgets`",
+    "eng": "ID of a level you want to get the widgets of",
+    "rus": "ID уровня, виджеты которого Вы хотите получить"
+  },
+  "command_option.request.insert.level_id": {
+    "description": "Описание параметра `level_id` команды `/request insert`",
+    "eng": "ID of a level you want to request",
+    "rus": "ID уровня, который Вы хотите зареквестить"
+  },
+  "command_option.request.insert.language": {
+    "description": "Описание параметра `language` команды `/request insert`",
+    "eng": "Language of the reviews. Will also be used to notify the author",
+    "rus": "Язык обзоров. Кроме того, на этом языке будут отправлены уведомления автору"
+  },
+  "command_option.request.insert.yt_link": {
+    "description": "Описание параметра `yt_link` команды `/request insert`",
+    "eng": "YouTube link for a showcase",
+    "rus": "Ссылка на YouTube-видео с шоукейсом"
+  },
+  "command_option.request.insert.creator_mention": {
+    "description": "Описание параметра `creator_mention` команды `/request insert`",
+    "eng": "Creator mention for notifications. Specify creator_name instead if you can't tag a creator",
+    "rus": "Тег креатора для уведомлений. Если креатора нельзя тегнуть, укажите creator_name"
+  },
+  "command_option.request.insert.creator_name": {
+    "description": "Описание параметра `creator_name` команды `/request insert`",
+    "eng": "Creator's name. Provide only if creator_mention cannot be specified",
+    "rus": "Имя креатора. Указывать только если creator_mention не может быть указан"
+  },
+  "command_option.request.insert.additional_comment": {
+    "description": "Описание параметра `additional_comment` команды `/request insert`",
+    "eng": "Additional info about the submission. Optional",
+    "rus": "Дополнительная информация к реквесту (необязательно)"
+  },
+  "command_option.backup.load.file": {
+    "description": "Описание параметра `file` команды `/backup load`",
+    "eng": "SQLite database file with which the current one will be replaced",
+    "rus": "Файл БД SQLite, на который будет произведена замена"
+  },
+  "command_option.language.language": {
+    "description": "Описание параметра `language` команды `/language`",
+    "eng": "Language you want the bot to speak with you",
+    "rus": "Язык, на котором бот будет общаться с Вами"
+  },
+  "command_option.levelcd.list.cooldown_listing_type": {
+    "description": "Описание параметра `cooldown_listing_type` команды `/levelcd list`",
+    "eng": "Whether to display temporary or endless cooldowns",
+    "rus": "Какие кулдауны вывести: временные или вечные"
+  },
+  "command_option.levelcd.describe.level_id": {
+    "description": "Описание параметра `level_id` команды `/levelcd describe`",
+    "eng": "ID of a level whose cooldown will be described",
+    "rus": "ID уровня, кулдаун которого требуется описать"
+  },
+  "command_option.levelcd.amend.level_id": {
+    "description": "Описание параметра `level_id` команды `/levelcd amend`",
+    "eng": "ID of a level whose cooldown is to be removed",
+    "rus": "ID уровня, который требуется снять с кулдауна"
+  },
+  "command_option.levelcd.amend.reason": {
+    "description": "Описание параметра `reason` команды `/levelcd amend`",
+    "eng": "Why the cooldown is being removed",
+    "rus": "Причина снятия с кулдауна"
+  },
+  "command_option.levelcd.update.level_id": {
+    "description": "Описание параметра `level_id` команды `/levelcd update`",
+    "eng": "ID of a level whose cooldown is to be set",
+    "rus": "ID уровня, кулдаун которого будет обновлен"
+  },
+  "command_option.levelcd.update.duration": {
+    "description": "Описание параметра `duration` команды `/levelcd update`",
+    "eng": "Cooldown duration (absolute, relative to the current one or infinite). Format: /help duration",
+    "rus": "Длительность кулдауна (может быть абсолютной, относительной или бесконечной). Формат: /help duration"
+  },
+  "command_option.levelcd.update.reason": {
+    "description": "Описание параметра `reason` команды `/levelcd update`",
+    "eng": "Why the cooldown is being casted/updated",
+    "rus": "Причина наложения/обновления кулдауна"
+  },
+  "command_option.levelcd.history.level_id": {
+    "description": "Описание параметра `level_id` команды `/levelcd history`",
+    "eng": "ID of a level whose cooldown history will be queried",
+    "rus": "ID уровня, история кулдаунов которого будет выведена"
+  },
+  "command_option.usercd.list.cooldown_listing_type": {
+    "description": "Описание параметра `cooldown_listing_type` команды `/usercd list`",
+    "eng": "Whether to display temporary or endless cooldowns",
+    "rus": "Какие кулдауны вывести: временные или вечные"
+  },
+  "command_option.usercd.describe.user": {
+    "description": "Описание параметра `user` команды `/usercd describe`",
+    "eng": "User whose cooldown will be described",
+    "rus": "Пользователь, кулдаун которого требуется описать"
+  },
+  "command_option.usercd.amend.user": {
+    "description": "Описание параметра `user` команды `/usercd amend`",
+    "eng": "User whose cooldown is to be removed",
+    "rus": "Пользователь, которого требуется снять с кулдауна"
+  },
+  "command_option.usercd.amend.reason": {
+    "description": "Описание параметра `reason` команды `/usercd amend`",
+    "eng": "Why the cooldown is being removed",
+    "rus": "Причина снятия с кулдауна"
+  },
+  "command_option.usercd.update.user": {
+    "description": "Описание параметра `user` команды `/usercd update`",
+    "eng": "User whose cooldown is to be set",
+    "rus": "Пользователь, кулдаун которого будет обновлен"
+  },
+  "command_option.usercd.update.duration": {
+    "description": "Описание параметра `duration` команды `/usercd update`",
+    "eng": "Cooldown duration (absolute, relative to the current one or infinite). Format: /help duration",
+    "rus": "Длительность кулдауна (может быть абсолютной, относительной или бесконечной). Формат: /help duration"
+  },
+  "command_option.usercd.update.reason": {
+    "description": "Описание параметра `reason` команды `/usercd update`",
+    "eng": "Why the cooldown is being casted/updated",
+    "rus": "Причина наложения/обновления кулдауна"
+  },
+  "command_option.usercd.history.user": {
+    "description": "Описание параметра `user` команды `/usercd history`",
+    "eng": "User whose cooldown history will be queried",
+    "rus": "Пользователь, история кулдаунов которого будет выведена"
+  },
+  "command_option.log.restrict_user.user": {
+    "description": "Описание параметра `user` команды `/log restrict_user`",
+    "eng": "Server member. Only his/her actions will be queried",
+    "rus": "Участник сервера. Только его действия будут выведены"
+  },
+  "command_option.log.restrict_type.event_type": {
+    "description": "Описание параметра `event_type` команды `/log restrict_type`",
+    "eng": "Only the events with this type will be queried. Successive calls change the selected type",
+    "rus": "Тип событий. События с другими типами будут отфильтрованы. Повторный вызов заменит выбранный тип"
+  },
+  "command_option.log.restrict_custom_field.key": {
+    "description": "Описание параметра `key` команды `/log restrict_custom_field`",
+    "eng": "A key of a custom field to be restricted to a certain value",
+    "rus": "Ключ кастомного поля, по значению которого будет вестись фильтрация"
+  },
+  "command_option.log.restrict_custom_field.value": {
+    "description": "Описание параметра `value` команды `/log restrict_custom_field`",
+    "eng": "A value to restrict a certain custom field to. Only the events having this value will be queried",
+    "rus": "Единственное значение указанного кастомного поля, события с которым не будут отфильтрованы"
+  },
+  "command_option.log.unrestrict_custom_field.key": {
+    "description": "Описание параметра `key` команды `/log unrestrict_custom_field`",
+    "eng": "A key of a custom field to remove a restriction for",
+    "rus": "Ключ кастомного поля, ограничение по которому будет удалено"
+  },
+  "command_option.log.describe_filter.name": {
+    "description": "Описание параметра `name` команды `/log describe_filter`",
+    "eng": "Name of a filter to describe. Omit to describe the current filter",
+    "rus": "Название описываемого фильтра. Если не указано, будет описан активный фильтр"
+  },
+  "command_option.log.view.timestamp": {
+    "description": "Описание параметра `timestamp` команды `/log view`",
+    "eng": "An event timestamp to jump to. Omit to start from the beginning. Format: /help timestamp",
+    "rus": "На какие дату и время перескочить. Если не указан, начать с самых старых. Формат: /help timestamp"
+  },
+  "command_option.log.select_filter.name": {
+    "description": "Описание параметра `name` команды `/log select_filter`",
+    "eng": "Name of a filter to select",
+    "rus": "Название выбираемого фильтра"
+  },
+  "command_option.log.save_filter.name": {
+    "description": "Описание параметра `name` команды `/log save_filter`",
+    "eng": "Name under which the current filter will be saved",
+    "rus": "Название, которое будет присвоено сохраняемому фильтру"
+  },
+  "command_option.log.delete_filter.name": {
+    "description": "Описание параметра `name` команды `/log delete_filter`",
+    "eng": "Name of a filter to be deleted",
+    "rus": "Название удаляемого фильтра"
+  },
+  "command_option.parameter.describe.parameter": {
+    "description": "Описание параметра `parameter` команды `/parameter describe`",
+    "eng": "Parameter to describe",
+    "rus": "Название описываемого параметра"
+  },
+  "command_option.parameter.set.parameter": {
+    "description": "Описание параметра `parameter` команды `/parameter set`",
+    "eng": "Parameter to update",
+    "rus": "Название обновляемого параметра"
+  },
+  "command_option.parameter.set.new_value": {
+    "description": "Описание параметра `new_value` команды `/parameter set`",
+    "eng": "New value to assign",
+    "rus": "Присваиваемое параметру значение"
+  },
+  "command_option.parameter.reset.parameter": {
+    "description": "Описание параметра `parameter` команды `/parameter reset`",
+    "eng": "Parameter to reset",
+    "rus": "Название сбрасываемого параметра"
+  },
+  "command_option.permission.bind.permission": {
+    "description": "Описание параметра `permission` команды `/permission bind`",
+    "eng": "Permission to bind to a role",
+    "rus": "Разрешение, присваиваемое роли"
+  },
+  "command_option.permission.bind.role": {
+    "description": "Описание параметра `role` команды `/permission bind`",
+    "eng": "Role to which a permission is bound",
+    "rus": "Роль, которой присваивается разрешение"
+  },
+  "command_option.permission.unbind.permission": {
+    "description": "Описание параметра `permission` команды `/permission unbind`",
+    "eng": "Permission to unbind from a role",
+    "rus": "Разрешение, отбираемое у роли"
+  },
+  "command_option.permission.unbind.role": {
+    "description": "Описание параметра `role` команды `/permission unbind`",
+    "eng": "Role from which a permission is unbound",
+    "rus": "Роль, у которой отбирается разрешение"
+  },
+  "command_option.permission.clear.role": {
+    "description": "Описание параметра `role` команды `/permission clear`",
+    "eng": "Role to be cleared from permissions",
+    "rus": "Роль, у которой требуется забрать все разрешения"
+  },
+  "command_option.permission.describe_member.member": {
+    "description": "Описание параметра `member` команды `/permission describe_member`",
+    "eng": "Member whose permissions to list",
+    "rus": "Участник сервера, разрешения которого требуется перечислить"
+  },
+  "command_option.reviews.level.level_id": {
+    "description": "Описание параметра `level_id` команды `/reviews level`",
+    "eng": "ID of a level you want to retrieve all reviews for",
+    "rus": "ID уровня, обзоры на который требуется получить"
+  },
+  "command_option.reviews.user.author": {
+    "description": "Описание параметра `author` команды `/reviews user`",
+    "eng": "Author of the reviews to be retrieved",
+    "rus": "Автор получаемых обзоров"
+  },
+  "command_option.route.describe.route": {
+    "description": "Описание параметра `route` команды `/route describe`",
+    "eng": "Route to describe",
+    "rus": "Роут, который требуется описать"
+  },
+  "command_option.route.update_channel.route": {
+    "description": "Описание параметра `route` команды `/route update_channel`",
+    "eng": "Route to update",
+    "rus": "Роут, который требуется обновить"
+  },
+  "command_option.route.update_channel.new_value": {
+    "description": "Описание параметра `new_value` команды `/route update_channel`",
+    "eng": "New destination channel",
+    "rus": "Новый канал роута"
+  },
+  "command_option.route.reset_channel.route": {
+    "description": "Описание параметра `route` команды `/route reset_channel`",
+    "eng": "Route to reset",
+    "rus": "Роут, которому требуется вернуть канал по умолчанию"
+  },
+  "command_option.route.enable.route": {
+    "description": "Описание параметра `route` команды `/route enable`",
+    "eng": "Route to enable",
+    "rus": "Включаемый роут"
+  },
+  "command_option.route.disable.route": {
+    "description": "Описание параметра `route` команды `/route disable`",
+    "eng": "Route to disable",
+    "rus": "Выключаемый роут"
+  },
+  "command_option.text.describe.template_name": {
+    "description": "Описание параметра `template_name` команды `/text describe`",
+    "eng": "Template name",
+    "rus": "Шаблон, который требуется описать"
+  },
+  "command_option.text.edit.template_name": {
+    "description": "Описание параметра `template_name` команды `/text edit`",
+    "eng": "Template name",
+    "rus": "Шаблон, который требуется изменить"
+  },
+  "command_option.text.edit.language": {
+    "description": "Описание параметра `language` команды `/text edit`",
+    "eng": "Template language",
+    "rus": "Язык, текст на котором требуется изменить"
+  },
+  "command_option.text.edit.new_value": {
+    "description": "Описание параметра `new_value` команды `/text edit`",
+    "eng": "Updated template text",
+    "rus": "Новый текст шаблона"
+  },
+  "command_option.text.reset.template_name": {
+    "description": "Описание параметра `template_name` команды `/text reset`",
+    "eng": "Template name",
+    "rus": "Шаблон, которому требуется вернуть значение по умолчанию"
+  },
+  "command_option.text.reset.language": {
+    "description": "Описание параметра `language` команды `/text reset`",
+    "eng": "Template language",
+    "rus": "Язык, текст на котором требуется сбросить до значения по умолчанию"
+  },
+  "command_option.trainee.promote.trainee": {
+    "description": "Описание параметра `trainee` команды `/trainee promote`",
+    "eng": "Trainee to be promoted",
+    "rus": "Кандидат в обзорщики, которого требуется повысить"
+  },
+  "command_option.trainee.expel.trainee": {
+    "description": "Описание параметра `trainee` команды `/trainee expel`",
+    "eng": "Trainee to be expelled",
+    "rus": "Кандидат в обзорщики, которого требуется выгнать"
   }
 }
 

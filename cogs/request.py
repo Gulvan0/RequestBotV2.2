@@ -146,8 +146,8 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
         continue_view.add_item(btn)
         await inter.edit_original_response(content="", view=continue_view)
 
-    @app_commands.command(description="Get widget links for a requested level")
-    @app_commands.describe(level_id="ID of a level you want to get the widgets of")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REQUEST_WIDGETS.as_locale_str())
+    @app_commands.describe(level_id=TextPieceID.COMMAND_OPTION_REQUEST_WIDGETS_LEVEL_ID.as_locale_str())
     @requires_permission(PermissionFlagID.GD_MOD)
     async def widgets(self, inter: discord.Interaction, level_id: app_commands.Range[int, 200, 1000000000]) -> None:
         await inter.response.defer(ephemeral=True)
@@ -166,7 +166,7 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
 
         await respond(inter, response_text, ephemeral=True)
 
-    @app_commands.command(description="Get the oldest pending request without opinions")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REQUEST_IGNORED.as_locale_str())
     @requires_permission(PermissionFlagID.REVIEWER)
     async def ignored(self, inter: discord.Interaction) -> None:
         await inter.response.defer(ephemeral=True)
@@ -182,7 +182,7 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
 
         await respond(inter, response_text, ephemeral=True)
 
-    @app_commands.command(description="Get the oldest request waiting for the final decision")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REQUEST_UNRESOLVED.as_locale_str())
     @requires_permission(PermissionFlagID.GD_MOD)
     async def unresolved(self, inter: discord.Interaction) -> None:
         await inter.response.defer(ephemeral=True)
@@ -198,14 +198,14 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
 
         await respond(inter, response_text, ephemeral=True)
 
-    @app_commands.command(description="Request a level on behalf of another creator bypassing all restrictions")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REQUEST_INSERT.as_locale_str())
     @app_commands.describe(
-        level_id="ID of a level you want to request",
-        language="Language of the reviews. Will also be used to notify the author",
-        yt_link="YouTube link for a showcase",
-        creator_mention="Creator mention for notifications. Specify creator_name instead if you can't tag a creator",
-        creator_name="Creator's name. Provide only if creator_mention cannot be specified",
-        additional_comment="Additional info about the submission. Optional",
+        level_id=TextPieceID.COMMAND_OPTION_REQUEST_INSERT_LEVEL_ID.as_locale_str(),
+        language=TextPieceID.COMMAND_OPTION_REQUEST_INSERT_LANGUAGE.as_locale_str(),
+        yt_link=TextPieceID.COMMAND_OPTION_REQUEST_INSERT_YT_LINK.as_locale_str(),
+        creator_mention=TextPieceID.COMMAND_OPTION_REQUEST_INSERT_CREATOR_MENTION.as_locale_str(),
+        creator_name=TextPieceID.COMMAND_OPTION_REQUEST_INSERT_CREATOR_NAME.as_locale_str(),
+        additional_comment=TextPieceID.COMMAND_OPTION_REQUEST_INSERT_ADDITIONAL_COMMENT.as_locale_str(),
     )
     @app_commands.choices(language=CommandChoiceOption.from_str_enum(Language))
     @requires_permission(PermissionFlagID.INSERT_REQUESTS)

@@ -23,8 +23,8 @@ from dateutil.parser import parse as parse_datetime, ParserError
 
 
 class LogCog(commands.GroupCog, name="log", description="Commands for querying logs"):
-    @app_commands.command(description="Only query actions performed by a provided user. Successive calls change the selected user")
-    @app_commands.describe(user="Server member. Only his/her actions will be queried")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_RESTRICT_USER.as_locale_str())
+    @app_commands.describe(user=TextPieceID.COMMAND_OPTION_LOG_RESTRICT_USER_USER.as_locale_str())
     @requires_permission(PermissionFlagID.LOG_VIEWER)
     async def restrict_user(self, inter: discord.Interaction, user: discord.Member):
         try:
@@ -34,8 +34,8 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Only query events of a provided type")
-    @app_commands.describe(event_type="Only the events with this type will be queried. Successive calls change the selected type")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_RESTRICT_TYPE.as_locale_str())
+    @app_commands.describe(event_type=TextPieceID.COMMAND_OPTION_LOG_RESTRICT_TYPE_EVENT_TYPE.as_locale_str())
     @app_commands.choices(event_type=CommandChoiceOption.from_enum(LoggedEventTypeID))
     @requires_permission(PermissionFlagID.LOG_VIEWER)
     async def restrict_type(self, inter: discord.Interaction, event_type: LoggedEventTypeID):
@@ -46,10 +46,10 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Only query events with a provided value of a provided custom field")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_RESTRICT_CUSTOM_FIELD.as_locale_str())
     @app_commands.describe(
-        key="A key of a custom field to be restricted to a certain value",
-        value="A value to restrict a certain custom field to. Only the events having this value of a provided custom field will be queried"
+        key=TextPieceID.COMMAND_OPTION_LOG_RESTRICT_CUSTOM_FIELD_KEY.as_locale_str(),
+        value=TextPieceID.COMMAND_OPTION_LOG_RESTRICT_CUSTOM_FIELD_VALUE.as_locale_str()
     )
     @requires_permission(PermissionFlagID.LOG_VIEWER)
     async def restrict_custom_field(self, inter: discord.Interaction, key: str, value: str):
@@ -60,7 +60,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Remove a user restriction in a current log filter")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_UNRESTRICT_USER.as_locale_str())
     @requires_permission(PermissionFlagID.LOG_VIEWER)
     async def unrestrict_user(self, inter: discord.Interaction):
         try:
@@ -70,7 +70,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Remove an event type restriction in a current log filter")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_UNRESTRICT_TYPE.as_locale_str())
     @requires_permission(PermissionFlagID.LOG_VIEWER)
     async def unrestrict_type(self, inter: discord.Interaction):
         try:
@@ -80,8 +80,8 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Remove one custom field value restriction in a current log filter")
-    @app_commands.describe(key="A key of a custom field to remove a restriction for")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_UNRESTRICT_CUSTOM_FIELD.as_locale_str())
+    @app_commands.describe(key=TextPieceID.COMMAND_OPTION_LOG_UNRESTRICT_CUSTOM_FIELD_KEY.as_locale_str())
     @requires_permission(PermissionFlagID.LOG_VIEWER)
     async def unrestrict_custom_field(self, inter: discord.Interaction, key: str):
         try:
@@ -91,7 +91,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Remove all custom field value restrictions in a current log filter")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_CLEAR_CUSTOM_FIELD_RESTRICTIONS.as_locale_str())
     @requires_permission(PermissionFlagID.LOG_VIEWER)
     async def clear_custom_field_restrictions(self, inter: discord.Interaction):
         try:
@@ -101,7 +101,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Remove all restrictions in a current log filter")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_CLEAR_FILTER.as_locale_str())
     @requires_permission(PermissionFlagID.LOG_VIEWER)
     async def clear_filter(self, inter: discord.Interaction):
         try:
@@ -111,8 +111,8 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Describes the filter")
-    @app_commands.describe(name="Name of a filter to describe. Omit to describe the current filter")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_DESCRIBE_FILTER.as_locale_str())
+    @app_commands.describe(name=TextPieceID.COMMAND_OPTION_LOG_DESCRIBE_FILTER_NAME.as_locale_str())
     @requires_permission(PermissionFlagID.LOG_VIEWER)
     async def describe_filter(self, inter: discord.Interaction, name: str | None = None):
         log_filter = get_filter(name) if name else get_current_filter(inter.user)
@@ -136,8 +136,8 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
         else:
             await respond(inter, TextPieceID.LOG_EMPTY_FILTER, ephemeral=True)
 
-    @app_commands.command(description="Display logs matching the currently selected filter")
-    @app_commands.describe(timestamp="An event timestamp to jump to. Omit to start from the beginning. Format: /help timestamp")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_VIEW.as_locale_str())
+    @app_commands.describe(timestamp=TextPieceID.COMMAND_OPTION_LOG_VIEW_TIMESTAMP.as_locale_str())
     @requires_permission(PermissionFlagID.LOG_VIEWER)
     async def view(self, inter: discord.Interaction, timestamp: str | None = None):
         parsed_timestamp: datetime | None = None
@@ -151,7 +151,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
 
         await LogPaginationView(parsed_timestamp).respond_with_view(inter, True)
 
-    @app_commands.command(description="Lists all the available filters")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_LIST_FILTERS.as_locale_str())
     @requires_permission(PermissionFlagID.LOG_VIEWER)
     async def list_filters(self, inter: discord.Interaction):
         filters = list_filters()
@@ -160,8 +160,8 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
         else:
             await respond(inter, TextPieceID.LOG_NO_FILTERS, ephemeral=True)
 
-    @app_commands.command(description="Select a saved filter")
-    @app_commands.describe(name="Name of a filter to select")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_SELECT_FILTER.as_locale_str())
+    @app_commands.describe(name=TextPieceID.COMMAND_OPTION_LOG_SELECT_FILTER_NAME.as_locale_str())
     @requires_permission(PermissionFlagID.LOG_VIEWER)
     async def select_filter(self, inter: discord.Interaction, name: str):
         try:
@@ -171,8 +171,8 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Save a currently selected filter. This allows it to be reused later")
-    @app_commands.describe(name="Name under which the current filter will be saved")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_SAVE_FILTER.as_locale_str())
+    @app_commands.describe(name=TextPieceID.COMMAND_OPTION_LOG_SAVE_FILTER_NAME.as_locale_str())
     @requires_permission(PermissionFlagID.ADMIN)
     async def save_filter(self, inter: discord.Interaction, name: str):
         log_filter = get_current_filter(inter.user)
@@ -190,8 +190,8 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Delete a certain filter")
-    @app_commands.describe(name="Name of a filter to be deleted")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_DELETE_FILTER.as_locale_str())
+    @app_commands.describe(name=TextPieceID.COMMAND_OPTION_LOG_DELETE_FILTER_NAME.as_locale_str())
     @requires_permission(PermissionFlagID.ADMIN)
     async def delete_filter(self, inter: discord.Interaction, name: str):
         async def on_confirmed(following_inter: discord.Interaction) -> None:
@@ -205,7 +205,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
 
     @select_filter.autocomplete("name")
     @delete_filter.autocomplete("name")
-    async def color_autocomplete(self, inter: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    async def name_autocomplete(self, inter: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
         return [
             app_commands.Choice(name=option, value=option)
             for option in find_filters_by_prefix(current)[:25]

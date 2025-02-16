@@ -10,8 +10,8 @@ from util.identifiers import TextPieceID, UserPreferenceID
 
 
 class GeneralCog(commands.Cog, name="general", description="Common commands"):
-    @app_commands.command(description="Sets the bot's language")
-    @app_commands.describe(language="Language you want the bot to speak with you")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LANGUAGE.as_locale_str())
+    @app_commands.describe(language=TextPieceID.COMMAND_OPTION_LANGUAGE_LANGUAGE.as_locale_str())
     @app_commands.choices(language=CommandChoiceOption.from_str_enum(Language))
     async def language(self, inter: discord.Interaction, language: str):
         await update_value(UserPreferenceID.LANGUAGE, inter.user, language)

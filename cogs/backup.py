@@ -33,14 +33,14 @@ class BackupCog(commands.GroupCog, name="backup", description="Commands for mana
     async def my_task(self) -> None:
         await self.backup()
 
-    @app_commands.command(description="Backup the database immediately")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_BACKUP_SAVE.as_locale_str())
     @requires_permission(PermissionFlagID.ADMIN)
     async def save(self, inter: discord.Interaction) -> None:
         await self.backup()
         await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Overwrite the database from the file")
-    @app_commands.describe(file="SQLite database file with which the current one will be replaced")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_BACKUP_LOAD.as_locale_str())
+    @app_commands.describe(file=TextPieceID.COMMAND_OPTION_BACKUP_LOAD_FILE.as_locale_str())
     @requires_permission(PermissionFlagID.ADMIN)
     async def load(self, inter: discord.Interaction, file: discord.Attachment) -> None:
         await inter.response.defer(ephemeral=True, thinking=True)

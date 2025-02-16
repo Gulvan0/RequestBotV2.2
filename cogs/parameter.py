@@ -14,8 +14,8 @@ from util.identifiers import PermissionFlagID, TextPieceID, ParameterID
 
 
 class ParameterCog(commands.GroupCog, name="parameter", description="Utilities for working with global bot parameters"):
-    @app_commands.command(description="View details about a certain parameter")
-    @app_commands.describe(parameter="Parameter to describe")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_PARAMETER_DESCRIBE.as_locale_str())
+    @app_commands.describe(parameter=TextPieceID.COMMAND_OPTION_PARAMETER_DESCRIBE_PARAMETER.as_locale_str())
     @app_commands.choices(parameter=CommandChoiceOption.from_enum(ParameterID))
     @requires_permission(PermissionFlagID.ADMIN)
     async def describe(self, inter: discord.Interaction, parameter: ParameterID) -> None:
@@ -32,10 +32,10 @@ class ParameterCog(commands.GroupCog, name="parameter", description="Utilities f
 
         await respond(inter, lines, ephemeral=True)
 
-    @app_commands.command(description="Update the value of a parameter")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_PARAMETER_SET.as_locale_str())
     @app_commands.describe(
-        parameter="Parameter to update",
-        new_value="New value to assign"
+        parameter=TextPieceID.COMMAND_OPTION_PARAMETER_SET_PARAMETER.as_locale_str(),
+        new_value=TextPieceID.COMMAND_OPTION_PARAMETER_SET_NEW_VALUE.as_locale_str()
     )
     @app_commands.choices(parameter=CommandChoiceOption.from_enum(ParameterID))
     @requires_permission(PermissionFlagID.ADMIN)
@@ -57,8 +57,8 @@ class ParameterCog(commands.GroupCog, name="parameter", description="Utilities f
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="Reset a parameter to its default value")
-    @app_commands.describe(parameter="Parameter to reset")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_PARAMETER_RESET.as_locale_str())
+    @app_commands.describe(parameter=TextPieceID.COMMAND_OPTION_PARAMETER_RESET_PARAMETER.as_locale_str())
     @app_commands.choices(parameter=CommandChoiceOption.from_enum(ParameterID))
     @requires_permission(PermissionFlagID.ADMIN)
     async def reset(self, inter: discord.Interaction, parameter: ParameterID) -> None:
@@ -69,7 +69,7 @@ class ParameterCog(commands.GroupCog, name="parameter", description="Utilities f
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
-    @app_commands.command(description="List all available parameters")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_PARAMETER_LIST.as_locale_str())
     @requires_permission(PermissionFlagID.ADMIN)
     async def list(self, inter: discord.Interaction) -> None:
         await respond(inter, list_described_values(enlist()), ephemeral=True)

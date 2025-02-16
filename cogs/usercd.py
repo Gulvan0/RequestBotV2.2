@@ -5,46 +5,46 @@ from discord.ext import commands
 from cog_presets.cooldown import CooldownPreset
 from services.disc import requires_permission
 from util.datatypes import CooldownEntity, CooldownListingOption
-from util.identifiers import PermissionFlagID
+from util.identifiers import PermissionFlagID, TextPieceID
 
 
 class UserCooldownCog(commands.GroupCog, name="usercd", description="Commands for managing user cooldowns and bans"):
     def __init__(self):
         self.preset: CooldownPreset = CooldownPreset(CooldownEntity.USER, PermissionFlagID.REMOVE_OTHER_USER_BANS)
 
-    @app_commands.command(description="List users currently on cooldown")
-    @app_commands.describe(cooldown_listing_type="Whether to display temporary or endless cooldowns")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_USERCD_LIST.as_locale_str())
+    @app_commands.describe(cooldown_listing_type=TextPieceID.COMMAND_OPTION_USERCD_LIST_COOLDOWN_LISTING_TYPE.as_locale_str())
     @requires_permission(PermissionFlagID.BAN_USERS)
     async def list(self, inter: discord.Interaction, cooldown_listing_type: CooldownListingOption) -> None:
         await self.preset.list(inter, cooldown_listing_type)
 
-    @app_commands.command(description="Describe the given user's current cooldown")
-    @app_commands.describe(user="User whose cooldown will be described")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_USERCD_DESCRIBE.as_locale_str())
+    @app_commands.describe(user=TextPieceID.COMMAND_OPTION_USERCD_DESCRIBE_USER.as_locale_str())
     @requires_permission(PermissionFlagID.BAN_USERS)
     async def describe(self, inter: discord.Interaction, user: Member) -> None:
         await self.preset.describe(inter, user.id)
 
-    @app_commands.command(description="Remove current cooldown for user")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_USERCD_AMEND.as_locale_str())
     @app_commands.describe(
-        user="User whose cooldown is to be removed",
-        reason="Why the cooldown is being removed"
+        user=TextPieceID.COMMAND_OPTION_USERCD_AMEND_USER.as_locale_str(),
+        reason=TextPieceID.COMMAND_OPTION_USERCD_AMEND_REASON.as_locale_str()
     )
     @requires_permission(PermissionFlagID.BAN_USERS)
     async def amend(self, inter: discord.Interaction, user: Member, reason: str | None = None) -> None:
         await self.preset.amend(inter, user.id, reason)
 
-    @app_commands.command(description="Put a user on a cooldown or modify the cooldown this user currently has")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_USERCD_UPDATE.as_locale_str())
     @app_commands.describe(
-        user="User whose cooldown is to be set",
-        duration="Cooldown duration (absolute, relative to the current one or infinite). Format: /help duration",
-        reason="Why the cooldown is being casted/updated"
+        user=TextPieceID.COMMAND_OPTION_USERCD_UPDATE_USER.as_locale_str(),
+        duration=TextPieceID.COMMAND_OPTION_USERCD_UPDATE_DURATION.as_locale_str(),
+        reason=TextPieceID.COMMAND_OPTION_USERCD_UPDATE_REASON.as_locale_str()
     )
     @requires_permission(PermissionFlagID.BAN_USERS)
     async def update(self, inter: discord.Interaction, user: Member, duration: str, reason: str | None = None) -> None:
         await self.preset.update(inter, user.id, duration, reason)
 
-    @app_commands.command(description="Show a cooldown history for a certain user")
-    @app_commands.describe(user="User whose cooldown history will be queried")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_USERCD_HISTORY.as_locale_str())
+    @app_commands.describe(user=TextPieceID.COMMAND_OPTION_USERCD_HISTORY_USER.as_locale_str())
     @requires_permission(PermissionFlagID.LOG_VIEWER)
     async def history(self, inter: discord.Interaction, user: Member) -> None:
         await self.preset.history(inter, user.id)
