@@ -586,6 +586,16 @@
     },
     "eng": "Cannot cast the cooldown as its end ({new_ends_at}) is already in the past",
     "rus": "Не удалось наложить кулдаун, поскольку его конец ({new_ends_at}) уже в прошлом"
+  },
+  "command_description.request_create": {
+    "description": "Описание команды `/request create`",
+    "eng": "Request a level",
+    "rus": "Зареквестить уровень"
+  },
+  "command_option.request_create.level_id": {
+    "description": "Описание параметра `level_id` команды `/request create`",
+    "eng": "ID of a level you want to request",
+    "rus": "ID уровня, который Вы хотите зареквестить"
   }
 }
 

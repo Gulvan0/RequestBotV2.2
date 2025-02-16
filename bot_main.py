@@ -33,6 +33,7 @@ from database.models import *  # noqa
 from globalconf import CONFIG
 from util.datatypes import Stage
 from util.identifiers import StageParameterID
+from util.translator import Translator
 
 
 class RequestBot(commands.Bot):
@@ -89,6 +90,7 @@ class RequestBot(commands.Bot):
 
         if not self.synced:
             self.tree.copy_global_to(guild=guild)
+            await self.tree.set_translator(Translator())
             result = await self.tree.sync(guild=guild)
             self.synced = not self.synced
             self.logger.info(f"Synced command tree: {len(result)} commands")

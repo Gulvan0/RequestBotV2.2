@@ -1,5 +1,7 @@
 from enum import Enum, unique
 
+from discord.app_commands import locale_str
+
 
 @unique
 class LoggedEventTypeID(Enum):
@@ -113,6 +115,11 @@ class TextPieceID(Enum):
     ERROR_BAD_DURATION_FORMAT = "error.bad_duration_format"
     ERROR_ORIGIN_COOLDOWN_ENDLESS = "error.origin_cooldown_endless"
     ERROR_COOLDOWN_END_IN_PAST = "error.cooldown_end_in_past"
+    COMMAND_DESCRIPTION_REQUEST_CREATE = "command_description.request_create"
+    COMMAND_OPTION_REQUEST_CREATE_LEVEL_ID = "command_option.request_create.level_id"
+
+    def as_locale_str(self) -> locale_str:
+        return locale_str(self.value)
 
 
 @unique

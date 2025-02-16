@@ -74,8 +74,8 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
 
         return True
 
-    @app_commands.command(description="Request a level")
-    @app_commands.describe(level_id="ID of a level you want to request")
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REQUEST_CREATE.as_locale_str())
+    @app_commands.describe(level_id=TextPieceID.COMMAND_OPTION_REQUEST_CREATE_LEVEL_ID.as_locale_str())
     async def create(self, inter: discord.Interaction, level_id: app_commands.Range[int, 200, 1000000000]) -> None:
         await inter.response.defer(ephemeral=True)
 
