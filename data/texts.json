@@ -1211,6 +1211,16 @@
     "description": "Описание параметра `trainee` команды `/trainee expel`",
     "eng": "Trainee to be expelled",
     "rus": "Кандидат в обзорщики, которого требуется выгнать"
+  },
+  "command_choice.cooldown_listing.temporary": {
+    "description": "Один из вариантов вывода списка кулдаунов: только временные",
+    "eng": "List temporary cooldowns",
+    "rus": "Перечислить временные кулдауны"
+  },
+  "command_choice.cooldown_listing.endless": {
+    "description": "Один из вариантов вывода списка кулдаунов: только вечные",
+    "eng": "List lifetime bans",
+    "rus": "Перечислить вечные баны"
   }
 }
 

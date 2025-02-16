@@ -240,6 +240,8 @@ class TextPieceID(Enum):
     COMMAND_OPTION_TEXT_RESET_LANGUAGE = "command_option.text.reset.language"
     COMMAND_OPTION_TRAINEE_PROMOTE_TRAINEE = "command_option.trainee.promote.trainee"
     COMMAND_OPTION_TRAINEE_EXPEL_TRAINEE = "command_option.trainee.expel.trainee"
+    COMMAND_CHOICE_COOLDOWN_LISTING_TEMPORARY = "command_choice.cooldown_listing.temporary"
+    COMMAND_CHOICE_COOLDOWN_LISTING_ENDLESS = "command_choice.cooldown_listing.endless"
 
     def as_locale_str(self) -> locale_str:
         return locale_str(self.value)

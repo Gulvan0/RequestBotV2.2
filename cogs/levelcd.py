@@ -4,7 +4,7 @@ from discord import app_commands
 from discord.ext import commands
 from cog_presets.cooldown import CooldownPreset
 from services.disc import requires_permission
-from util.datatypes import CooldownEntity, CooldownListingOption
+from util.datatypes import CommandChoiceOption, CooldownEntity, CooldownListingOption
 from util.identifiers import PermissionFlagID, TextPieceID
 
 
@@ -14,6 +14,7 @@ class LevelCooldownCog(commands.GroupCog, name="levelcd", description="Commands 
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LEVELCD_LIST.as_locale_str())
     @app_commands.describe(cooldown_listing_type=TextPieceID.COMMAND_OPTION_LEVELCD_LIST_COOLDOWN_LISTING_TYPE.as_locale_str())
+    @app_commands.choices(cooldown_listing_type=CommandChoiceOption.cooldown_listing_type())
     @requires_permission(PermissionFlagID.BAN_LEVELS)
     async def list(self, inter: discord.Interaction, cooldown_listing_type: CooldownListingOption) -> None:
         await self.preset.list(inter, cooldown_listing_type)

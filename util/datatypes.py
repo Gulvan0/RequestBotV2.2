@@ -3,25 +3,7 @@ from enum import auto, Enum, StrEnum, unique
 import discord
 from discord import app_commands
 
-
-class CommandChoiceOption:
-    @classmethod
-    def autocomplete_from_enum(cls, e: type[Enum]):
-        async def callback(inter: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
-            return [
-                app_commands.Choice(name=option.value, value=option.value)
-                for option in e
-                if option.value.lower().startswith(current.lower())
-            ][:25]
-        return callback
-
-    @classmethod
-    def from_enum(cls, e: type[Enum]) -> list[app_commands.Choice[str]]:
-        return [app_commands.Choice(name=option.value, value=option.value) for option in e]
-
-    @classmethod
-    def from_str_enum(cls, e: type[StrEnum]) -> list[app_commands.Choice[str]]:
-        return [app_commands.Choice(name=option, value=option) for option in e]
+from util.identifiers import TextPieceID
 
 
 @unique
@@ -75,8 +57,8 @@ class UserProvidedValueType(StrEnum):
 
 @unique
 class CooldownListingOption(StrEnum):
-    TEMPORARY = "List temporary cooldowns"
-    ENDLESS = "List lifetime bans"
+    TEMPORARY = auto()
+    ENDLESS = auto()
 
 
 @unique
@@ -98,3 +80,30 @@ class SendType(StrEnum):
     EPIC = 'e'
     LEGENDARY = 'l'
     MYTHIC = 'm'
+
+
+class CommandChoiceOption:
+    @classmethod
+    def autocomplete_from_enum(cls, e: type[Enum]):
+        async def callback(inter: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+            return [
+                app_commands.Choice(name=option.value, value=option.value)
+                for option in e
+                if option.value.lower().startswith(current.lower())
+            ][:25]
+        return callback
+
+    @classmethod
+    def from_enum(cls, e: type[Enum]) -> list[app_commands.Choice[str]]:
+        return [app_commands.Choice(name=option.value, value=option.value) for option in e]
+
+    @classmethod
+    def from_str_enum(cls, e: type[StrEnum]) -> list[app_commands.Choice[str]]:
+        return [app_commands.Choice(name=option, value=option) for option in e]
+
+    @classmethod
+    def cooldown_listing_type(cls) -> list[app_commands.Choice[CooldownListingOption]]:
+        return [
+            app_commands.Choice(name=TextPieceID.COMMAND_CHOICE_COOLDOWN_LISTING_TEMPORARY.as_locale_str(), value=CooldownListingOption.TEMPORARY),
+            app_commands.Choice(name=TextPieceID.COMMAND_CHOICE_COOLDOWN_LISTING_ENDLESS.as_locale_str(), value=CooldownListingOption.ENDLESS)
+        ]

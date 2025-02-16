@@ -4,7 +4,7 @@ from discord import app_commands, Member
 from discord.ext import commands
 from cog_presets.cooldown import CooldownPreset
 from services.disc import requires_permission
-from util.datatypes import CooldownEntity, CooldownListingOption
+from util.datatypes import CommandChoiceOption, CooldownEntity, CooldownListingOption
 from util.identifiers import PermissionFlagID, TextPieceID
 
 
@@ -14,6 +14,7 @@ class UserCooldownCog(commands.GroupCog, name="usercd", description="Commands fo
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_USERCD_LIST.as_locale_str())
     @app_commands.describe(cooldown_listing_type=TextPieceID.COMMAND_OPTION_USERCD_LIST_COOLDOWN_LISTING_TYPE.as_locale_str())
+    @app_commands.choices(cooldown_listing_type=CommandChoiceOption.cooldown_listing_type())
     @requires_permission(PermissionFlagID.BAN_USERS)
     async def list(self, inter: discord.Interaction, cooldown_listing_type: CooldownListingOption) -> None:
         await self.preset.list(inter, cooldown_listing_type)
