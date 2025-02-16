@@ -1,7 +1,8 @@
 from discord import app_commands, Interaction, Member
 from discord.ext import commands
 
-from facades.trainee import expel_trainee, NotATraineeException, promote_trainee, RoleNotAssociatedException
+from components.views.trainee_pick_widget import TraineePickWidgetView
+from facades.trainee import expel_trainee, NotATraineeException, pick_random_request, promote_trainee, RoleNotAssociatedException
 from services.disc import requires_permission, respond
 from util.format import as_code
 from util.identifiers import PermissionFlagID, TextPieceID
@@ -33,6 +34,16 @@ class TraineeCog(commands.GroupCog, name="trainee", description="Commands for wo
             await respond(inter, TextPieceID.TRAINEE_PROMOTION_NOT_A_TRAINEE, ephemeral=True)
         else:
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
+
+    @app_commands.command(description="Pick a random request to review")
+    @requires_permission(PermissionFlagID.TRAINEE)
+    async def pick(self, inter: Interaction) -> None:
+        picked_data = await pick_random_request(inter.user)
+
+        if picked_data:
+            await inter.response.send_message("", ephemeral=True, embed=picked_data.embed, view=TraineePickWidgetView(picked_data.request_id))
+        else:
+            await respond(inter, TextPieceID.TRAINEE_PICK_NO_REQUESTS, ephemeral=True)
 
 
 async def setup(bot):

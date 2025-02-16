@@ -454,6 +454,11 @@
     "eng": "Error: please bind permission {permission} to a server role first",
     "rus": "Ошибка: пожалуйста, сначала привяжите разрешение {permission} к роли на сервере"
   },
+  "trainee_pick.no_requests": {
+    "description": "Ошибка, возникающая при кандидата в обзорщики взять реквест для ревью, когда ни одного подходящего реквеста еще нет",
+    "eng": "No requests yet!",
+    "rus": "Реквестов пока нет!"
+  },
   "queue.queue_closed_error": {
     "description": "Ошибка, возникающая при попытке зареквестить уровень, когда очередь закрыта",
     "eng": "A level was not requested, because the request queue is temporarily closed. Please wait until moderators resolve previous requests",

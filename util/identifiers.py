@@ -94,6 +94,7 @@ class TextPieceID(Enum):
     TRAINEE_REVIEW_RESOLUTION_RESPONSE_WAIT_BTN_LABEL = "trainee_review.resolution_response.wait_btn_label"
     TRAINEE_PROMOTION_NOT_A_TRAINEE = "trainee_promotion.not_a_trainee"
     TRAINEE_PROMOTION_ROLE_NOT_ASSOCIATED = "trainee_promotion.role_not_associated"
+    TRAINEE_PICK_NO_REQUESTS = "trainee_pick.no_requests"
     QUEUE_QUEUE_CLOSED_ERROR = "queue.queue_closed_error"
     QUEUE_INFO = "queue.info"
     QUEUE_INFO_OPEN_HEADER = "queue.info.open_header"

@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from discord import Member, Object
+from discord import Colour, Embed, Member, Object
 from sqlalchemy import func
-from sqlmodel import select, Session
+from sqlmodel import col, select, Session
 
 from components.views.trainee_review_widget import TraineeReviewWidgetView
 from database.db import engine
@@ -10,7 +10,7 @@ from database.models import Request, RequestReview, TraineeReviewOpinion
 from facades.eventlog import add_entry
 from facades.permissions import get_permission_role_ids, has_permission
 from facades.texts import render_text
-from services.disc import find_message, find_member, get_default_role, get_role, post_raw_text
+from services.disc import find_message, find_member, get_default_role, post_raw_text
 from util.datatypes import Opinion
 from util.format import as_code, as_link, as_user
 from util.identifiers import LoggedEventTypeID, PermissionFlagID, RouteID, TextPieceID
@@ -37,6 +37,12 @@ class TraineeStats:
     review_cnt: int
     resolved_review_cnt: int
     acceptance_ratio: float
+
+
+@dataclass
+class RandomPickedRequest:
+    request_id: int
+    embed: Embed
 
 
 async def add_trainee_review(trainee: Member, request_id: int, opinion: Opinion, review_text: str, rejection_reason: str | None = None) -> None:
@@ -204,3 +210,32 @@ async def expel_trainee(trainee_or_user_id: int | Member, supervisor: Member) ->
     await add_entry(LoggedEventTypeID.TRAINEE_EXPELLED, supervisor, dict(
         trainee_user_id=str(trainee.id)
     ))
+
+
+async def pick_random_request(invoking_trainee: Member) -> RandomPickedRequest | None:
+    with Session(engine) as session:
+        request: Request | None = session.exec(
+            select(  # noqa
+                Request
+            ).where(
+                ~col(Request.id).in_(
+                    select(RequestReview.request_id).where(RequestReview.author_user_id == invoking_trainee.id)
+                ),
+                Request.details_message_id != None,  # noqa
+                Request.details_message_channel_id != None  # noqa
+            ).order_by(
+                func.random()
+            )
+        ).first()
+
+    if not request:
+        return None
+
+    details_message = await find_message(request.details_message_channel_id, request.details_message_id)
+    if not details_message or not details_message.embeds:
+        return None
+
+    embed = details_message.embeds[0]
+    embed.colour = Colour.from_str("#0000aa")
+
+    return RandomPickedRequest(request.id, embed)

@@ -20,6 +20,7 @@ from components.modals.request_submission import RequestSubmissionModal
 from components.modals.trainee_review_feedback import TraineeReviewFeedbackModal
 from components.views.pending_request_widget import PendingRequestWidgetApproveAndReviewBtn, PendingRequestWidgetJustApproveBtn, PendingRequestWidgetJustRejectBtn, PendingRequestWidgetRejectAndReviewBtn
 from components.views.resolution_widget import ResolutionWidgetEpicBtn, ResolutionWidgetFeatureBtn, ResolutionWidgetLegendaryBtn, ResolutionWidgetMythicBtn, ResolutionWidgetRejectBtn, ResolutionWidgetStarrateBtn
+from components.views.trainee_pick_widget import TraineePickWidgetAcceptBtn, TraineePickWidgetRejectBtn
 from components.views.trainee_promotion_decision import TraineePromotionDecisionExpelBtn, TraineePromotionDecisionPromoteBtn, TraineePromotionDecisionWaitBtn
 from components.views.trainee_review_widget import TraineeReviewWidgetAcceptBtn, TraineeReviewWidgetRejectBtn
 from config.texts import validate as validate_texts
@@ -107,6 +108,8 @@ class RequestBot(commands.Bot):
         self.add_dynamic_items(TraineePromotionDecisionPromoteBtn)
         self.add_dynamic_items(TraineePromotionDecisionExpelBtn)
         self.add_dynamic_items(TraineePromotionDecisionWaitBtn)
+        self.add_dynamic_items(TraineePickWidgetAcceptBtn)
+        self.add_dynamic_items(TraineePickWidgetRejectBtn)
 
     @staticmethod
     async def on_interaction(inter: discord.Interaction):
