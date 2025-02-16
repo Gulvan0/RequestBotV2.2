@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from discord import Member
+from discord import Member, Object
 from sqlalchemy import func
 from sqlmodel import select, Session
 
@@ -8,15 +8,32 @@ from components.views.trainee_review_widget import TraineeReviewWidgetView
 from database.db import engine
 from database.models import Request, RequestReview, TraineeReviewOpinion
 from facades.eventlog import add_entry
+from facades.permissions import get_permission_role_ids, has_permission
 from facades.texts import render_text
-from services.disc import find_message, post_raw_text
+from services.disc import find_message, find_member, get_default_role, get_role, post_raw_text
 from util.datatypes import Opinion
 from util.format import as_code, as_link, as_user
-from util.identifiers import LoggedEventTypeID, RouteID, TextPieceID
+from util.identifiers import LoggedEventTypeID, PermissionFlagID, RouteID, TextPieceID
+
+
+@dataclass
+class RoleNotAssociatedException(Exception):
+    """
+    Raised during promoting/expelling a trainee when a permission to be assigned to or taken from the ex-trainee is not associated with any role, hence making it impossible to change ex-trainee's permissions
+    """
+    permission: PermissionFlagID
+
+
+class NotATraineeException(Exception):
+    """
+    Raised when trying to promote/expel a member who isn't a trainee
+    """
+    pass
 
 
 @dataclass
 class TraineeStats:
+    user_id: int
     review_cnt: int
     resolved_review_cnt: int
     acceptance_ratio: float
@@ -72,7 +89,7 @@ async def add_trainee_review(trainee: Member, request_id: int, opinion: Opinion,
         await review_message.edit(view=TraineeReviewWidgetView(review.id))
 
     await add_entry(LoggedEventTypeID.TRAINEE_REVIEW_ADDED, trainee, dict(
-        request_id=request_id,
+        request_id=str(request_id),
         level_id=level_id,
         level_name=level_name,
         review_link=review_message.jump_url,
@@ -119,7 +136,7 @@ async def resolve_trainee_review(supervisor: Member, review_id: int, accept: boo
 
     await add_entry(LoggedEventTypeID.TRAINEE_REVIEW_RESOLVED, supervisor, dict(
         review=review_reference,
-        trainee_user_id=trainee_user_id,
+        trainee_user_id=str(trainee_user_id),
         accepted=str(accept),
         feedback=feedback or "NO_FEEDBACK",
         review_cnt=str(review_cnt),
@@ -127,14 +144,63 @@ async def resolve_trainee_review(supervisor: Member, review_id: int, accept: boo
         accepted_review_cnt=str(accepted_review_cnt),
     ))
 
-    return TraineeStats(review_cnt, resolved_review_cnt, accepted_review_cnt / resolved_review_cnt if resolved_review_cnt else 0)
+    return TraineeStats(trainee_user_id, review_cnt, resolved_review_cnt, accepted_review_cnt / resolved_review_cnt if resolved_review_cnt else 0)
 
 
-async def promote_trainee(trainee_user_id: int, supervisor: Member) -> None:
-    ...  # TODO: Fill
-    # TODO: Log event
+async def promote_trainee(trainee_or_user_id: int | Member, supervisor: Member) -> None:
+    if isinstance(trainee_or_user_id, int):
+        trainee = await find_member(trainee_or_user_id)
+        assert trainee
+    else:
+        trainee = trainee_or_user_id
+
+    if not has_permission(trainee, PermissionFlagID.TRAINEE, False):
+        raise NotATraineeException
+
+    default_role = get_default_role()
+
+    trainee_role_ids = await get_permission_role_ids(PermissionFlagID.TRAINEE)
+    trainee_role_ids.discard(default_role.id)
+    if not trainee_role_ids:
+        raise RoleNotAssociatedException(PermissionFlagID.TRAINEE)
+
+    reviewer_role_ids = await get_permission_role_ids(PermissionFlagID.REVIEWER)
+    reviewer_role_ids.discard(default_role.id)
+    if not reviewer_role_ids:
+        raise RoleNotAssociatedException(PermissionFlagID.REVIEWER)
+
+    trainee_roles = [Object(id=role_id) for role_id in trainee_role_ids]
+    reviewer_role = Object(id=reviewer_role_ids.pop())
+
+    await trainee.remove_roles(*trainee_roles)
+    await trainee.add_roles(reviewer_role)
+
+    await add_entry(LoggedEventTypeID.TRAINEE_PROMOTED, supervisor, dict(
+        trainee_user_id=str(trainee.id)
+    ))
 
 
-async def expel_trainee(trainee_user_id: int, supervisor: Member) -> None:
-    ...  # TODO: Fill
-    # TODO: Log event
+async def expel_trainee(trainee_or_user_id: int | Member, supervisor: Member) -> None:
+    if isinstance(trainee_or_user_id, int):
+        trainee = await find_member(trainee_or_user_id)
+        assert trainee
+    else:
+        trainee = trainee_or_user_id
+
+    if not has_permission(trainee, PermissionFlagID.TRAINEE, False):
+        raise NotATraineeException
+
+    default_role = get_default_role()
+
+    trainee_role_ids = await get_permission_role_ids(PermissionFlagID.TRAINEE)
+    trainee_role_ids.discard(default_role.id)
+    if not trainee_role_ids:
+        raise RoleNotAssociatedException(PermissionFlagID.TRAINEE)
+
+    trainee_roles = [Object(id=role_id) for role_id in trainee_role_ids]
+
+    await trainee.remove_roles(*trainee_roles)
+
+    await add_entry(LoggedEventTypeID.TRAINEE_EXPELLED, supervisor, dict(
+        trainee_user_id=str(trainee.id)
+    ))

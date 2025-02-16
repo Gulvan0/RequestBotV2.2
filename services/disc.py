@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from os import PathLike
 
 import discord
-from discord import Embed, File, Locale, Message
+from discord import Embed, File, Locale, Member, Message, NotFound, Role, User
 from discord.app_commands import commands
 
 from config.stage_parameters import get_value as get_stage_parameter_value
@@ -15,6 +15,8 @@ from util.datatypes import Language
 from util.format import as_code_block, as_user
 from util.identifiers import PermissionFlagID, RouteID, StageParameterID, TextPieceID, UserPreferenceID
 from string import Template
+
+import typing as tp
 
 
 MESSAGE_LENGTH_LIMIT = 2000
@@ -42,13 +44,16 @@ async def respond(
     inter: discord.Interaction,
     template: str | list[str] | Template | TextPieceID,
     substitutions: dict[str, str | TextPieceID] | None = None,
-    ephemeral: bool = False
+    ephemeral: bool = False,
+    view: tp.Callable[[Language], discord.ui.View] | None = None
 ) -> None:
+    lang = Language.EN
     if isinstance(template, TextPieceID):
         member_language_info = member_language(inter.user, inter.locale)
-        message_text = render_text(template, member_language_info.language, substitutions or {})
+        lang = member_language_info.language
+        message_text = render_text(template, lang, substitutions or {})
         if member_language_info.is_assumed:
-            subtext_language = Language.EN if member_language_info.language == Language.RU else Language.RU
+            subtext_language = Language.EN if lang == Language.RU else Language.RU
             subtext = render_text(TextPieceID.COMMON_LANGUAGE_SELECTION_PROPOSAL_SUBTEXT, subtext_language)
             message_text += f"\n-# {subtext}"
     elif isinstance(template, Template):
@@ -61,10 +66,13 @@ async def respond(
             message_text = str_template
 
     if inter.response.is_done():
-        await inter.edit_original_response(content=message_text)
+        await inter.edit_original_response(content=message_text, view=view(lang) if view else None)
     else:
         try:
-            await inter.response.send_message(message_text, ephemeral=ephemeral)
+            if view:
+                await inter.response.send_message(message_text, ephemeral=ephemeral, view=view(lang))
+            else:
+                await inter.response.send_message(message_text, ephemeral=ephemeral)
         except discord.errors.NotFound:
             pass
 
@@ -132,3 +140,18 @@ async def find_message(channel_id: int, message_id: int) -> Message | None:
     if channel:
         return await channel.fetch_message(message_id)
     return None
+
+
+async def find_member(user_id: int) -> Member | None:
+    try:
+        return await CONFIG.guild.fetch_member(user_id)
+    except NotFound:
+        return None
+
+
+async def get_role(role_id: int) -> Role | None:
+    return await CONFIG.guild.get_role(role_id)
+
+
+def get_default_role() -> Role:
+    return CONFIG.guild.default_role

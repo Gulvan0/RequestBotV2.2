@@ -426,6 +426,34 @@
     "eng": "**Resolved reviews by this trainee:** {resolved_review_cnt}\n**Accepted reviews ratio:** {acceptance_percent}%",
     "rus": "**Оценено обзоров кандидата:** {resolved_review_cnt}\n**Доля одобренных обзоров:** {acceptance_percent}%"
   },
+  "trainee_review.resolution_response.promote_btn_label": {
+    "description": "Надпись на кнопке, позволяющей повысить кандидата в ревьюеры до обычного обзорщика",
+    "eng": "Promote",
+    "rus": "Повысить"
+  },
+  "trainee_review.resolution_response.expel_btn_label": {
+    "description": "Надпись на кнопке, позволяющей исключить пользователя из кандидатов в ревьюеры",
+    "eng": "Expel",
+    "rus": "Выгнать"
+  },
+  "trainee_review.resolution_response.wait_btn_label": {
+    "description": "Надпись на кнопке, откладывающей вынесение решения по кандидату в ревьюеры",
+    "eng": "Defer",
+    "rus": "Отложить"
+  },
+  "trainee_promotion.not_a_trainee": {
+    "description": "Ошибка, возникающая при попытке повысить или выгнать кандидата в обзорщики, когда указанный юзер кандидатом не является",
+    "eng": "Error: this user is not a trainee!",
+    "rus": "Ошибка: этот пользователь - не кандидат в обзорщики!"
+  },
+  "trainee_promotion.role_not_associated": {
+    "description": "Ошибка, возникающая при попытке повысить или выгнать кандидата в обзорщики, когда отсутствует привязка требуемого разрешения к роли",
+    "param_descriptions": {
+      "permission": "Разрешение, которое нужно привязать к роли. Ожидается, что уже отформатировано как код"
+    },
+    "eng": "Error: please bind permission {permission} to a server role first",
+    "rus": "Ошибка: пожалуйста, сначала привяжите разрешение {permission} к роли на сервере"
+  },
   "queue.queue_closed_error": {
     "description": "Ошибка, возникающая при попытке зареквестить уровень, когда очередь закрыта",
     "eng": "A level was not requested, because the request queue is temporarily closed. Please wait until moderators resolve previous requests",

@@ -34,7 +34,7 @@ class ExceptionHandler(commands.Cog):
                     admin_mention=as_user(get_stage_parameter_value(StageParameterID.ADMIN_USER_ID)),
                     error_traceback=as_code_block(raw_error_message[:1000])
                 ), ephemeral=True)
-            except (discord.errors.InteractionResponded, discord.errors.NotFound):
+            except (discord.errors.InteractionResponded, discord.errors.NotFound, discord.errors.HTTPException):
                 pass
 
             await send_developers(raw_error_message, "py")

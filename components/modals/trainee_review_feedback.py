@@ -2,6 +2,7 @@ from discord import Interaction, TextStyle
 from discord.ui import TextInput
 
 from components.modals.generic import GenericModal
+from components.views.trainee_promotion_decision import TraineePromotionDecisionView
 from facades.parameters import get_value as get_parameter_value
 from services.disc import respond
 from util.datatypes import Language
@@ -60,6 +61,6 @@ class TraineeReviewFeedbackModal(GenericModal):
                     resolved_review_cnt=str(trainee_stats.resolved_review_cnt),
                     acceptance_percent=str(round(trainee_stats.acceptance_ratio * 100))
                 ),
-                ephemeral=True
+                ephemeral=True,
+                view=lambda lang: TraineePromotionDecisionView(trainee_stats.user_id, lang)
             )
-            # TODO: Respond with promotion view (+ add widget btns to dynamic items)

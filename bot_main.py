@@ -20,6 +20,7 @@ from components.modals.request_submission import RequestSubmissionModal
 from components.modals.trainee_review_feedback import TraineeReviewFeedbackModal
 from components.views.pending_request_widget import PendingRequestWidgetApproveAndReviewBtn, PendingRequestWidgetJustApproveBtn, PendingRequestWidgetJustRejectBtn, PendingRequestWidgetRejectAndReviewBtn
 from components.views.resolution_widget import ResolutionWidgetEpicBtn, ResolutionWidgetFeatureBtn, ResolutionWidgetLegendaryBtn, ResolutionWidgetMythicBtn, ResolutionWidgetRejectBtn, ResolutionWidgetStarrateBtn
+from components.views.trainee_promotion_decision import TraineePromotionDecisionExpelBtn, TraineePromotionDecisionPromoteBtn, TraineePromotionDecisionWaitBtn
 from components.views.trainee_review_widget import TraineeReviewWidgetAcceptBtn, TraineeReviewWidgetRejectBtn
 from config.texts import validate as validate_texts
 from config.routes import validate as validate_routes
@@ -46,13 +47,17 @@ class RequestBot(commands.Bot):
 
         self.ext_dir = "cogs"
         self.synced = False
+        self.guild_id = 0
 
         intents = discord.Intents.default()
         intents.message_content = True
-        super().__init__(*args, **kwargs, command_prefix=commands.when_mentioned, intents=intents)
+        super().__init__(*args, **kwargs, command_prefix=commands.when_mentioned, intents=intents)  # noqa
 
     async def on_ready(self) -> None:
         self.logger.info(f"Logged in as {self.user} ({self.user.id})")
+
+        CONFIG.guild = self.get_guild(self.guild_id)
+        assert CONFIG.guild
 
     async def _load_extensions(self) -> None:
         if not os.path.isdir(self.ext_dir):
@@ -78,8 +83,8 @@ class RequestBot(commands.Bot):
         self.client = aiohttp.ClientSession()
         await self._load_extensions()
 
-        guild_id = get_stage_parameter_value(StageParameterID.GUILD_ID)
-        guild = discord.Object(id=guild_id)
+        self.guild_id = get_stage_parameter_value(StageParameterID.GUILD_ID)
+        guild = discord.Object(id=self.guild_id)
 
         if not self.synced:
             self.tree.copy_global_to(guild=guild)
@@ -99,6 +104,9 @@ class RequestBot(commands.Bot):
         self.add_dynamic_items(ResolutionWidgetRejectBtn)
         self.add_dynamic_items(TraineeReviewWidgetAcceptBtn)
         self.add_dynamic_items(TraineeReviewWidgetRejectBtn)
+        self.add_dynamic_items(TraineePromotionDecisionPromoteBtn)
+        self.add_dynamic_items(TraineePromotionDecisionExpelBtn)
+        self.add_dynamic_items(TraineePromotionDecisionWaitBtn)
 
     @staticmethod
     async def on_interaction(inter: discord.Interaction):

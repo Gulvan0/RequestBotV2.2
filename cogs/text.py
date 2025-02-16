@@ -1,5 +1,3 @@
-from tempfile import template
-
 import discord
 
 from discord import app_commands

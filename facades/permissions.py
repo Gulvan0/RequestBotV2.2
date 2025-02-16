@@ -22,10 +22,16 @@ def has_permission(member: discord.Member, permission: PermissionFlagID | list[P
             checked_flags = permission
         if allow_admin:
             checked_flags.append(PermissionFlagID.ADMIN)
-        query: Select = select(PermissionFlag.role_id).where(or_(col(PermissionFlag.id).in_(checked_flags)))
+        query: Select = select(PermissionFlag.role_id).where(col(PermissionFlag.id).in_(checked_flags))
         required_roles = set(session.exec(query))
 
     return bool(member_roles & required_roles)
+
+
+async def get_permission_role_ids(permission: PermissionFlagID) -> set[int]:
+    with Session(engine) as session:
+        query = select(PermissionFlag.role_id).where(PermissionFlag.id == permission)
+        return set(session.exec(query))  # noqa
 
 
 async def bind(role: discord.Role, permission: PermissionFlagID, invoker: Member | None = None) -> None:
