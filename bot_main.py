@@ -1,3 +1,4 @@
+import asyncio
 import traceback
 
 import aiohttp
@@ -7,9 +8,12 @@ import logging
 import os
 import typing as tp
 
+import uvicorn
 from discord import InteractionType
 from discord.ext import commands
 from discord.utils import _ColourFormatter
+from fastapi import FastAPI
+from pydantic import BaseModel, Field
 
 from components.modals.approval import ApprovalModal
 from components.modals.pre_approval import PreApprovalModal
@@ -31,9 +35,23 @@ from config.permission_flags import validate as validate_permission_flags
 from database.db import create_db_and_tables
 from database.models import *  # noqa
 from globalconf import CONFIG
+from services.disc import post_raw_text
 from util.datatypes import Stage
 from util.identifiers import StageParameterID
 from util.translator import Translator
+
+
+class Message(BaseModel):
+    text: str = Field(..., min_length=1, max_length=2000)
+    target_route_id: RouteID
+
+
+api_app = FastAPI()
+
+
+@api_app.post("/send_message")
+async def root(message: Message):
+    await post_raw_text(message.target_route_id, message.text)
 
 
 class RequestBot(commands.Bot):
@@ -132,12 +150,18 @@ class RequestBot(commands.Bot):
             elif custom_id.startswith("trf:"):
                 await TraineeReviewFeedbackModal.handle_interaction(inter)
 
-    def run(self, *args: tp.Any, **kwargs: tp.Any) -> None:
+    def start(self, *args: tp.Any, **kwargs: tp.Any) -> tp.Coroutine[tp.Any, tp.Any, None]:
         try:
-            super().run(os.getenv("BOT_TOKEN"), *args, **kwargs)
+            return super().start(os.getenv("BOT_TOKEN"), *args, **kwargs)
         except (discord.LoginFailure, KeyboardInterrupt):
             self.logger.info("Exiting...")
             exit()
+
+
+async def start_api() -> None:
+    config = uvicorn.Config(api_app, port=5000, log_level="info")
+    server = uvicorn.Server(config)
+    await server.serve()
 
 
 @click.command
@@ -166,8 +190,15 @@ def main(debug: bool, log_queries: bool) -> None:
     validate_stage_parameters()
     validate_permission_flags()
 
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
     CONFIG.bot = RequestBot()
-    CONFIG.bot.run()
+    tasks = [
+        loop.create_task(CONFIG.bot.start()),
+        loop.create_task(start_api()),
+    ]
+    loop.run_until_complete(asyncio.wait(tasks))
 
 
 if __name__ == "__main__":
