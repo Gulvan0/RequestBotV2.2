@@ -34,9 +34,10 @@ from config.stage_parameters import validate as validate_stage_parameters, get_v
 from config.permission_flags import validate as validate_permission_flags
 from database.db import create_db_and_tables
 from database.models import *  # noqa
+from facades.requests import complete_request, create_limbo_request, get_pending_request, resolve
 from globalconf import CONFIG
 from services.disc import post_raw_text
-from util.datatypes import Stage
+from util.datatypes import SendType, Stage
 from util.identifiers import StageParameterID
 from util.translator import Translator
 
@@ -46,12 +47,81 @@ class Message(BaseModel):
     target_route_id: RouteID
 
 
+class RequestResolutionPayload(BaseModel):
+    request_id: int
+    sent_for: SendType | None = None
+    stream_link: str | None = None
+
+
+class RequestCreationPayload(BaseModel):
+    level_id: int
+    creator_name: str
+    language: Language
+    showcase_yt_link: str
+
+
 api_app = FastAPI()
 
 
 @api_app.post("/send_message")
-async def root(message: Message):
+async def send_message(message: Message) -> None:
     await post_raw_text(message.target_route_id, message.text)
+
+
+@api_app.get("/request/random")
+async def random_request() -> Request:
+    return await get_pending_request(oldest=False)
+
+
+@api_app.get("/request/oldest")
+async def oldest_request() -> Request:
+    return await get_pending_request(oldest=True)
+
+
+@api_app.post("/request/resolve")
+async def request_resolve(payload: RequestResolutionPayload) -> bool:
+    if payload.stream_link:
+        reason = f"Reviewed on stream: {payload.stream_link}"
+    else:
+        reason = "Reviewed on stream"
+
+    return await resolve(
+        resolving_mod=CONFIG.admin,
+        request_id=payload.request_id,
+        sent_for=payload.sent_for,
+        review_text=None,
+        reason=reason
+    )
+
+
+async def create_single_request(payload: RequestCreationPayload, allow_queue_closing: bool) -> int:
+    request_id = await create_limbo_request(
+        level_id=payload.level_id,
+        request_language=payload.language,
+        invoker=CONFIG.admin,
+        creator=payload.creator_name
+    )
+
+    await complete_request(
+        request_id=request_id,
+        yt_link=payload.showcase_yt_link,
+        additional_comment="Requested on stream",
+        invoker=CONFIG.admin,
+        allow_queue_closing=allow_queue_closing
+    )
+
+    return request_id
+
+
+@api_app.post("/request/create")
+async def request_create(payload: RequestCreationPayload) -> int:
+    return await create_single_request(payload, False)
+
+
+@api_app.post("/request/create_batch")
+async def request_create(payload: list[RequestCreationPayload]) -> None:
+    for single_request_payload in payload:
+        await create_single_request(single_request_payload, True)
 
 
 class RequestBot(commands.Bot):
@@ -78,6 +148,8 @@ class RequestBot(commands.Bot):
 
         CONFIG.guild = self.get_guild(self.guild_id)
         assert CONFIG.guild
+
+        CONFIG.admin = await CONFIG.guild.fetch_member(get_stage_parameter_value(StageParameterID.ADMIN_USER_ID))
 
     async def _load_extensions(self) -> None:
         if not os.path.isdir(self.ext_dir):

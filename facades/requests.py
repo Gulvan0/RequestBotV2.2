@@ -84,7 +84,25 @@ async def get_oldest_ignored_request() -> Request | None:
 async def get_oldest_unresolved_request() -> Request | None:
     with Session(engine) as session:
         resolved_request_ids = select(RequestOpinion.request_id).where(RequestOpinion.is_resolution == True)
-        query = select(Request).where(~col(Request.id).in_(resolved_request_ids), Request.requested_at != None).order_by(Request.requested_at)  # noqa
+        query = select(Request).where(
+            ~col(Request.id).in_(resolved_request_ids),
+            Request.resolution_message_id != None,  # noqa
+            Request.resolution_message_channel_id != None  # noqa
+        ).order_by(Request.requested_at)
+        return session.exec(query).first()  # noqa
+
+
+async def get_pending_request(oldest: bool) -> Request | None:
+    with Session(engine) as session:
+        resolved_request_ids = select(RequestOpinion.request_id).where(RequestOpinion.is_resolution == True)
+        query = select(
+            Request
+        ).where(
+            ~col(Request.id).in_(resolved_request_ids),
+            Request.requested_at != None  # noqa
+        ).order_by(
+            Request.requested_at if oldest else func.random()
+        )
         return session.exec(query).first()  # noqa
 
 
@@ -121,7 +139,7 @@ async def create_limbo_request(level_id: int, request_language: Language, invoke
     return request_id
 
 
-async def complete_request(request_id: int, yt_link: str, additional_comment: str | None, invoker: Member) -> None:
+async def complete_request(request_id: int, yt_link: str, additional_comment: str | None, invoker: Member, allow_queue_closing: bool = True) -> None:
     yt_video_id = get_video_id_by_url(yt_link)
     if not yt_video_id:
         raise InvalidYtLinkException
@@ -168,7 +186,7 @@ async def complete_request(request_id: int, yt_link: str, additional_comment: st
         session.add(request)
         session.commit()
 
-    if get_parameter_value(ParameterID.QUEUE_BLOCK_ENABLED, bool) and get_parameter_value(ParameterID.QUEUE_BLOCK_AT, int) <= await count_pending_requests():
+    if allow_queue_closing and get_parameter_value(ParameterID.QUEUE_BLOCK_ENABLED, bool) and get_parameter_value(ParameterID.QUEUE_BLOCK_AT, int) <= await count_pending_requests():
         try:
             await update_parameter_value(ParameterID.QUEUE_BLOCKED, "true")
         except AlreadySatisfiesError:
@@ -404,12 +422,13 @@ async def add_opinion(reviewer: Member, request_id: int, opinion: Opinion, revie
     ))
 
 
-async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | None, review_text: str | None = None, reason: str | None = None):
+async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | None, review_text: str | None = None, reason: str | None = None) -> bool:
     opinion = Opinion.APPROVED if sent_for else Opinion.REJECTED
 
     with Session(engine) as session:
         request: Request = session.get(Request, request_id)  # noqa
-        assert request
+        if not request:
+            return False
 
         # Eagerly reading all the properties so as not to trigger entity refresh later
         level_id = request.level_id
@@ -439,14 +458,24 @@ async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | N
 
         formatted_reasoning = _render_reasoning(associated_review_message, reason)
         resolution_widget = await find_message(request.resolution_message_channel_id, request.resolution_message_id)
-        assert resolution_widget
+
+        review_widget = await find_message(request.details_message_channel_id, request.details_message_id)
+        assert review_widget
+        review_widget_embed = review_widget.embeds[0]
+
+        if not resolution_widget:
+            resolution_widget = await _create_resolution_widget(
+                request_id=request_id,
+                details_embed=review_widget_embed,
+                first_reviewer=resolving_mod,
+                first_opinion=opinion,
+                reasoning=formatted_reasoning
+            )
+
         is_first = await _append_resolution_to_resolution_widget(resolution_widget, resolving_mod, opinion, formatted_reasoning)
 
         if is_first:
-            review_widget = await find_message(request.details_message_channel_id, request.details_message_id)
-            assert review_widget
-
-            embed = review_widget.embeds[0]
+            embed = review_widget_embed.copy()
             embed.colour = Colour.from_str("#666666")
             embed.add_field(name="Opinions and Resolutions", value=f"See {as_link(resolution_widget.jump_url, 'widget')}")
             archive_message = await post_raw_text(RouteID.ARCHIVE, embed=embed)
@@ -513,3 +542,5 @@ async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | N
         review_msg_url=associated_review_message.jump_url if associated_review_message else "NO_REVIEW",
         reason=reason or "NO_REASON"
     ))
+
+    return True
