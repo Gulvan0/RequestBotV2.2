@@ -834,8 +834,8 @@
   },
   "command_description.reviews.user": {
     "description": "Описание команды `/reviews user`",
-    "eng": "Get last 20 reviews written by a certain user",
-    "rus": "Получить последние 20 обзоров, написанных указанным пользователем"
+    "eng": "Get all reviews written by a certain user, ordered from newest to oldest",
+    "rus": "Получить все обзоры, написанные указанным пользователем, от самых новых к самым старым"
   },
   "command_description.route.describe": {
     "description": "Описание команды `/route describe`",

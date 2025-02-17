@@ -2,6 +2,7 @@ import discord
 from discord import app_commands, Member
 from discord.ext import commands
 
+from components.views.pagination.list import ListPaginationView
 from facades.reviews import get_level_reviews, get_user_reviews
 from services.disc import find_message, respond
 from util.format import as_link
@@ -37,7 +38,7 @@ class ReviewsCog(commands.GroupCog, name="reviews", description="Commands for ma
         reviews = await get_user_reviews(author)
 
         response_lines = []
-        for review in reviews[:20]:
+        for review in reviews:
             review_message = await find_message(review.message_channel_id, review.message_id)
             if not review_message:
                 continue
@@ -47,7 +48,7 @@ class ReviewsCog(commands.GroupCog, name="reviews", description="Commands for ma
             await respond(inter, TextPieceID.REQUEST_NO_REVIEWS, ephemeral=True)
             return
 
-        await respond(inter, response_lines, ephemeral=True)
+        await ListPaginationView(response_lines).respond_with_view(inter, ephemeral=True)
 
 
 async def setup(bot):

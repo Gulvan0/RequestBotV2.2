@@ -59,7 +59,10 @@ class GenericPaginationView(ABC, discord.ui.View):
             self.prev.disabled = True
             self.next.disabled = True
 
-        await inter.response.send_message(self.message_text, view=self, ephemeral=ephemeral)
+        if inter.response.is_done():
+            await inter.edit_original_response(content=self.message_text, view=self)
+        else:
+            await inter.response.send_message(self.message_text, view=self, ephemeral=ephemeral)
         self.message = await inter.original_response()
 
         if not blocks:

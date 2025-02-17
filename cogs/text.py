@@ -3,6 +3,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+from components.views.pagination.list import ListPaginationView
 from config.texts import enlist
 from services.disc import requires_permission, respond
 from facades.texts import explain, reset_template, update_template
@@ -78,7 +79,7 @@ class TextCog(commands.GroupCog, name="text", description="Utilities for working
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_TEXT_LIST.as_locale_str())
     @requires_permission(PermissionFlagID.ADMIN)
     async def list(self, inter: discord.Interaction) -> None:
-        await respond(inter, list_described_values(enlist()), ephemeral=True)
+        await ListPaginationView(list_described_values(enlist())).respond_with_view(inter, ephemeral=True)
 
 
 async def setup(bot):
