@@ -12,7 +12,8 @@ import uvicorn
 from discord import InteractionType
 from discord.ext import commands
 from discord.utils import _ColourFormatter
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
+from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, Field
 
 from components.modals.approval import ApprovalModal
@@ -61,25 +62,35 @@ class RequestCreationPayload(BaseModel):
 
 
 api_app = FastAPI()
+header_scheme = APIKeyHeader(name="x-key")
 
 
 @api_app.post("/send_message")
-async def send_message(message: Message) -> None:
+async def send_message(message: Message, key: str = Depends(header_scheme)) -> None:
+    if key != os.getenv("API_TOKEN"):
+        raise HTTPException(status_code=401, detail="Wrong token")
     await post_raw_text(message.target_route_id, message.text)
 
 
 @api_app.get("/request/random")
-async def random_request() -> Request:
+async def random_request(key: str = Depends(header_scheme)) -> Request:
+    if key != os.getenv("API_TOKEN"):
+        raise HTTPException(status_code=401, detail="Wrong token")
     return await get_pending_request(oldest=False)
 
 
 @api_app.get("/request/oldest")
-async def oldest_request() -> Request:
+async def oldest_request(key: str = Depends(header_scheme)) -> Request:
+    if key != os.getenv("API_TOKEN"):
+        raise HTTPException(status_code=401, detail="Wrong token")
     return await get_pending_request(oldest=True)
 
 
 @api_app.post("/request/resolve")
-async def request_resolve(payload: RequestResolutionPayload) -> bool:
+async def request_resolve(payload: RequestResolutionPayload, key: str = Depends(header_scheme)) -> bool:
+    if key != os.getenv("API_TOKEN"):
+        raise HTTPException(status_code=401, detail="Wrong token")
+
     if payload.stream_link:
         reason = f"Reviewed on stream: {payload.stream_link}"
     else:
@@ -114,12 +125,17 @@ async def create_single_request(payload: RequestCreationPayload, allow_queue_clo
 
 
 @api_app.post("/request/create")
-async def request_create(payload: RequestCreationPayload) -> int:
+async def request_create(payload: RequestCreationPayload, key: str = Depends(header_scheme)) -> int:
+    if key != os.getenv("API_TOKEN"):
+        raise HTTPException(status_code=401, detail="Wrong token")
     return await create_single_request(payload, False)
 
 
 @api_app.post("/request/create_batch")
-async def request_create(payload: list[RequestCreationPayload]) -> None:
+async def request_create(payload: list[RequestCreationPayload], key: str = Depends(header_scheme)) -> None:
+    if key != os.getenv("API_TOKEN"):
+        raise HTTPException(status_code=401, detail="Wrong token")
+
     for single_request_payload in payload:
         await create_single_request(single_request_payload, True)
 
