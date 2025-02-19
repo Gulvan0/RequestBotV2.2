@@ -259,6 +259,8 @@ class RouteID(Enum):
     REQUESTS_CLOSED = "requests_closed"
     REQUESTS_REOPENED = "requests_reopened"
     ARCHIVE = "archive"
+    STREAM_START_ANNOUNCEMENT = "stream_start_announcement"
+    STREAM_END_GOODBYE = "stream_end_goodbye"
 
 
 @unique

@@ -65,7 +65,7 @@ api_app = FastAPI()
 header_scheme = APIKeyHeader(name="x-key")
 
 
-@api_app.post("/send_message")
+@api_app.post("/message/send")
 async def send_message(message: Message, key: str = Depends(header_scheme)) -> None:
     if key != os.getenv("API_TOKEN"):
         raise HTTPException(status_code=401, detail="Wrong token")
