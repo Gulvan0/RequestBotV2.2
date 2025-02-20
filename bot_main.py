@@ -35,7 +35,7 @@ from config.stage_parameters import validate as validate_stage_parameters, get_v
 from config.permission_flags import validate as validate_permission_flags
 from database.db import create_db_and_tables
 from database.models import *  # noqa
-from facades.requests import complete_request, create_limbo_request, get_pending_request, resolve
+from facades.requests import add_opinion, complete_request, create_limbo_request, get_pending_request, resolve
 from globalconf import CONFIG
 from services.disc import post_raw_text
 from util.datatypes import SendType, Stage
@@ -59,6 +59,10 @@ class RequestCreationPayload(BaseModel):
     creator_name: str
     language: Language
     showcase_yt_link: str
+
+
+class RequestPreApprovalPayload(BaseModel):
+    request_id: int
 
 
 api_app = FastAPI()
@@ -105,6 +109,20 @@ async def request_resolve(payload: RequestResolutionPayload, key: str = Depends(
     )
 
 
+@api_app.post("/request/preapprove")
+async def request_pre_approve(payload: RequestPreApprovalPayload, key: str = Depends(header_scheme)) -> None:
+    if key != os.getenv("API_TOKEN"):
+        raise HTTPException(status_code=401, detail="Wrong token")
+
+    await add_opinion(
+        reviewer=CONFIG.admin,
+        request_id=payload.request_id,
+        opinion=Opinion.APPROVED,
+        review_text=None,
+        reason="Marked as 'Later' on stream"
+    )
+
+
 async def create_single_request(payload: RequestCreationPayload, allow_queue_closing: bool) -> int:
     request_id = await create_limbo_request(
         level_id=payload.level_id,
@@ -132,7 +150,7 @@ async def request_create(payload: RequestCreationPayload, key: str = Depends(hea
 
 
 @api_app.post("/request/create_batch")
-async def request_create(payload: list[RequestCreationPayload], key: str = Depends(header_scheme)) -> None:
+async def request_create_batch(payload: list[RequestCreationPayload], key: str = Depends(header_scheme)) -> None:
     if key != os.getenv("API_TOKEN"):
         raise HTTPException(status_code=401, detail="Wrong token")
 
