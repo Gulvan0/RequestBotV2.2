@@ -35,7 +35,7 @@ from config.stage_parameters import validate as validate_stage_parameters, get_v
 from config.permission_flags import validate as validate_permission_flags
 from database.db import create_db_and_tables
 from database.models import *  # noqa
-from facades.requests import add_opinion, complete_request, create_limbo_request, get_existing_opinion, get_latest_pending_request, get_pending_request, resolve
+from facades.requests import add_opinion, complete_request, create_limbo_request, get_existing_opinion, get_latest_pending_request, get_pending_request, is_request_unresolved, resolve
 from globalconf import CONFIG
 from services.disc import post_raw_text
 from util.datatypes import SendType, Stage
@@ -94,6 +94,9 @@ async def oldest_request(key: str = Depends(header_scheme)) -> Request:
 async def request_resolve(payload: RequestResolutionPayload, key: str = Depends(header_scheme)) -> bool:
     if key != os.getenv("API_TOKEN"):
         raise HTTPException(status_code=401, detail="Wrong token")
+
+    if not is_request_unresolved(payload.request_id):
+        return False
 
     if payload.stream_link:
         reason = f"Reviewed on stream: {payload.stream_link}"

@@ -75,6 +75,12 @@ async def get_last_complete_request(level_id: int) -> Request | None:
         return session.exec(query).first()  # noqa
 
 
+async def is_request_unresolved(request_id: int) -> bool:
+    with Session(engine) as session:
+        query = select(RequestOpinion.request_id).where(RequestOpinion.request_id == request_id, RequestOpinion.is_resolution == True)
+        return session.exec(query).first() is None
+
+
 async def get_latest_pending_request(level_id: int) -> Request | None:
     with Session(engine) as session:
         resolved_request_ids = select(RequestOpinion.request_id).where(RequestOpinion.is_resolution == True)
