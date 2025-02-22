@@ -75,6 +75,21 @@ async def get_last_complete_request(level_id: int) -> Request | None:
         return session.exec(query).first()  # noqa
 
 
+async def get_latest_pending_request(level_id: int) -> Request | None:
+    with Session(engine) as session:
+        resolved_request_ids = select(RequestOpinion.request_id).where(RequestOpinion.is_resolution == True)
+        query = select(
+            Request
+        ).where(
+            Request.level_id == level_id,
+            Request.requested_at != None,  # noqa
+            ~col(Request.id).in_(resolved_request_ids)
+        ).order_by(
+            col(Request.requested_at).desc()
+        )
+        return session.exec(query).first()  # noqa
+
+
 async def get_oldest_ignored_request() -> Request | None:
     with Session(engine) as session:
         query = select(Request).where(Request.resolution_message_id == None, Request.requested_at != None).order_by(Request.requested_at)  # noqa

@@ -78,8 +78,8 @@ class SendType(StrEnum):
     STARRATE = 's'
     FEATURE = 'f'
     EPIC = 'e'
-    LEGENDARY = 'l'
     MYTHIC = 'm'
+    LEGENDARY = 'l'
 
 
 class CommandChoiceOption:

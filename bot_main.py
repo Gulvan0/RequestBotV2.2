@@ -14,7 +14,7 @@ from discord.ext import commands
 from discord.utils import _ColourFormatter
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.security import APIKeyHeader
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field as PydanticField
 
 from components.modals.approval import ApprovalModal
 from components.modals.pre_approval import PreApprovalModal
@@ -35,7 +35,7 @@ from config.stage_parameters import validate as validate_stage_parameters, get_v
 from config.permission_flags import validate as validate_permission_flags
 from database.db import create_db_and_tables
 from database.models import *  # noqa
-from facades.requests import add_opinion, complete_request, create_limbo_request, get_pending_request, resolve
+from facades.requests import add_opinion, complete_request, create_limbo_request, get_existing_opinion, get_latest_pending_request, get_pending_request, resolve
 from globalconf import CONFIG
 from services.disc import post_raw_text
 from util.datatypes import SendType, Stage
@@ -44,7 +44,7 @@ from util.translator import Translator
 
 
 class Message(BaseModel):
-    text: str = Field(..., min_length=1, max_length=2000)
+    text: str = PydanticField(..., min_length=1, max_length=2000)
     target_route_id: RouteID
 
 
@@ -114,16 +114,22 @@ async def request_pre_approve(payload: RequestPreApprovalPayload, key: str = Dep
     if key != os.getenv("API_TOKEN"):
         raise HTTPException(status_code=401, detail="Wrong token")
 
-    await add_opinion(
-        reviewer=CONFIG.admin,
-        request_id=payload.request_id,
-        opinion=Opinion.APPROVED,
-        review_text=None,
-        reason="Marked as 'Later' on stream"
-    )
+    existing_opinion = await get_existing_opinion(reviewer=CONFIG.admin, request_id=payload.request_id, resolution_only=False)
+    if not existing_opinion:
+        await add_opinion(
+            reviewer=CONFIG.admin,
+            request_id=payload.request_id,
+            opinion=Opinion.APPROVED,
+            review_text=None,
+            reason="Marked as 'Later' on stream"
+        )
 
 
 async def create_single_request(payload: RequestCreationPayload, allow_queue_closing: bool) -> int:
+    existing_request = await get_latest_pending_request(payload.level_id)
+    if existing_request:
+        return existing_request.id
+
     request_id = await create_limbo_request(
         level_id=payload.level_id,
         request_language=payload.language,
