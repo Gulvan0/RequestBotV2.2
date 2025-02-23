@@ -902,6 +902,11 @@
     "eng": "Pick a random request to review",
     "rus": "Подобрать случайный реквест для написания ревью"
   },
+  "command_description.report.new_requests": {
+    "description": "Описание команды `/report new_requests`",
+    "eng": "Plot a number of new requests per day",
+    "rus": "Построить график количества новых реквестов по дням"
+  },
   "command_option.request.create.level_id": {
     "description": "Описание параметра `level_id` команды `/request create`",
     "eng": "ID of a level you want to request",
@@ -1211,6 +1216,16 @@
     "description": "Описание параметра `trainee` команды `/trainee expel`",
     "eng": "Trainee to be expelled",
     "rus": "Кандидат в обзорщики, которого требуется выгнать"
+  },
+  "command_option.report.new_requests.ts_from": {
+    "description": "Описание параметра `ts_from` команды `/report new_requests`",
+    "eng": "Start of the plotted period. Defaults to the first request date if omitted. Format: /help timestamp",
+    "rus": "Начало периода, за который строится отчет. Без ограничений, если не указан. Формат: /help timestamp"
+  },
+  "command_option.report.new_requests.ts_to": {
+    "description": "Описание параметра `ts_to` команды `/report new_requests`",
+    "eng": "End of the plotted period. Defaults to the current date if omitted. Format: /help timestamp",
+    "rus": "Конец периода, за который строится отчет. По умолчанию - текущий день. Формат: /help timestamp"
   },
   "command_choice.cooldown_listing.temporary": {
     "description": "Один из вариантов вывода списка кулдаунов: только временные",

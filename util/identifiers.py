@@ -178,6 +178,7 @@ class TextPieceID(Enum):
     COMMAND_DESCRIPTION_TRAINEE_PROMOTE = "command_description.trainee.promote"
     COMMAND_DESCRIPTION_TRAINEE_EXPEL = "command_description.trainee.expel"
     COMMAND_DESCRIPTION_TRAINEE_PICK = "command_description.trainee.pick"
+    COMMAND_DESCRIPTION_REPORT_NEW_REQUESTS = "command_description.report.new_requests"
     COMMAND_OPTION_REQUEST_CREATE_LEVEL_ID = "command_option.request.create.level_id"
     COMMAND_OPTION_REQUEST_WIDGETS_LEVEL_ID = "command_option.request.widgets.level_id"
     COMMAND_OPTION_REQUEST_INSERT_LEVEL_ID = "command_option.request.insert.level_id"
@@ -240,6 +241,8 @@ class TextPieceID(Enum):
     COMMAND_OPTION_TEXT_RESET_LANGUAGE = "command_option.text.reset.language"
     COMMAND_OPTION_TRAINEE_PROMOTE_TRAINEE = "command_option.trainee.promote.trainee"
     COMMAND_OPTION_TRAINEE_EXPEL_TRAINEE = "command_option.trainee.expel.trainee"
+    COMMAND_OPTION_REPORT_NEW_REQUESTS_TS_FROM = "command_option.report.new_requests.ts_from"
+    COMMAND_OPTION_REPORT_NEW_REQUESTS_TS_TO = "command_option.report.new_requests.ts_to"
     COMMAND_CHOICE_COOLDOWN_LISTING_TEMPORARY = "command_choice.cooldown_listing.temporary"
     COMMAND_CHOICE_COOLDOWN_LISTING_ENDLESS = "command_choice.cooldown_listing.endless"
 
@@ -280,6 +283,7 @@ class ParameterID(Enum):
 class PermissionFlagID(Enum):
     ADMIN = "admin"
     LOG_VIEWER = "log_viewer"
+    REPORT_VIEWER = "report_viewer"
     REVIEWER = "reviewer"
     TRAINEE = "trainee"
     TRAINEE_SUPERVISOR = "trainee_supervisor"
