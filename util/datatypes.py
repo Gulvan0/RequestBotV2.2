@@ -1,9 +1,12 @@
+from datetime import date, datetime, timedelta
 from enum import auto, Enum, StrEnum, unique
 
 import discord
+from attr import dataclass
 from discord import app_commands
 
 from util.identifiers import TextPieceID
+from util.time import get_date, to_end_of_week, to_start_of_day, to_start_of_week
 
 
 @unique
@@ -107,3 +110,55 @@ class CommandChoiceOption:
             app_commands.Choice(name=TextPieceID.COMMAND_CHOICE_COOLDOWN_LISTING_TEMPORARY.as_locale_str(), value=CooldownListingOption.TEMPORARY),
             app_commands.Choice(name=TextPieceID.COMMAND_CHOICE_COOLDOWN_LISTING_ENDLESS.as_locale_str(), value=CooldownListingOption.ENDLESS)
         ]
+
+
+@dataclass(frozen=True)
+class ReportBin:
+    value: date
+    name: str
+
+
+@dataclass(frozen=True)
+class ReportRange:
+    date_from: date | None
+    date_to: date
+    weekly_granularity: bool
+
+    def get_inclusive_min_datetime(self) -> datetime | None:
+        return to_start_of_day(self.date_from) if self.date_from else None
+
+    def get_exclusive_max_datetime(self) -> datetime | None:
+        return to_start_of_day(self.date_to + timedelta(days=1))
+
+    def get_bin(self, timestamp: date | datetime) -> ReportBin:
+        if self.weekly_granularity:
+            start_of_week = to_start_of_week(timestamp)
+            end_of_week = to_end_of_week(timestamp)
+            return ReportBin(
+                value=start_of_week,
+                name=f"{start_of_week.isoformat()} - {end_of_week.isoformat()}"
+            )
+        else:
+            day = get_date(timestamp)
+            return ReportBin(
+                value=day,
+                name=day.isoformat()
+            )
+
+    def get_first_bin_value(self) -> date | None:
+        return self.get_bin(self.date_from).value if self.date_from else None
+
+    def get_last_bin_value(self) -> date | None:
+        return self.get_bin(self.date_to).value
+
+    def get_x_axis_name(self) -> str:
+        return 'Week' if self.weekly_granularity else 'Date'
+
+    def restrict_query(self, query, datetime_attribute):
+        min_ts = self.get_inclusive_min_datetime()
+        max_ts = self.get_exclusive_max_datetime()
+        if min_ts:
+            query = query.where(datetime_attribute >= min_ts)
+        if max_ts:
+            query = query.where(datetime_attribute < max_ts)
+        return query

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, UTC
 
 import yaml
 import typing as tp
@@ -60,7 +60,7 @@ async def add_entry(event_type: LoggedEventTypeID, user: discord.Member | None =
     event_dict = dict(
         event=event_type.name,
         user=user_str,
-        timestamp=datetime.now().isoformat()
+        timestamp=datetime.now(UTC).isoformat()
     )
     event_dict.update(custom_data)
     posted_message = as_code_block(yaml.safe_dump(event_dict, sort_keys=False, allow_unicode=True), "yaml")

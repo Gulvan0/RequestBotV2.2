@@ -1,7 +1,6 @@
 import json
 import re
-
-from win32ctypes.pywin32.pywintypes import datetime
+from datetime import datetime
 
 from components.views.pagination.generic import GenericPaginationView
 from facades.eventlog import get_entries, LoadedLogFilter
