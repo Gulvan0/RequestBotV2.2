@@ -1,5 +1,6 @@
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
+from enum import StrEnum
 
 from discord import Member
 from plotly.graph_objs import Figure
@@ -20,13 +21,20 @@ from util.identifiers import LoggedEventTypeID, ParameterID
 from util.time import to_start_of_day
 
 
+class StreamResolution(StrEnum):
+    NOT_REVIEWED = 'Not reviewed'
+    APPROVED = 'Approved'
+    REJECTED = 'Rejected'
+    LATER = 'To be reviewed later'
+
+
 def __save_figure(fig: Figure) -> str:
     filename = str(round(datetime.now().timestamp() * 1000000)) + ".png"
     fig.write_image(filename)
     return filename
 
 
-async def new_requests(report_range: ReportRange) -> str:
+async def new_requests(report_range: ReportRange) -> str | None:
     query = select(Request.requested_at).where(Request.requested_at != None)  # noqa
     report_range.restrict_query(query, Request.requested_at)
 
@@ -111,7 +119,7 @@ async def new_requests(report_range: ReportRange) -> str:
     return __save_figure(fig)
 
 
-async def pending_requests(report_range: ReportRange) -> str:
+async def pending_requests(report_range: ReportRange) -> str | None:
     if report_range.date_from:
         with Session(engine) as session:
             created_before_range_start: int = session.exec(
@@ -213,7 +221,7 @@ async def pending_requests(report_range: ReportRange) -> str:
     return __save_figure(fig)
 
 
-async def reviewer_opinions(reviewer: Member, report_range: SimpleReportRange) -> str:
+async def reviewer_opinions(reviewer: Member, report_range: SimpleReportRange) -> str | None:
     with Session(engine) as session:
         opinions = session.exec(
             report_range.restrict_query(
@@ -230,6 +238,9 @@ async def reviewer_opinions(reviewer: Member, report_range: SimpleReportRange) -
         )
     column_names = ['Resolution', 'Count']
     df = pd.DataFrame(opinions, columns=column_names)
+    if df.empty:
+        return None
+
     fig = px.pie(
         df,
         names=column_names[0],
@@ -247,7 +258,7 @@ async def reviewer_opinions(reviewer: Member, report_range: SimpleReportRange) -
     return __save_figure(fig)
 
 
-async def review_activity(report_range: ReportRange) -> str:
+async def review_activity(report_range: ReportRange) -> str | None:
     with Session(engine) as session:
         result = session.exec(
             report_range.restrict_query(
@@ -281,6 +292,9 @@ async def review_activity(report_range: ReportRange) -> str:
 
     reviewers = [reviewer for reviewer in reviewers_by_id.values() if reviewer]
 
+    if not reviewers:
+        return None
+
     result = []
     full_range = pd.date_range(
         start=range_start,
@@ -295,5 +309,29 @@ async def review_activity(report_range: ReportRange) -> str:
 
     column_names = ['Reviewer', report_range.get_x_axis_name(), 'Reviews Written']
     df = pd.DataFrame(result, columns=column_names)
+
     fig = px.line(df, x=column_names[1], y=column_names[2], color=column_names[0], title='Reviews Written by Staff Members', subtitle=report_range.get_plot_subtitle())
+    return __save_figure(fig)
+
+
+def stream_results_chart(counts: dict[StreamResolution, int]) -> str:
+    today = date.today()
+    column_names = ['Resolution', 'Number of Requests']
+    df = pd.DataFrame(counts.items(), columns=column_names)
+    fig = px.pie(
+        df,
+        names=column_names[0],
+        values=column_names[1],
+        color=column_names[0],
+        color_discrete_map={
+            StreamResolution.APPROVED: 'green',
+            StreamResolution.REJECTED: 'red',
+            StreamResolution.LATER: 'yellow',
+            StreamResolution.NOT_REVIEWED: 'gray'
+        },
+        title="Stream Request Statistics",
+        subtitle=f"{today.day}.{today.month}.{today.year}",
+        hole=0.5
+    )
+    fig.update_traces(textinfo="value")
     return __save_figure(fig)

@@ -114,12 +114,13 @@ async def post_raw_text(
     route: RouteID,
     text: str | None = None,
     view: discord.ui.View | None = None,
-    embed: Embed | None = None
+    embed: Embed | None = None,
+    file_path: str | None = None
 ) -> Message | None:
     if not is_enabled(route):
         return None
     channel_id = get_channel_id(route)
-    return await CONFIG.bot.get_channel(channel_id).send(text, view=view, embed=embed)
+    return await CONFIG.bot.get_channel(channel_id).send(text, view=view, embed=embed, file=File(file_path) if file_path else None)
 
 
 async def post(

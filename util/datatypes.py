@@ -85,33 +85,6 @@ class SendType(StrEnum):
     LEGENDARY = 'l'
 
 
-class CommandChoiceOption:
-    @classmethod
-    def autocomplete_from_enum(cls, e: type[Enum]):
-        async def callback(inter: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
-            return [
-                app_commands.Choice(name=option.value, value=option.value)
-                for option in e
-                if option.value.lower().startswith(current.lower())
-            ][:25]
-        return callback
-
-    @classmethod
-    def from_enum(cls, e: type[Enum]) -> list[app_commands.Choice[str]]:
-        return [app_commands.Choice(name=option.value, value=option.value) for option in e]
-
-    @classmethod
-    def from_str_enum(cls, e: type[StrEnum]) -> list[app_commands.Choice[str]]:
-        return [app_commands.Choice(name=option, value=option) for option in e]
-
-    @classmethod
-    def cooldown_listing_type(cls) -> list[app_commands.Choice[CooldownListingOption]]:
-        return [
-            app_commands.Choice(name=TextPieceID.COMMAND_CHOICE_COOLDOWN_LISTING_TEMPORARY.as_locale_str(), value=CooldownListingOption.TEMPORARY),
-            app_commands.Choice(name=TextPieceID.COMMAND_CHOICE_COOLDOWN_LISTING_ENDLESS.as_locale_str(), value=CooldownListingOption.ENDLESS)
-        ]
-
-
 @dataclass(frozen=True)
 class ReportBin:
     value: date
@@ -173,3 +146,42 @@ class ReportRange(SimpleReportRange):
     def get_plot_subtitle(self) -> str:
         range_info = super().get_plot_subtitle()
         return f"{range_info} (per week)" if self.weekly_granularity else range_info
+
+
+class ReportGranularity(StrEnum):
+    DAY = "day"
+    WEEK = "week"
+
+
+class CommandChoiceOption:
+    @classmethod
+    def autocomplete_from_enum(cls, e: type[Enum]):
+        async def callback(inter: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+            return [
+                app_commands.Choice(name=option.value, value=option.value)
+                for option in e
+                if option.value.lower().startswith(current.lower())
+            ][:25]
+        return callback
+
+    @classmethod
+    def from_enum(cls, e: type[Enum]) -> list[app_commands.Choice[str]]:
+        return [app_commands.Choice(name=option.value, value=option.value) for option in e]
+
+    @classmethod
+    def from_str_enum(cls, e: type[StrEnum]) -> list[app_commands.Choice[str]]:
+        return [app_commands.Choice(name=option, value=option) for option in e]
+
+    @classmethod
+    def cooldown_listing_type(cls) -> list[app_commands.Choice[CooldownListingOption]]:
+        return [
+            app_commands.Choice(name=TextPieceID.COMMAND_CHOICE_COOLDOWN_LISTING_TEMPORARY.as_locale_str(), value=CooldownListingOption.TEMPORARY),
+            app_commands.Choice(name=TextPieceID.COMMAND_CHOICE_COOLDOWN_LISTING_ENDLESS.as_locale_str(), value=CooldownListingOption.ENDLESS)
+        ]
+
+    @classmethod
+    def report_granularity(cls) -> list[app_commands.Choice[ReportGranularity]]:
+        return [
+            app_commands.Choice(name=TextPieceID.COMMAND_CHOICE_REPORT_GRANULARITY_DAY.as_locale_str(), value=ReportGranularity.DAY),
+            app_commands.Choice(name=TextPieceID.COMMAND_CHOICE_REPORT_GRANULARITY_WEEK.as_locale_str(), value=ReportGranularity.WEEK)
+        ]

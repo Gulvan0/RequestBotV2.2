@@ -174,7 +174,10 @@ def _get_level_fields(api_response_parts: list[str]) -> dict[int, str]:
 
 
 def _get_level_author_name(api_response_parts: list[str]) -> str:
-    return api_response_parts[1].split(":")[1]
+    creator_string = api_response_parts[1]
+    if not creator_string or ":" not in creator_string:
+        return 'Anonymous Creator'
+    return creator_string.split(":")[1]
 
 
 async def get_level(level_id: int) -> Level | None:

@@ -1,5 +1,6 @@
 import asyncio
 import traceback
+from pathlib import Path
 
 import aiohttp
 import click
@@ -35,6 +36,7 @@ from config.stage_parameters import validate as validate_stage_parameters, get_v
 from config.permission_flags import validate as validate_permission_flags
 from database.db import create_db_and_tables
 from database.models import *  # noqa
+from facades.reports import stream_results_chart, StreamResolution
 from facades.requests import add_opinion, complete_request, create_limbo_request, get_existing_opinion, get_latest_pending_request, get_pending_request, is_request_unresolved, resolve
 from globalconf import CONFIG
 from services.disc import post_raw_text
@@ -43,9 +45,16 @@ from util.identifiers import StageParameterID
 from util.translator import Translator
 
 
-class Message(BaseModel):
+class StreamAnnouncementPayload(BaseModel):
     text: str = PydanticField(..., min_length=1, max_length=2000)
-    target_route_id: RouteID
+
+
+class StreamGoodbyePayload(BaseModel):
+    text: str = PydanticField(..., min_length=1, max_length=2000)
+    not_reviewed: int
+    approved: int
+    rejected: int
+    later: int
 
 
 class RequestResolutionPayload(BaseModel):
@@ -69,11 +78,30 @@ api_app = FastAPI()
 header_scheme = APIKeyHeader(name="x-key")
 
 
-@api_app.post("/message/send")
-async def send_message(message: Message, key: str = Depends(header_scheme)) -> None:
+@api_app.post("/message/stream_start")
+async def send_stream_start_message(payload: StreamAnnouncementPayload, key: str = Depends(header_scheme)) -> None:
     if key != os.getenv("API_TOKEN"):
         raise HTTPException(status_code=401, detail="Wrong token")
-    await post_raw_text(message.target_route_id, message.text)
+    await post_raw_text(RouteID.STREAM_START_ANNOUNCEMENT, payload.text)
+
+
+@api_app.post("/message/stream_end")
+async def send_stream_end_message(payload: StreamGoodbyePayload, key: str = Depends(header_scheme)) -> None:
+    if key != os.getenv("API_TOKEN"):
+        raise HTTPException(status_code=401, detail="Wrong token")
+
+    report_path = None
+    if payload.approved + payload.rejected + payload.later:  # If at least one request was reviewed
+        report_path = stream_results_chart(counts={
+            StreamResolution.APPROVED: payload.approved,
+            StreamResolution.REJECTED: payload.rejected,
+            StreamResolution.LATER: payload.later,
+            StreamResolution.NOT_REVIEWED: payload.not_reviewed
+        })
+
+    await post_raw_text(RouteID.STREAM_END_GOODBYE, payload.text, file_path=report_path)
+
+    Path(report_path).unlink(missing_ok=True)
 
 
 @api_app.get("/request/random")
@@ -95,7 +123,7 @@ async def request_resolve(payload: RequestResolutionPayload, key: str = Depends(
     if key != os.getenv("API_TOKEN"):
         raise HTTPException(status_code=401, detail="Wrong token")
 
-    if not is_request_unresolved(payload.request_id):
+    if not await is_request_unresolved(payload.request_id):
         return False
 
     if payload.stream_link:
@@ -188,6 +216,8 @@ class RequestBot(commands.Bot):
 
     async def on_ready(self) -> None:
         self.logger.info(f"Logged in as {self.user} ({self.user.id})")
+
+        await self.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="out for your level requests!"))
 
         CONFIG.guild = self.get_guild(self.guild_id)
         assert CONFIG.guild

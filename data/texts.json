@@ -587,6 +587,11 @@
     "eng": "Cannot cast the cooldown as its end ({new_ends_at}) is already in the past",
     "rus": "Не удалось наложить кулдаун, поскольку его конец ({new_ends_at}) уже в прошлом"
   },
+  "error.report_no_data": {
+    "description": "Ошибка, возникающая при генерации отчета, когда по данным параметрам нет данных",
+    "eng": "No data to display",
+    "rus": "Нет данных для отображения"
+  },
   "command_description.request.create": {
     "description": "Описание команды `/request create`",
     "eng": "Request a level",
@@ -904,8 +909,23 @@
   },
   "command_description.report.new_requests": {
     "description": "Описание команды `/report new_requests`",
-    "eng": "Plot a number of new requests per day",
-    "rus": "Построить график количества новых реквестов по дням"
+    "eng": "Plot a number of new requests per day (or week)",
+    "rus": "Построить график количества новых реквестов по дням (или неделям)"
+  },
+  "command_description.report.pending_requests": {
+    "description": "Описание команды `/report pending_requests`",
+    "eng": "Plot a number of remaining pending requests at the end of each day (or week)",
+    "rus": "Построить график количества остающихся активных реквестов на конец каждого дня (или недели)"
+  },
+  "command_description.report.reviewer_opinions": {
+    "description": "Описание команды `/report reviewer_opinions`",
+    "eng": "Plot a proportion of approvals versus rejections by a certain reviewer",
+    "rus": "Отобразить распределение положительных/отрицательных оценок, оставленных конкретным обзорщиком"
+  },
+  "command_description.report.review_activity": {
+    "description": "Описание команды `/report review_activity`",
+    "eng": "Plot a number of reviews posted by each reviewer per day (or week)",
+    "rus": "Построить график количества обзоров, написанных каждым из ревьюеров (по дням или неделям)"
   },
   "command_option.request.create.level_id": {
     "description": "Описание параметра `level_id` команды `/request create`",
@@ -1217,15 +1237,65 @@
     "eng": "Trainee to be expelled",
     "rus": "Кандидат в обзорщики, которого требуется выгнать"
   },
-  "command_option.report.new_requests.ts_from": {
-    "description": "Описание параметра `ts_from` команды `/report new_requests`",
+  "command_option.report.new_requests.date_from": {
+    "description": "Описание параметра `date_from` команды `/report new_requests`",
     "eng": "Start of the plotted period. Defaults to the first request date if omitted. Format: /help timestamp",
     "rus": "Начало периода, за который строится отчет. Без ограничений, если не указан. Формат: /help timestamp"
   },
-  "command_option.report.new_requests.ts_to": {
-    "description": "Описание параметра `ts_to` команды `/report new_requests`",
+  "command_option.report.new_requests.date_to": {
+    "description": "Описание параметра `date_to` команды `/report new_requests`",
     "eng": "End of the plotted period. Defaults to the current date if omitted. Format: /help timestamp",
     "rus": "Конец периода, за который строится отчет. По умолчанию - текущий день. Формат: /help timestamp"
+  },
+  "command_option.report.new_requests.granularity": {
+    "description": "Описание параметра `granularity` команды `/report new_requests`",
+    "eng": "Granularity (whether to display data per day or per week)",
+    "rus": "Гранулярность (отображать данные по дням или по неделям)"
+  },
+  "command_option.report.pending_requests.date_from": {
+    "description": "Описание параметра `date_from` команды `/report pending_requests`",
+    "eng": "Start of the plotted period. Defaults to the first request date if omitted. Format: /help timestamp",
+    "rus": "Начало периода, за который строится отчет. Без ограничений, если не указан. Формат: /help timestamp"
+  },
+  "command_option.report.pending_requests.date_to": {
+    "description": "Описание параметра `date_to` команды `/report pending_requests`",
+    "eng": "End of the plotted period. Defaults to the current date if omitted. Format: /help timestamp",
+    "rus": "Конец периода, за который строится отчет. По умолчанию - текущий день. Формат: /help timestamp"
+  },
+  "command_option.report.pending_requests.granularity": {
+    "description": "Описание параметра `granularity` команды `/report pending_requests`",
+    "eng": "Granularity (whether to display data per day or per week)",
+    "rus": "Гранулярность (отображать данные по дням или по неделям)"
+  },
+  "command_option.report.reviewer_opinions.reviewer": {
+    "description": "Описание параметра `reviewer` команды `/report reviewer_opinions`",
+    "eng": "Reviewer whose opinions proportion is to be plotted",
+    "rus": "Обзорщик, распределение оценок которого требуется отобразить"
+  },
+  "command_option.report.reviewer_opinions.date_from": {
+    "description": "Описание параметра `date_from` команды `/report reviewer_opinions`",
+    "eng": "Start of the plotted period. Defaults to the first request date if omitted. Format: /help timestamp",
+    "rus": "Начало периода, за который строится отчет. Без ограничений, если не указан. Формат: /help timestamp"
+  },
+  "command_option.report.reviewer_opinions.date_to": {
+    "description": "Описание параметра `date_to` команды `/report reviewer_opinions`",
+    "eng": "End of the plotted period. Defaults to the current date if omitted. Format: /help timestamp",
+    "rus": "Конец периода, за который строится отчет. По умолчанию - текущий день. Формат: /help timestamp"
+  },
+  "command_option.report.review_activity.date_from": {
+    "description": "Описание параметра `date_from` команды `/report review_activity`",
+    "eng": "Start of the plotted period. Defaults to the first request date if omitted. Format: /help timestamp",
+    "rus": "Начало периода, за который строится отчет. Без ограничений, если не указан. Формат: /help timestamp"
+  },
+  "command_option.report.review_activity.date_to": {
+    "description": "Описание параметра `date_to` команды `/report review_activity`",
+    "eng": "End of the plotted period. Defaults to the current date if omitted. Format: /help timestamp",
+    "rus": "Конец периода, за который строится отчет. По умолчанию - текущий день. Формат: /help timestamp"
+  },
+  "command_option.report.review_activity.granularity": {
+    "description": "Описание параметра `granularity` команды `/report review_activity`",
+    "eng": "Granularity (whether to display data per day or per week)",
+    "rus": "Гранулярность (отображать данные по дням или по неделям)"
   },
   "command_choice.cooldown_listing.temporary": {
     "description": "Один из вариантов вывода списка кулдаунов: только временные",
@@ -1236,6 +1306,16 @@
     "description": "Один из вариантов вывода списка кулдаунов: только вечные",
     "eng": "List lifetime bans",
     "rus": "Перечислить вечные баны"
+  },
+  "command_choice.report_granularity.day": {
+    "description": "Один из вариантов гранулярности отчета: по дням",
+    "eng": "Per day",
+    "rus": "По дням"
+  },
+  "command_choice.report_granularity.week": {
+    "description": "Один из вариантов гранулярности отчета: по неделям",
+    "eng": "Per week",
+    "rus": "По неделям"
   }
 }
 
