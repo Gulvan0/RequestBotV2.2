@@ -1,13 +1,14 @@
 from datetime import date
+from functools import partial
 from pathlib import Path
 
 import typing as tp
 import discord
-from discord import app_commands, File
+from discord import app_commands, File, Member
 from discord.ext import commands
 
 from services.disc import requires_permission, respond
-from util.datatypes import ReportRange
+from util.datatypes import ReportRange, SimpleReportRange
 from util.identifiers import PermissionFlagID, TextPieceID
 from dateutil.parser import parse as parse_datetime, ParserError
 
@@ -17,7 +18,7 @@ from util.time import to_end_of_week, to_start_of_week
 
 class ReportCog(commands.GroupCog, name="report", description="Commands for displaying various reports"):
     @staticmethod
-    async def prepare_range(inter: discord.Interaction, date_from: str | None = None, date_to: str | None = None, by_week: bool = False) -> ReportRange | None:
+    async def prepare_simple_range(inter: discord.Interaction, date_from: str | None, date_to: str | None) -> SimpleReportRange | None:
         parsed_date_from = None
         if date_from:
             try:
@@ -36,6 +37,17 @@ class ReportCog(commands.GroupCog, name="report", description="Commands for disp
         if parsed_date_from and parsed_date_from > parsed_date_to:
             parsed_date_from, parsed_date_to = parsed_date_to, parsed_date_from
 
+        return SimpleReportRange(
+            date_from=parsed_date_from,
+            date_to=parsed_date_to
+        )
+
+    @staticmethod
+    async def prepare_range(inter: discord.Interaction, date_from: str | None, date_to: str | None, by_week: bool) -> ReportRange | None:
+        simple_range = await ReportCog.prepare_simple_range(inter, date_from, date_to)
+        parsed_date_from = simple_range.date_from
+        parsed_date_to = simple_range.date_to
+
         if by_week:
             if parsed_date_from:
                 parsed_date_from = to_start_of_week(parsed_date_from)
@@ -49,11 +61,28 @@ class ReportCog(commands.GroupCog, name="report", description="Commands for disp
 
     async def simple_report_command(
         self,
+        report_generator: tp.Callable[[SimpleReportRange], str],
+        inter: discord.Interaction,
+        date_from: str | None = None,
+        date_to: str | None = None
+    ):
+        await inter.response.defer(ephemeral=True, thinking=True)
+
+        report_range = await self.prepare_simple_range(inter, date_from, date_to)
+        if not report_range:
+            return
+
+        image_path = report_generator(report_range)
+        await inter.edit_original_response(attachments=[File(image_path)])
+        Path(image_path).unlink()
+
+    async def granular_report_command(
+        self,
         report_generator: tp.Callable[[ReportRange], str],
         inter: discord.Interaction,
         date_from: str | None = None,
         date_to: str | None = None,
-        by_week: bool = False
+        by_week: bool | None = None
     ):
         await inter.response.defer(ephemeral=True, thinking=True)
 
@@ -73,7 +102,7 @@ class ReportCog(commands.GroupCog, name="report", description="Commands for disp
     )
     @requires_permission(PermissionFlagID.REPORT_VIEWER)
     async def new_requests(self, inter: discord.Interaction, date_from: str | None = None, date_to: str | None = None, by_week: bool = False) -> None:
-        await self.simple_report_command(facades.reports.new_requests, inter, date_from, date_to, by_week)
+        await self.granular_report_command(facades.reports.new_requests, inter, date_from, date_to, by_week)
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REPORT_NEW_REQUESTS.as_locale_str())  # TODO
     @app_commands.describe(
@@ -83,7 +112,22 @@ class ReportCog(commands.GroupCog, name="report", description="Commands for disp
     )
     @requires_permission(PermissionFlagID.REPORT_VIEWER)
     async def pending_requests(self, inter: discord.Interaction, date_from: str | None = None, date_to: str | None = None, by_week: bool = False) -> None:
-        await self.simple_report_command(facades.reports.pending_requests, inter, date_from, date_to, by_week)
+        await self.granular_report_command(facades.reports.pending_requests, inter, date_from, date_to, by_week)
+
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REPORT_NEW_REQUESTS.as_locale_str())  # TODO
+    @app_commands.describe(
+        reviewer=TextPieceID.COMMAND_OPTION_REPORT_NEW_REQUESTS_TS_FROM.as_locale_str(),  # TODO
+        date_from=TextPieceID.COMMAND_OPTION_REPORT_NEW_REQUESTS_TS_FROM.as_locale_str(),  # TODO
+        date_to=TextPieceID.COMMAND_OPTION_REPORT_NEW_REQUESTS_TS_TO.as_locale_str(),  # TODO
+    )
+    @requires_permission(PermissionFlagID.REPORT_VIEWER)
+    async def reviewer_opinions(self, inter: discord.Interaction, reviewer: Member, date_from: str | None = None, date_to: str | None = None) -> None:
+        await self.simple_report_command(
+            partial(facades.reports.reviewer_opinions, reviewer),
+            inter,
+            date_from,
+            date_to
+        )
 
 async def setup(bot):
     await bot.add_cog(ReportCog(bot))

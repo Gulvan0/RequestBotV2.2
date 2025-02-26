@@ -119,16 +119,29 @@ class ReportBin:
 
 
 @dataclass(frozen=True)
-class ReportRange:
+class SimpleReportRange:
     date_from: date | None
     date_to: date
-    weekly_granularity: bool
 
     def get_inclusive_min_datetime(self) -> datetime | None:
         return to_start_of_day(self.date_from) if self.date_from else None
 
     def get_exclusive_max_datetime(self) -> datetime | None:
         return to_start_of_day(self.date_to + timedelta(days=1))
+
+    def restrict_query(self, query, datetime_attribute):
+        min_ts = self.get_inclusive_min_datetime()
+        max_ts = self.get_exclusive_max_datetime()
+        if min_ts:
+            query = query.where(datetime_attribute >= min_ts)
+        if max_ts:
+            query = query.where(datetime_attribute < max_ts)
+        return query
+
+
+@dataclass(frozen=True, kw_only=True)
+class ReportRange(SimpleReportRange):
+    weekly_granularity: bool
 
     def get_bin(self, timestamp: date | datetime) -> ReportBin:
         if self.weekly_granularity:
@@ -153,12 +166,3 @@ class ReportRange:
 
     def get_x_axis_name(self) -> str:
         return 'Week' if self.weekly_granularity else 'Date'
-
-    def restrict_query(self, query, datetime_attribute):
-        min_ts = self.get_inclusive_min_datetime()
-        max_ts = self.get_exclusive_max_datetime()
-        if min_ts:
-            query = query.where(datetime_attribute >= min_ts)
-        if max_ts:
-            query = query.where(datetime_attribute < max_ts)
-        return query

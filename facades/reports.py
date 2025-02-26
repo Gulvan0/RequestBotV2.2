@@ -1,6 +1,7 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
 
+from discord import Member
 from plotly.graph_objs import Figure
 from sqlalchemy import func
 from sqlmodel import col, distinct, select, Session
@@ -13,7 +14,7 @@ import plotly.express as px
 import typing as tp
 
 from database.models import LoggedEvent, Request, RequestOpinion
-from util.datatypes import ReportRange
+from util.datatypes import Opinion, ReportRange, SimpleReportRange
 from util.identifiers import LoggedEventTypeID, ParameterID
 from util.time import to_start_of_day
 
@@ -196,4 +197,38 @@ def pending_requests(report_range: ReportRange) -> str:
             annotation_text="Queue unblock threshold (current)",
             annotation_position="bottom right"
         )
+    return __save_figure(fig)
+
+
+def reviewer_opinions(reviewer: Member, report_range: SimpleReportRange) -> str:
+    with Session(engine) as session:
+        opinions = session.exec(
+            report_range.restrict_query(
+                select(  # noqa
+                    RequestOpinion.opinion,
+                    func.count(distinct(RequestOpinion.request_id))
+                ).where(
+                    RequestOpinion.author_user_id == reviewer.id
+                ),
+                RequestOpinion.created_at
+            ).group_by(
+                RequestOpinion.opinion
+            )
+        )
+    column_names = ['Resolution', 'Count']
+    df = pd.DataFrame(opinions, columns=column_names)
+    fig = px.pie(
+        df,
+        names=column_names[0],
+        values=column_names[1],
+        color=column_names[0],
+        color_discrete_map={
+            Opinion.APPROVED: 'green',
+            Opinion.REJECTED: 'red'
+        },
+        hole=0.5,
+        title=f"Opinions left by {reviewer.name}",
+        subtitle=f"From {report_range.date_from.isoformat()} to {report_range.date_to.isoformat()}" if report_range.date_from else f"Up until {report_range.date_to.isoformat()}"
+    )
+    fig.update_traces(textinfo="value+percent")
     return __save_figure(fig)
