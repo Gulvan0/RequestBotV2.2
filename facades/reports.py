@@ -13,7 +13,8 @@ import pandas as pd
 import plotly.express as px
 import typing as tp
 
-from database.models import LoggedEvent, Request, RequestOpinion
+from database.models import LoggedEvent, Request, RequestOpinion, RequestReview
+from services.disc import find_member
 from util.datatypes import Opinion, ReportRange, SimpleReportRange
 from util.identifiers import LoggedEventTypeID, ParameterID
 from util.time import to_start_of_day
@@ -25,7 +26,7 @@ def __save_figure(fig: Figure) -> str:
     return filename
 
 
-def new_requests(report_range: ReportRange) -> str:
+async def new_requests(report_range: ReportRange) -> str:
     query = select(Request.requested_at).where(Request.requested_at != None)  # noqa
     report_range.restrict_query(query, Request.requested_at)
 
@@ -49,11 +50,17 @@ def new_requests(report_range: ReportRange) -> str:
     )
     for ts in full_range.to_list():
         current_bin = report_range.get_bin(ts)
-        result[current_bin.name] = data_with_gaps[current_bin.value] if current_bin.value in data_with_gaps else 0
+        result[current_bin.name] = data_with_gaps[current_bin.value]
 
     column_names = [report_range.get_x_axis_name(), 'New Requests']
     df = pd.DataFrame(result.items(), columns=column_names)
-    fig = px.line(df, x=column_names[0], y=column_names[1])
+    fig = px.line(
+        df,
+        x=column_names[0],
+        y=column_names[1],
+        title="Levels Requested",
+        subtitle=report_range.get_plot_subtitle()
+    )
 
     if not report_range.weekly_granularity:
         block_updates: tp.Iterable[LoggedEvent] = session.exec(
@@ -104,7 +111,7 @@ def new_requests(report_range: ReportRange) -> str:
     return __save_figure(fig)
 
 
-def pending_requests(report_range: ReportRange) -> str:
+async def pending_requests(report_range: ReportRange) -> str:
     if report_range.date_from:
         with Session(engine) as session:
             created_before_range_start: int = session.exec(
@@ -180,7 +187,13 @@ def pending_requests(report_range: ReportRange) -> str:
 
     column_names = [report_range.get_x_axis_name(), 'Pending Requests']
     df = pd.DataFrame(result.items(), columns=column_names)
-    fig = px.line(df, x=column_names[0], y=column_names[1])
+    fig = px.line(
+        df,
+        x=column_names[0],
+        y=column_names[1],
+        title=f'Pending requests at the end of the {"week" if report_range.weekly_granularity else "day"}',
+        subtitle=report_range.get_plot_subtitle()
+    )
     if get_parameter_value(ParameterID.QUEUE_BLOCK_ENABLED, bool):
         fig.add_hline(
             y=get_parameter_value(ParameterID.QUEUE_BLOCK_AT, int),
@@ -200,7 +213,7 @@ def pending_requests(report_range: ReportRange) -> str:
     return __save_figure(fig)
 
 
-def reviewer_opinions(reviewer: Member, report_range: SimpleReportRange) -> str:
+async def reviewer_opinions(reviewer: Member, report_range: SimpleReportRange) -> str:
     with Session(engine) as session:
         opinions = session.exec(
             report_range.restrict_query(
@@ -228,7 +241,59 @@ def reviewer_opinions(reviewer: Member, report_range: SimpleReportRange) -> str:
         },
         hole=0.5,
         title=f"Opinions left by {reviewer.name}",
-        subtitle=f"From {report_range.date_from.isoformat()} to {report_range.date_to.isoformat()}" if report_range.date_from else f"Up until {report_range.date_to.isoformat()}"
+        subtitle=report_range.get_plot_subtitle()
     )
     fig.update_traces(textinfo="value+percent")
+    return __save_figure(fig)
+
+
+async def review_activity(report_range: ReportRange) -> str:
+    with Session(engine) as session:
+        result = session.exec(
+            report_range.restrict_query(
+                select(
+                    RequestReview.author_user_id,
+                    RequestReview.created_at
+                ),
+                RequestReview.created_at
+            )
+        )
+
+    data_with_gaps = defaultdict(int)
+    range_start = report_range.get_first_bin_value()
+    range_end = report_range.get_last_bin_value()
+    reviewers_by_id = dict()
+    for author_user_id, created_at in result:  # noqa
+        current_bin = report_range.get_bin(created_at).value
+        if not range_start or current_bin < range_start:
+            range_start = current_bin
+        if not range_end or current_bin > range_end:
+            range_end = current_bin
+
+        if author_user_id not in reviewers_by_id:
+            reviewer = await find_member(author_user_id)
+            reviewers_by_id[author_user_id] = reviewer
+        else:
+            reviewer = reviewers_by_id[author_user_id]
+
+        if reviewer:
+            data_with_gaps[(author_user_id, current_bin)] += 1
+
+    reviewers = [reviewer for reviewer in reviewers_by_id.values() if reviewer]
+
+    result = []
+    full_range = pd.date_range(
+        start=range_start,
+        end=range_end,
+        freq=timedelta(weeks=1) if report_range.weekly_granularity else timedelta(days=1)
+    )
+    for ts in full_range.to_list():
+        current_bin = report_range.get_bin(ts)
+        for reviewer in reviewers:
+            value = data_with_gaps[(reviewer.id, current_bin.value)]
+            result.append((reviewer.name, current_bin.name, value))
+
+    column_names = ['Reviewer', report_range.get_x_axis_name(), 'Reviews Written']
+    df = pd.DataFrame(result, columns=column_names)
+    fig = px.line(df, x=column_names[1], y=column_names[2], color=column_names[0], title='Reviews Written by Staff Members', subtitle=report_range.get_plot_subtitle())
     return __save_figure(fig)

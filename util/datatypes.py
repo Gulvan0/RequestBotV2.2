@@ -138,6 +138,9 @@ class SimpleReportRange:
             query = query.where(datetime_attribute < max_ts)
         return query
 
+    def get_plot_subtitle(self) -> str:
+        return f"From {self.date_from.isoformat()} to {self.date_to.isoformat()}" if self.date_from else f"Up until {self.date_to.isoformat()}"
+
 
 @dataclass(frozen=True, kw_only=True)
 class ReportRange(SimpleReportRange):
@@ -166,3 +169,7 @@ class ReportRange(SimpleReportRange):
 
     def get_x_axis_name(self) -> str:
         return 'Week' if self.weekly_granularity else 'Date'
+
+    def get_plot_subtitle(self) -> str:
+        range_info = super().get_plot_subtitle()
+        return f"{range_info} (per week)" if self.weekly_granularity else range_info

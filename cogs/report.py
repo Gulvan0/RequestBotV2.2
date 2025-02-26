@@ -61,7 +61,7 @@ class ReportCog(commands.GroupCog, name="report", description="Commands for disp
 
     async def simple_report_command(
         self,
-        report_generator: tp.Callable[[SimpleReportRange], str],
+        report_generator: tp.Callable[[SimpleReportRange], tp.Coroutine[tp.Any, tp.Any, str]],
         inter: discord.Interaction,
         date_from: str | None = None,
         date_to: str | None = None
@@ -72,13 +72,13 @@ class ReportCog(commands.GroupCog, name="report", description="Commands for disp
         if not report_range:
             return
 
-        image_path = report_generator(report_range)
+        image_path = await report_generator(report_range)
         await inter.edit_original_response(attachments=[File(image_path)])
         Path(image_path).unlink()
 
     async def granular_report_command(
         self,
-        report_generator: tp.Callable[[ReportRange], str],
+        report_generator: tp.Callable[[ReportRange], tp.Coroutine[tp.Any, tp.Any, str]],
         inter: discord.Interaction,
         date_from: str | None = None,
         date_to: str | None = None,
@@ -90,7 +90,7 @@ class ReportCog(commands.GroupCog, name="report", description="Commands for disp
         if not report_range:
             return
 
-        image_path = report_generator(report_range)
+        image_path = await report_generator(report_range)
         await inter.edit_original_response(attachments=[File(image_path)])
         Path(image_path).unlink()
 
@@ -128,6 +128,16 @@ class ReportCog(commands.GroupCog, name="report", description="Commands for disp
             date_from,
             date_to
         )
+
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REPORT_NEW_REQUESTS.as_locale_str())  # TODO
+    @app_commands.describe(
+        date_from=TextPieceID.COMMAND_OPTION_REPORT_NEW_REQUESTS_TS_FROM.as_locale_str(),  # TODO
+        date_to=TextPieceID.COMMAND_OPTION_REPORT_NEW_REQUESTS_TS_TO.as_locale_str(),  # TODO
+        by_week=TextPieceID.COMMAND_OPTION_REPORT_NEW_REQUESTS_TS_TO.as_locale_str(),  # TODO
+    )
+    @requires_permission(PermissionFlagID.REPORT_VIEWER)
+    async def review_activity(self, inter: discord.Interaction, date_from: str | None = None, date_to: str | None = None, by_week: bool = False) -> None:
+        await self.granular_report_command(facades.reports.review_activity, inter, date_from, date_to, by_week)
 
 async def setup(bot):
     await bot.add_cog(ReportCog(bot))
