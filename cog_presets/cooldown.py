@@ -49,16 +49,16 @@ class CooldownPreset:
             if cooldown.exact_casted_at:
                 absolute = as_timestamp(cooldown.exact_casted_at, TimestampStyle.LONG_DATETIME)
                 relative = as_timestamp(cooldown.exact_casted_at, TimestampStyle.RELATIVE)
-                casted_at_str = f"{absolute} ({relative})"
+                cast_at_str = f"{absolute} ({relative})"
             else:
-                casted_at_str = as_code("-")
+                cast_at_str = as_code("-")
 
             await respond(
                 inter,
                 TextPieceID.COOLDOWN_INFO,
                 substitutions=dict(
                     ends_at=ends_at_str,
-                    casted_at=casted_at_str,
+                    cast_at=cast_at_str,
                     caster_mention=as_user(cooldown.caster_user_id),
                     reason=cooldown.reason or TextPieceID.COMMON_NOT_SPECIFIED
                 ),

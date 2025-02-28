@@ -236,6 +236,14 @@ async def pick_random_request(invoking_trainee: Member) -> RandomPickedRequest |
         return None
 
     embed = details_message.embeds[0]
+
     embed.colour = Colour.from_str("#0000aa")
+
+    removed_fields = set()
+    for field_index, field in enumerate(embed.fields):
+        if field.name in ("Consensus", "Opinions and Resolutions"):
+            removed_fields.add(field_index)
+    for field_index in sorted(removed_fields, reverse=True):  # After each removal, indexes of the fields following the removed one get updated, so we need to go backwards
+        embed.remove_field(field_index)
 
     return RandomPickedRequest(request.id, embed)

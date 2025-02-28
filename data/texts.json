@@ -50,7 +50,7 @@
       "old_reason": "Причина, указанная при наложении прошлого кулдауна. Ожидается, что уже отформатирована как код. Если причина отсутствует, вместо нее будет передан прочерк",
       "new": "Запрашиваемое пользователем новое значение кулдауна. Ожидается, что уже отформатировано как код"
     },
-    "eng": "This will overwrite the current cooldown (end timestamp: {old}; originally casted by {old_caster_mention} with reason {old_reason}). After it will be overwritten the new end timestamp will be {new}. Continue?",
+    "eng": "This will overwrite the current cooldown (end timestamp: {old}; originally cast by {old_caster_mention} with reason {old_reason}). After it will be overwritten the new end timestamp will be {new}. Continue?",
     "rus": "Данное действие перезапишет текущий кулдаун (дата окончания {old}; наложен {old_caster_mention} по причине: {old_reason}). В случае перезаписи дата окончания нового кулдауна будет {new}). Продолжить?"
   },
   "cooldown.not_on_cooldown": {
@@ -62,12 +62,12 @@
     "description": "Сообщение с информацией о кулдауне конкретного юзера/левела, выводимое по запросу",
     "param_descriptions": {
       "ends_at": "Предварительно отформатированный таймстемп окончания кулдауна. Прочерк, если кулдаун бесконечный",
-      "casted_at": "Предварительно отформатированные дата-время, когда кулдаун был наложен",
+      "cast_at": "Предварительно отформатированные дата-время, когда кулдаун был наложен",
       "caster_mention": "Тег юзера, наложившего кулдаун",
       "reason": "Причина, указанная при наложении кулдауна. Ожидается, что уже отформатирована как код. Если причина отсутствует, вместо нее будет передан прочерк"
     },
-    "eng": "**Ends:** {ends_at}\n**Casted by:** {caster_mention}\n**Casted at:** {casted_at}\n**Reason:** {reason}",
-    "rus": "**Заканчивается:** {ends_at}\n**Кем наложен:** {caster_mention}\n**Когда наложен:** {casted_at}\n**Причина:** {reason}"
+    "eng": "**Ends:** {ends_at}\n**Casted by:** {caster_mention}\n**Casted at:** {cast_at}\n**Reason:** {reason}",
+    "rus": "**Заканчивается:** {ends_at}\n**Кем наложен:** {caster_mention}\n**Когда наложен:** {cast_at}\n**Причина:** {reason}"
   },
   "help.duration": {
     "description": "Ответ на /help duration: пояснения про формат, в котором команды бота принимают продолжительность",
@@ -177,11 +177,6 @@
     "description": "Ответ на успешное создание реквеста",
     "eng": "Your level request has been successfully submitted. Staff will check it in the next few days. Please wait patiently until then",
     "rus": "Ваш реквест успешно отправлен. Команда сервера проверит его в ближайшие дни"
-  },
-  "request_command.closed": {
-    "description": "Сообщение, выводящееся при попытке создать новый реквест в момент, когда очередь закрыта",
-    "eng": "Sorry, the requests are temporarily closed. Follow the announcements to be notified when the queue will be reopened",
-    "rus": "Реквесты временно закрыты. Следите за объявлениями, чтобы узнать об открытии очереди реквестов одним из первых"
   },
   "request_command.already_rated": {
     "description": "Сообщение, выводящееся при попытке зареквестить уже оцененный уровень",
@@ -1009,7 +1004,7 @@
   },
   "command_option.levelcd.update.reason": {
     "description": "Описание параметра `reason` команды `/levelcd update`",
-    "eng": "Why the cooldown is being casted/updated",
+    "eng": "Why the cooldown is being cast/updated",
     "rus": "Причина наложения/обновления кулдауна"
   },
   "command_option.levelcd.history.level_id": {
@@ -1049,7 +1044,7 @@
   },
   "command_option.usercd.update.reason": {
     "description": "Описание параметра `reason` команды `/usercd update`",
-    "eng": "Why the cooldown is being casted/updated",
+    "eng": "Why the cooldown is being cast/updated",
     "rus": "Причина наложения/обновления кулдауна"
   },
   "command_option.usercd.history.user": {
