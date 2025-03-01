@@ -77,7 +77,7 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REQUEST_CREATE.as_locale_str())
     @app_commands.describe(level_id=TextPieceID.COMMAND_OPTION_REQUEST_CREATE_LEVEL_ID.as_locale_str())
     async def create(self, inter: discord.Interaction, level_id: app_commands.Range[int, 200, 1000000000]) -> None:
-        await inter.response.defer(ephemeral=True)
+        # await inter.response.defer(ephemeral=True)
 
         if get_parameter_value(ParameterID.QUEUE_BLOCKED, bool) and not has_permission(inter.user, PermissionFlagID.REQUEST_WHILE_QUEUE_CLOSED):
             await respond(inter, TextPieceID.QUEUE_QUEUE_CLOSED_ERROR, ephemeral=True)
@@ -137,14 +137,15 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
 
         request_id = await create_limbo_request(level_id, request_language, inter.user)
 
-        # TODO: Remove defer call and replace these lines with just response.send_modal() upon release
-        async def show_modal(inter) -> None:
-            await inter.response.send_modal(RequestSubmissionModal(request_id, request_language))
-        continue_view = View()
-        btn = Button(label="Continue")
-        btn.callback = show_modal
-        continue_view.add_item(btn)
-        await inter.edit_original_response(content="", view=continue_view)
+        await inter.response.send_modal(RequestSubmissionModal(request_id, request_language))
+        # Alternative strategy in case of lags
+        # async def show_modal(inter) -> None:
+        #     await inter.response.send_modal(RequestSubmissionModal(request_id, request_language))
+        # continue_view = View()
+        # btn = Button(label="Continue")
+        # btn.callback = show_modal
+        # continue_view.add_item(btn)
+        # await inter.edit_original_response(content="", view=continue_view)
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REQUEST_WIDGETS.as_locale_str())
     @app_commands.describe(level_id=TextPieceID.COMMAND_OPTION_REQUEST_WIDGETS_LEVEL_ID.as_locale_str())

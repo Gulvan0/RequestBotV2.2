@@ -304,7 +304,7 @@ class RequestBot(commands.Bot):
 
 
 async def start_api() -> None:
-    config = uvicorn.Config(api_app, port=5000, log_level="info")
+    config = uvicorn.Config(api_app, host="0.0.0.0", port=5000, log_level="info")
     server = uvicorn.Server(config)
     await server.serve()
 

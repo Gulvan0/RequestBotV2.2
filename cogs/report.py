@@ -1,5 +1,4 @@
 from datetime import date
-from enum import Enum
 from functools import partial
 from pathlib import Path
 

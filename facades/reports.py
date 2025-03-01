@@ -10,6 +10,7 @@ from sqlmodel import col, distinct, select, Session
 from facades.parameters import get_value as get_parameter_value
 from database.db import engine
 
+import kaleido  # noqa - needed for plotly to function correctly (WTF)
 import pandas as pd
 import plotly.express as px
 import typing as tp

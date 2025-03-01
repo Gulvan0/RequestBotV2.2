@@ -4,7 +4,7 @@ import discord
 from discord.app_commands import CheckFailure
 from discord.ext import commands
 
-from bot_main import RequestBot
+from main import RequestBot
 from services.disc import respond, respond_forbidden, send_developers
 from util.format import as_code_block, as_user
 from util.identifiers import StageParameterID, TextPieceID
