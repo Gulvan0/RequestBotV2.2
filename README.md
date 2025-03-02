@@ -29,6 +29,8 @@ This feature-rich bot is designed to simplify and automate the process of reques
 
 To request a level, a server member must use the `/request create <level_id>` command and then fill and submit the pop-up modal.
 
+The modal asks for the showcase link and an additional comment, if any. By default, showcase is only required for platformer and classic demon levels, however, this can be customized with parameters `request.min_stars_to_require_showcase` and `request.always_require_showcase` (see **Parameters** section for more details).
+
 ![request_creation_modal.png](docs_images/request_creation_modal.png)
 
 This will trigger a sequence of checks:
@@ -71,7 +73,7 @@ Here, any reviewer (i.e. a user with the `reviewer` permission) can leave the op
 
 If additional details can or should be provided (a review if a reviewer chose to leave one and/or a rejection reason if a reviewer rejected the level), pressing the respective button will cause a modal to appear. It is mandatory to specify the reason for rejecting the level if a review is not provided, but otherwise it's not required.
 
-If a reviewer chooses to leave a level review, the request author gets immediately notified. This, however, does not apply to the opinions left without a review.
+If a reviewer chooses to leave a level review, the request author gets immediately notified. This, however, does not apply to the opinions left without a review. The notification includes the text of the review, splitting it into multiple messages in case it's too long. The splitter tries not to split messages in the middle of the word. However, although rarely, it still can happen when there is a too long word (over 20 characters) right at the splitting point.
 
 If a `request.append_conclusion_to_review` parameter is set to `true`, a conclusion exposing the reviewer's opinion is appended to the review text. By default, this feature is not enabled so as not to provoke questions in case of a discrepancy between regular reviewers' opinions and the final decision made by a GD moderator.
 
@@ -95,7 +97,7 @@ Pressing any button will cause the modal to appear. In this modal, a review text
 
 After the modal is submitted, the request will get resolved, which implies the following sequence of events:
 
-1. If a review is provided, its text will be sent to the reviews channel and the request author will get pinged. This is completely identical to how it happens after a regular reviewer leaves a review. The reviews left via the Resolution Widget will always have a conclusion outlining the final decision (unlike regular reviewers' reviews, appending the conclusion under which can always be turned on and off by changing the `request.append_conclusion_to_review` parameter).
+1. If a review is provided, its text will be sent to the reviews channel and the request author will get pinged. This is completely identical to how it happens after a regular reviewer leaves a review. The presence of the conclusion outlining the final decision is controlled by the `request.append_conclusion_to_final_review` parameter.
 
 2. In the same manner as with regular reviewers' opinions, the resolution gets appended to the Resolution Widget. While reviewers' opinions are listed in the _Consensus_ section of the embed, the resolutions fall into the separate _Resolutions_ section.
 
@@ -147,7 +149,7 @@ The `/request insert` command takes the following parameters:
 
 3. `yt_link`
 
-    A link to the YouTube video showcasing the level. Just like in the request creation modal.
+    A link to the YouTube video showcasing the level (optional). Just like in the request creation modal.
 
 4. `creator_mention`
 
@@ -259,7 +261,7 @@ Reviews submitted by trainees don't get published in the normal review channel a
 
 #### Assessing the trainee reviews
 
-The reviews written by trainees, however, get posted in the special trainee channel defined in the `trainee_review_text` route.
+The reviews written by trainees, however, get posted in the special trainee channel defined in the `trainee_review_text` route. The message containing their review will be written in the language of the request (which is usually the language the user that has requested the level speaks). If there is a discrepancy between the languages of the review and the surrounding text, it means that a trainee mistakenly wrote a review in a different language than the one it was requested in.
 
 Those reviews get complemented with the "Approve" and "Reject" buttons allowing trainee curators (that is, anyone with the `trainee_supervisor` permission) to leave their opinion about these reviews and (optionally) give useful feedback.
 
@@ -398,6 +400,9 @@ The following parameters are exposed by the bot (they can also be listed using t
 - `cooldown.post_request_user_cd` (type: `duration`) - The duration of the cooldown cast on a user after he/she successfully submits a level request (see **Cooldowns and Bans** section).
 - `cooldown.post_reject_level_cd` (type: `duration`) - The duration of the cooldown cast on a level after it gets rejected by a GD moderator (see **Cooldowns and Bans** section).
 - `request.append_conclusion_to_review` (type: `bool`) - Whether to append the conclusion explicitly stating the reviewer's opinion to the review text of a regular reviewer (see **Standard Request Flow** section).
+- `request.append_conclusion_to_final_review` (type: `bool`) - Whether to append the conclusion explicitly stating the reviewer's opinion to the review text of a GD moderator (see **Standard Request Flow** section).
+- `request.min_stars_to_require_showcase` (type: `natural`) - A minimum number of requested stars a classic level should have for the showcase to be required when a request is submitted (see **Standard Request Flow** section).
+- `request.always_require_showcase` (type: `bool`) - Whether to require specifying the link to the showcase when submitting the level request _regardless_ of the requested level's difficulty and type (see **Standard Request Flow** section).
 - `trainee.resolved_reviews_for_promotion_decision` (type: `natural`) - Upon achieving what number of assessed trainee's reviews the trainee curators are offered to promote or expel the trainee (see **Trainees** section).
 
 ### Message Routes
@@ -814,7 +819,7 @@ Arguments:
 
 - `level_id` - ID of a level you want to request
 - `language` - Language of the reviews. Will also be used to notify the author
-- `yt_link` - YouTube link for a showcase
+- `yt_link` - YouTube link for a showcase. Optional
 - `creator_mention` - Creator mention for notifications. Specify creator_name instead if you can't tag a creator
 - `creator_name` - Creator's name. Provide only if creator_mention cannot be specified
 - `additional_comment` - Additional info about the submission. Optional
@@ -1041,10 +1046,44 @@ In order to be able to understand the code and make meaningful changes, you need
     - `click` (just to understand the entrance point)
     - `jsonschema` (used to validate the configs)
 
+To deploy the bot, the basics of Docker should also be known.
+
 ### Code structure
 
-TODO
+The source code is composed of the following nodes:
+
+- `main.py` contains the `Bot` class and all the startup instructions. It also contains every FastAPI endpoint. They could have been moved to their own modules, but since the API is so minimalistic at the time, it doesn't seem to be much of a problem.
+- `cogs` contains Discord.py cogs and is the entry point of any interaction invoked by a slash command. Cog methods usually don't do actual job and instead relegate it to the facades. The purpose of a cog is just to provide all the necessary decorators to commands and respond to the user interaction with the results retrieved from the facade functions.
+- `cog_presets` contain presets for multiple cogs with the similar commands. They are used to avoid duplicating the logic. For example, `cooldown.py` preset provides implementations for commands of both the `usercd.py` and `levelcd.py` cog.
+- `facades` contains **facades**, i.e. modules composed of functions that may communicate with the different services (database, Discord API, GD API etc.) in order to perform _one specific action_. Those actions are requested either by Discord interactions or through the API. More often than not, for a specific cog there is a corresponding facade.
+- `components` contains classes representing Discord's visual components, for example, views, buttons or modals. It is split into subfolder based on the type of the component. Each of these subfolders consists of modules defining a single component. Inheritance is frequently used to re-use the common logic between similar components, so some of the modules may contain prototypes, used solely as a base for the "real" components.
+- `database` contains modules setting up the database and SQLModel. `db.py` performs startup routines, while `models.py` defines data models.
+- `data` contains all the persistent data. It can be one of two types: either the database (represented by a single `database.db` file) or the JSON configs, schemas for validating which can be found in the `schemas` subfolder. The `long_texts` subfolder contains plain text files defining values too long to be stored in the `texts.json` config; they get loaded together with this config.
+- `config` contains modules for working with JSON configs described above. This usually involves reading a specific element, listing all the available element and validating the config's schema and, sometimes, values.
+- `globalconf` contains global data. The number of global fields is intentionally kept as small as possible, but sometimes having such a field is the only plausible option.
+- `services` contains wrappers around the API of the third-party services, such as Discord, Geometry Dash and YouTube. Every module corresponds to a respective external service. Apart from just API wrappers, it may have some utility methods that only make sense in the context of this specific service.
+- `util` contains a variety of utility functions, plus a custom Discord.py translator for localization purposes (located in the `translator.py` module). The other modules worth special mention are `datatypes.py`, containing the common dataclasses and enums used throughout the various modules of the bot, and `identifiers.py`, consisting of enums representing the keys of the configs in the `data` folder.
+
+The following configs are available in the `data` folder:
+
+- `parameters.json` contains parameter definitions: their descriptions, types, and default values.
+- `permission_flags.json` contains permission descriptions.
+- `routes.json` contains route definitions: their descriptions and **default** channels (for both production and testing stages).
+- `stage_parameters.json` contains values that are constant throughout the runtime of the bot, but depend on a stage to which it is deployed (for example, Discord guild ID or admins to ping in case of an error).
+- `texts.json` contains template definitions: their descriptions, substituted parameters (with own descriptions) and **default** values for both languages.
+
+The following code flow is used to minimize the risk of circular imports:
+
+![code_flow.png](docs_images/code_flow.png)
+
+The dashed dependency is unadvised, but sometimes used via local imports (cases when one function of a facade displays a component, interacting with which should trigger another function of the same facade).
 
 ### Deployment
 
-TODO
+The bot can be run simply by executing the `python main.py` command (or `python main.py --debug` to launch it on a testing stage). However, the version of Python should be at least 3.12 and the requirements specified in the `requirements.txt` file should be met. Moreover, the environment variables should be set: `BOT_TOKEN` for Discord bot token and `API_TOKEN` that the API for integration with the Request Bot Control Panel will use.
+
+The intended way of deploying the bot is via Docker. The `Dockerfile` for building the image is available in the root of the repository.
+
+Because of that, the simplest option for hosting the bot seems to be finding the hosting / cloud platform provider that supports creating virtual machines from Docker images. For instance, the original version of this bot is hosted on **Yandex.Cloud Container Solution**.
+
+There is one downside to that, though. Since this bot uses SQLite as its DBMS, to update the bot, one will have to upload the image **containing** the database file (located at `data/database.db`) created by invoking the `/backup save` command right before the upgrade.

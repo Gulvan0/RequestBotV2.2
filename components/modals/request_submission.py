@@ -13,7 +13,7 @@ from util.identifiers import PermissionFlagID, TextPieceID
 
 
 class RequestSubmissionModal(GenericModal):
-    def __init__(self, request_id: int, language: Language) -> None:
+    def __init__(self, request_id: int, language: Language, showcase_required: bool = True) -> None:
         super().__init__(
             title=facades.texts.render_text(TextPieceID.REQUEST_MODAL_TITLE, language),
             timeout=None,
@@ -23,7 +23,7 @@ class RequestSubmissionModal(GenericModal):
         self.yt_link_input = TextInput(
             label=facades.texts.render_text(TextPieceID.REQUEST_MODAL_YT_LINK_LABEL, language),
             placeholder="https://www.youtube.com/watch?v=...",
-            required=True,
+            required=showcase_required,
             min_length=8,
             max_length=100,
             style=TextStyle.short,
@@ -47,7 +47,7 @@ class RequestSubmissionModal(GenericModal):
         await interaction.response.defer(ephemeral=True, thinking=True)
 
         request_id = int(custom_id_fields[0])
-        yt_link = text_input_values.get("rsm:yli") or ''
+        yt_link = text_input_values.get("rsm:yli")
         additional_comment = text_input_values.get("rsm:aci")
 
         try:

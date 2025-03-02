@@ -160,10 +160,13 @@ async def create_limbo_request(level_id: int, request_language: Language, invoke
     return request_id
 
 
-async def complete_request(request_id: int, yt_link: str, additional_comment: str | None, invoker: Member, allow_queue_closing: bool = True) -> None:
-    yt_video_id = get_video_id_by_url(yt_link)
-    if not yt_video_id:
-        raise InvalidYtLinkException
+async def complete_request(request_id: int, yt_link: str | None, additional_comment: str | None, invoker: Member, allow_queue_closing: bool = True) -> None:
+    if yt_link:
+        yt_video_id = get_video_id_by_url(yt_link)
+        if not yt_video_id:
+            raise InvalidYtLinkException
+    else:
+        yt_video_id = None
 
     with Session(engine) as session:
         request = session.get(Request, request_id)
@@ -180,10 +183,12 @@ async def complete_request(request_id: int, yt_link: str, additional_comment: st
             title=f"Request {request_id}",
             description=f"**{level.name}** by _{level.author_name}_"
         )
-        embed.set_thumbnail(url=f"https://i.ytimg.com/vi/{yt_video_id}/hqdefault.jpg")
+        if yt_video_id:
+            embed.set_thumbnail(url=f"https://i.ytimg.com/vi/{yt_video_id}/hqdefault.jpg")
         embed.add_field(name="ID", value=str(level_id), inline=False)
         embed.add_field(name="Review Language", value=lang_str, inline=False)
-        embed.add_field(name="Showcase", value=yt_link, inline=False)
+        if yt_link:
+            embed.add_field(name="Showcase", value=yt_link, inline=False)
         embed.add_field(name="Copied Level ID", value=copied_id_str, inline=False)
         embed.add_field(name="Stars Requested", value=str(level.stars_requested) or "NA", inline=False)
         embed.add_field(name="Length", value=level.length.to_str(), inline=True)
@@ -198,7 +203,7 @@ async def complete_request(request_id: int, yt_link: str, additional_comment: st
             return
 
         request.level_name = level.name
-        request.yt_link = yt_link
+        request.yt_link = yt_link or ""
         request.additional_comment = additional_comment
         request.details_message_id = message.id
         request.details_message_channel_id = message.channel.id
@@ -458,7 +463,8 @@ async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | N
         associated_review = None
         associated_review_message = None
         if review_text:
-            associated_review_message = await _post_review(resolving_mod, request, opinion, review_text, True)
+            append_summary = get_parameter_value(ParameterID.REQUEST_APPEND_CONCLUSION_TO_FINAL_REVIEW, bool)
+            associated_review_message = await _post_review(resolving_mod, request, opinion, review_text, append_summary)
             associated_review = RequestReview(
                 author_user_id=resolving_mod.id,
                 text=review_text,

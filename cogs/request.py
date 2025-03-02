@@ -20,7 +20,7 @@ from facades.requests import (
 )
 from facades.texts import render_text
 from services.disc import find_message, member_language, requires_permission, respond
-from services.gd import get_level, LevelGrade
+from services.gd import get_level, LevelGrade, LevelLength
 from util.datatypes import CommandChoiceOption, CooldownEntity, Language
 from util.format import as_code, as_link, as_timestamp, as_user
 from util.identifiers import ParameterID, PermissionFlagID, StageParameterID, TextPieceID
@@ -137,7 +137,12 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
 
         request_id = await create_limbo_request(level_id, request_language, inter.user)
 
-        await inter.response.send_modal(RequestSubmissionModal(request_id, request_language))
+        require_showcase = (
+            level.length == LevelLength.PLATFORMER
+            or (level.stars_requested or 0) >= get_parameter_value(ParameterID.REQUEST_MIN_STARS_TO_REQUIRE_SHOWCASE, int)
+            or get_parameter_value(ParameterID.REQUEST_ALWAYS_REQUIRE_SHOWCASE, bool)
+        )
+        await inter.response.send_modal(RequestSubmissionModal(request_id, request_language, require_showcase))
         # Alternative strategy in case of lags
         # async def show_modal(inter) -> None:
         #     await inter.response.send_modal(RequestSubmissionModal(request_id, request_language))
@@ -215,7 +220,7 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
         inter: discord.Interaction,
         level_id: app_commands.Range[int, 200, 1000000000],
         language: Language,
-        yt_link: str,
+        yt_link: str | None = None,
         creator_mention: Member | None = None,
         creator_name: str | None = None,
         additional_comment: str | None = None

@@ -20,6 +20,7 @@ import typing as tp
 
 
 MESSAGE_LENGTH_LIMIT = 2000
+MAX_SPLIT_MESSAGE_PORTIONS = 10
 
 
 @dataclass
@@ -38,6 +39,25 @@ def member_language(member: discord.Member, locale: Locale | None) -> MemberLang
         return MemberLanguageInfo(Language.RU, True)
     else:
         return MemberLanguageInfo(Language.EN, True)
+
+
+def split_message_to_fit_limit(message: str, extra_portion_symbols: int = 0) -> list[str]:
+    actual_max_length = MESSAGE_LENGTH_LIMIT - extra_portion_symbols
+
+    if len(message) <= actual_max_length:
+        return [message]
+
+    message_portions = []
+    index_from = 0
+    while len(message_portions) < MAX_SPLIT_MESSAGE_PORTIONS and index_from < len(message):
+        index_to = index_from + actual_max_length
+        for better_index_to_candidate in range(index_to, index_to - 20, -1):
+            if message[better_index_to_candidate].isspace():
+                index_to = better_index_to_candidate
+                break
+        message_portions.append(message[index_from:index_to])
+        index_from = index_to
+    return message_portions
 
 
 async def respond(
@@ -82,26 +102,18 @@ async def respond_forbidden(inter: discord.Interaction) -> None:
 
 
 async def send_developers(message: str, code_syntax: str | None = None, file_path: str | PathLike | None = None):
-    extra_symbols = 8 + len(code_syntax) if code_syntax is not None else 0
-    actual_max_length = MESSAGE_LENGTH_LIMIT - extra_symbols
-
-    message_length = len(message)
-
-    if message_length > actual_max_length:
-        parts_cnt = (message_length - 1) // actual_max_length + 1
-        for part_index in range(min(parts_cnt, 10)):
-            index_from = actual_max_length * part_index
-            index_to = index_from + actual_max_length
-            await send_developers(message[index_from:index_to], code_syntax, file_path if part_index == 0 else None)
-        return
-
+    extra_symbols = 8 + len(code_syntax) if code_syntax is not None else 0  # Triple backtick plus newline at both sides (3+1)*2 = 8
     developer_user_ids: list[int] = get_stage_parameter_value(StageParameterID.DEVELOPER_USER_IDS)
-    for developer_user_id in developer_user_ids:
-        developer = await CONFIG.bot.fetch_user(developer_user_id)
-        await developer.send(
-            as_code_block(message, code_syntax or None) if code_syntax is not None else message,
-            file=File(file_path) if file_path else None
-        )
+
+    is_first_portion = True
+    for portion in split_message_to_fit_limit(message, extra_symbols):
+        for developer_user_id in developer_user_ids:
+            developer = await CONFIG.bot.fetch_user(developer_user_id)
+            await developer.send(
+                as_code_block(portion, code_syntax or None) if code_syntax is not None else portion,
+                file=File(file_path) if file_path and is_first_portion else None
+            )
+        is_first_portion = False
 
 
 def requires_permission(permission: PermissionFlagID | list[PermissionFlagID]):
@@ -120,7 +132,15 @@ async def post_raw_text(
     if not is_enabled(route):
         return None
     channel_id = get_channel_id(route)
-    return await CONFIG.bot.get_channel(channel_id).send(text, view=view, embed=embed, file=File(file_path) if file_path else None)
+    channel = CONFIG.bot.get_channel(channel_id)
+    returned_message = None
+    is_first_portion = True
+    for portion in split_message_to_fit_limit(text):
+        posted_portion = await channel.send(portion, view=view, embed=embed, file=File(file_path) if file_path and is_first_portion else None)
+        if is_first_portion:
+            returned_message = posted_portion
+        is_first_portion = False
+    return returned_message
 
 
 async def post(

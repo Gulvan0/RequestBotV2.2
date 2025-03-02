@@ -291,6 +291,9 @@ class ParameterID(Enum):
     COOLDOWN_POST_REQUEST_USER_CD = "cooldown.post_request_user_cd"
     COOLDOWN_POST_REJECT_LEVEL_CD = "cooldown.post_reject_level_cd"
     REQUEST_APPEND_CONCLUSION_TO_REVIEW = "request.append_conclusion_to_review"
+    REQUEST_APPEND_CONCLUSION_TO_FINAL_REVIEW = "request.append_conclusion_to_final_review"
+    REQUEST_MIN_STARS_TO_REQUIRE_SHOWCASE = "request.min_stars_to_require_showcase"
+    REQUEST_ALWAYS_REQUIRE_SHOWCASE = "request.always_require_showcase"
     TRAINEE_RESOLVED_REVIEWS_FOR_PROMOTION_DECISION = "trainee.resolved_reviews_for_promotion_decision"
 
 

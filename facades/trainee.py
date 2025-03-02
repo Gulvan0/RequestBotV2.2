@@ -11,7 +11,7 @@ from facades.eventlog import add_entry
 from facades.permissions import get_permission_role_ids, has_permission
 from facades.texts import render_text
 from services.disc import find_message, find_member, get_default_role, post_raw_text
-from util.datatypes import Opinion
+from util.datatypes import Language, Opinion
 from util.format import as_code, as_link, as_user
 from util.identifiers import LoggedEventTypeID, PermissionFlagID, RouteID, TextPieceID
 
@@ -58,22 +58,29 @@ async def add_trainee_review(trainee: Member, request_id: int, opinion: Opinion,
     if request.details_message_id and request.details_message_channel_id:
         details_widget = await find_message(request.details_message_channel_id, request.details_message_id)
 
-    message_lines = [
-        f"Review by {trainee.mention}",
-        f"Level: {request.level_name} (ID: {request.level_id})",
-    ]
+    if request.language == Language.EN:
+        message_lines = [
+            f"Review by {trainee.mention}",
+            f"Level: {request.level_name} (ID: {request.level_id})",
+        ]
+    else:
+        message_lines = [
+            f"Ревью от {trainee.mention}",
+            f"Уровень: {request.level_name} (ID: {request.level_id})",
+        ]
 
     if details_widget:
-        message_lines.append(as_link(details_widget.jump_url, "Info Widget"))
+        message_lines.append(as_link(details_widget.jump_url, "Request Info" if request.language == Language.EN else "Информация о реквесте"))
 
     message_lines += [
-        "Review:",
+        "Review:" if request.language == Language.EN else "Ревью:",
         review_text,
         render_text(TextPieceID.REQUEST_SUMMARY_GOOD if opinion == Opinion.APPROVED else TextPieceID.REQUEST_SUMMARY_BAD, request.language)
     ]
 
     if rejection_reason:
-        message_lines.append(f"**Rejection reason**: {as_code(rejection_reason)}")
+        rejection_reason_label = "Rejection reason" if request.language == Language.EN else "Причина отклонения"
+        message_lines.append(f"**{rejection_reason_label}**: {as_code(rejection_reason)}")
 
     review_message = await post_raw_text(
         RouteID.TRAINEE_REVIEW_TEXT,
