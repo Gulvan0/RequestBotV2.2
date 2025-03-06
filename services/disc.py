@@ -135,7 +135,7 @@ async def post_raw_text(
     channel = CONFIG.bot.get_channel(channel_id)
     returned_message = None
     is_first_portion = True
-    for portion in split_message_to_fit_limit(text):
+    for portion in split_message_to_fit_limit(text or ""):
         posted_portion = await channel.send(portion, view=view, embed=embed, file=File(file_path) if file_path and is_first_portion else None)
         if is_first_portion:
             returned_message = posted_portion
