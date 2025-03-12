@@ -1,8 +1,9 @@
 from dataclasses import dataclass
+from enum import Enum, auto
 from os import PathLike
 
 import discord
-from discord import Embed, File, Locale, Member, Message, NotFound, Role, User
+from discord import Embed, File, Locale, Member, Message, NotFound, Role
 from discord.app_commands import commands
 
 from config.stage_parameters import get_value as get_stage_parameter_value
@@ -27,6 +28,12 @@ MAX_SPLIT_MESSAGE_PORTIONS = 10
 class MemberLanguageInfo:
     language: Language
     is_assumed: bool
+
+
+class CheckDeferringBehaviour(Enum):
+    NO_DEFER = auto()
+    DEFER_EPHEMERAL = auto()
+    DEFER_REAL = auto()
 
 
 def member_language(member: discord.Member, locale: Locale | None) -> MemberLanguageInfo:
@@ -116,8 +123,18 @@ async def send_developers(message: str, code_syntax: str | None = None, file_pat
         is_first_portion = False
 
 
-def requires_permission(permission: PermissionFlagID | list[PermissionFlagID]):
+async def safe_defer(inter: discord.Interaction, ephemeral: bool) -> None:
+    if not inter.response.is_done():
+        await inter.response.defer(ephemeral=ephemeral, thinking=True)
+
+
+def requires_permission(permission: PermissionFlagID | list[PermissionFlagID], defer_behaviour: CheckDeferringBehaviour):
     async def predicate(inter: discord.Interaction):
+        match defer_behaviour:
+            case CheckDeferringBehaviour.DEFER_EPHEMERAL:
+                await safe_defer(inter, True)
+            case CheckDeferringBehaviour.DEFER_REAL:
+                await safe_defer(inter, False)
         return has_permission(inter.user, permission)
     return commands.check(predicate)
 

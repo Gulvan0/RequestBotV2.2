@@ -14,7 +14,7 @@ from facades.eventlog import (
     update_filter_event_type,
     update_filter_user,
 )
-from services.disc import requires_permission, respond
+from services.disc import CheckDeferringBehaviour, requires_permission, respond
 from util.datatypes import CommandChoiceOption
 from util.exceptions import AlreadySatisfiesError
 from util.format import as_code, list_values
@@ -25,7 +25,7 @@ from dateutil.parser import parse as parse_datetime, ParserError
 class LogCog(commands.GroupCog, name="log", description="Commands for querying logs"):
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_RESTRICT_USER.as_locale_str())
     @app_commands.describe(user=TextPieceID.COMMAND_OPTION_LOG_RESTRICT_USER_USER.as_locale_str())
-    @requires_permission(PermissionFlagID.LOG_VIEWER)
+    @requires_permission(PermissionFlagID.LOG_VIEWER, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def restrict_user(self, inter: discord.Interaction, user: discord.Member):
         try:
             update_filter_user(inter.user, user)
@@ -37,7 +37,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_RESTRICT_TYPE.as_locale_str())
     @app_commands.describe(event_type=TextPieceID.COMMAND_OPTION_LOG_RESTRICT_TYPE_EVENT_TYPE.as_locale_str())
     @app_commands.choices(event_type=CommandChoiceOption.from_enum(LoggedEventTypeID))
-    @requires_permission(PermissionFlagID.LOG_VIEWER)
+    @requires_permission(PermissionFlagID.LOG_VIEWER, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def restrict_type(self, inter: discord.Interaction, event_type: LoggedEventTypeID):
         try:
             update_filter_event_type(inter.user, event_type)
@@ -51,7 +51,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
         key=TextPieceID.COMMAND_OPTION_LOG_RESTRICT_CUSTOM_FIELD_KEY.as_locale_str(),
         value=TextPieceID.COMMAND_OPTION_LOG_RESTRICT_CUSTOM_FIELD_VALUE.as_locale_str()
     )
-    @requires_permission(PermissionFlagID.LOG_VIEWER)
+    @requires_permission(PermissionFlagID.LOG_VIEWER, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def restrict_custom_field(self, inter: discord.Interaction, key: str, value: str):
         try:
             update_filter_custom_field(inter.user, key, value)
@@ -61,7 +61,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_UNRESTRICT_USER.as_locale_str())
-    @requires_permission(PermissionFlagID.LOG_VIEWER)
+    @requires_permission(PermissionFlagID.LOG_VIEWER, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def unrestrict_user(self, inter: discord.Interaction):
         try:
             update_filter_user(inter.user, None)
@@ -71,7 +71,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_UNRESTRICT_TYPE.as_locale_str())
-    @requires_permission(PermissionFlagID.LOG_VIEWER)
+    @requires_permission(PermissionFlagID.LOG_VIEWER, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def unrestrict_type(self, inter: discord.Interaction):
         try:
             update_filter_event_type(inter.user, None)
@@ -82,7 +82,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_UNRESTRICT_CUSTOM_FIELD.as_locale_str())
     @app_commands.describe(key=TextPieceID.COMMAND_OPTION_LOG_UNRESTRICT_CUSTOM_FIELD_KEY.as_locale_str())
-    @requires_permission(PermissionFlagID.LOG_VIEWER)
+    @requires_permission(PermissionFlagID.LOG_VIEWER, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def unrestrict_custom_field(self, inter: discord.Interaction, key: str):
         try:
             update_filter_custom_field(inter.user, key, None)
@@ -92,7 +92,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_CLEAR_CUSTOM_FIELD_RESTRICTIONS.as_locale_str())
-    @requires_permission(PermissionFlagID.LOG_VIEWER)
+    @requires_permission(PermissionFlagID.LOG_VIEWER, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def clear_custom_field_restrictions(self, inter: discord.Interaction):
         try:
             clear_filter_custom_fields(inter.user)
@@ -102,7 +102,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_CLEAR_FILTER.as_locale_str())
-    @requires_permission(PermissionFlagID.LOG_VIEWER)
+    @requires_permission(PermissionFlagID.LOG_VIEWER, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def clear_filter(self, inter: discord.Interaction):
         try:
             clear_current_filter(inter.user)
@@ -113,7 +113,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_DESCRIBE_FILTER.as_locale_str())
     @app_commands.describe(name=TextPieceID.COMMAND_OPTION_LOG_DESCRIBE_FILTER_NAME.as_locale_str())
-    @requires_permission(PermissionFlagID.LOG_VIEWER)
+    @requires_permission(PermissionFlagID.LOG_VIEWER, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def describe_filter(self, inter: discord.Interaction, name: str | None = None):
         log_filter = get_filter(name) if name else get_current_filter(inter.user)
 
@@ -138,7 +138,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_VIEW.as_locale_str())
     @app_commands.describe(timestamp=TextPieceID.COMMAND_OPTION_LOG_VIEW_TIMESTAMP.as_locale_str())
-    @requires_permission(PermissionFlagID.LOG_VIEWER)
+    @requires_permission(PermissionFlagID.LOG_VIEWER, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def view(self, inter: discord.Interaction, timestamp: str | None = None):
         parsed_timestamp: datetime | None = None
 
@@ -152,7 +152,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
         await LogPaginationView(parsed_timestamp).respond_with_view(inter, True)
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_LIST_FILTERS.as_locale_str())
-    @requires_permission(PermissionFlagID.LOG_VIEWER)
+    @requires_permission(PermissionFlagID.LOG_VIEWER, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def list_filters(self, inter: discord.Interaction):
         filters = list_filters()
         if filters:
@@ -162,7 +162,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_SELECT_FILTER.as_locale_str())
     @app_commands.describe(name=TextPieceID.COMMAND_OPTION_LOG_SELECT_FILTER_NAME.as_locale_str())
-    @requires_permission(PermissionFlagID.LOG_VIEWER)
+    @requires_permission(PermissionFlagID.LOG_VIEWER, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def select_filter(self, inter: discord.Interaction, name: str):
         try:
             select_filter(inter.user, name)
@@ -173,7 +173,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_SAVE_FILTER.as_locale_str())
     @app_commands.describe(name=TextPieceID.COMMAND_OPTION_LOG_SAVE_FILTER_NAME.as_locale_str())
-    @requires_permission(PermissionFlagID.ADMIN)
+    @requires_permission(PermissionFlagID.ADMIN, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def save_filter(self, inter: discord.Interaction, name: str):
         log_filter = get_current_filter(inter.user)
 
@@ -192,7 +192,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_LOG_DELETE_FILTER.as_locale_str())
     @app_commands.describe(name=TextPieceID.COMMAND_OPTION_LOG_DELETE_FILTER_NAME.as_locale_str())
-    @requires_permission(PermissionFlagID.ADMIN)
+    @requires_permission(PermissionFlagID.ADMIN, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def delete_filter(self, inter: discord.Interaction, name: str):
         async def on_confirmed(following_inter: discord.Interaction) -> None:
             try:
@@ -205,7 +205,7 @@ class LogCog(commands.GroupCog, name="log", description="Commands for querying l
 
     @select_filter.autocomplete("name")
     @delete_filter.autocomplete("name")
-    async def name_autocomplete(self, inter: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    async def name_autocomplete(self, _: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
         return [
             app_commands.Choice(name=option, value=option)
             for option in find_filters_by_prefix(current)[:25]

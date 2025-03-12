@@ -6,14 +6,14 @@ from components.views.pagination.log import LogPaginationView
 from facades.eventlog import LoadedLogFilter
 from facades.parameters import get_value as get_parameter_value, update_value as update_parameter_value
 from facades.requests import count_pending_requests
-from services.disc import post_raw_text, requires_permission, respond
+from services.disc import CheckDeferringBehaviour, post_raw_text, requires_permission, respond
 from util.exceptions import AlreadySatisfiesError
 from util.identifiers import LoggedEventTypeID, ParameterID, PermissionFlagID, RouteID, TextPieceID
 
 
 class QueueCog(commands.GroupCog, name="queue", description="Commands for controlling request queue"):
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_QUEUE_OPEN.as_locale_str())
-    @requires_permission(PermissionFlagID.ADMIN)
+    @requires_permission(PermissionFlagID.ADMIN, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def open(self, inter: discord.Interaction) -> None:
         try:
             await update_parameter_value(ParameterID.QUEUE_BLOCKED, "false", inter.user)
@@ -27,7 +27,7 @@ class QueueCog(commands.GroupCog, name="queue", description="Commands for contro
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_QUEUE_CLOSE.as_locale_str())
-    @requires_permission(PermissionFlagID.ADMIN)
+    @requires_permission(PermissionFlagID.ADMIN, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def close(self, inter: discord.Interaction) -> None:
         try:
             await update_parameter_value(ParameterID.QUEUE_BLOCKED, "true", inter.user)
@@ -41,7 +41,7 @@ class QueueCog(commands.GroupCog, name="queue", description="Commands for contro
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_QUEUE_INFO.as_locale_str())
-    @requires_permission(PermissionFlagID.ADMIN)
+    @requires_permission(PermissionFlagID.ADMIN, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def info(self, inter: discord.Interaction) -> None:
         await respond(
             inter,
@@ -56,7 +56,7 @@ class QueueCog(commands.GroupCog, name="queue", description="Commands for contro
         )
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_QUEUE_HISTORY.as_locale_str())
-    @requires_permission(PermissionFlagID.ADMIN)
+    @requires_permission(PermissionFlagID.ADMIN, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def history(self, inter: discord.Interaction) -> None:
         await LogPaginationView(
             log_filter=LoadedLogFilter(

@@ -4,7 +4,7 @@ import facades.texts
 from components.modals.common_items import get_reason_text_input, get_review_text_input
 from components.modals.generic import GenericModal
 from facades.permissions import has_permission
-from services.disc import respond
+from services.disc import respond, safe_defer
 from util.datatypes import Language, Opinion
 from util.identifiers import PermissionFlagID, TextPieceID
 
@@ -22,7 +22,7 @@ class PreRejectionModal(GenericModal):
 
     @classmethod
     async def process_submission(cls, interaction: Interaction, custom_id_fields: list[str], text_input_values: dict[str, str]) -> None:
-        await interaction.response.defer(ephemeral=True, thinking=True)
+        await safe_defer(interaction, True)
 
         request_id = int(custom_id_fields[0])
         review_text = text_input_values.get("prm:rti")

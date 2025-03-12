@@ -3,7 +3,7 @@ from discord import Interaction
 import facades.texts
 from components.modals.common_items import get_review_text_input
 from components.modals.generic import GenericModal
-from services.disc import respond
+from services.disc import respond, safe_defer
 from util.datatypes import Language, SendType
 from util.identifiers import TextPieceID
 
@@ -20,7 +20,7 @@ class ApprovalModal(GenericModal):
 
     @classmethod
     async def process_submission(cls, interaction: Interaction, custom_id_fields: list[str], text_input_values: dict[str, str]) -> None:
-        await interaction.response.defer(ephemeral=True, thinking=True)
+        await safe_defer(interaction, True)
 
         request_id = int(custom_id_fields[0])
         send_type = SendType(custom_id_fields[1])

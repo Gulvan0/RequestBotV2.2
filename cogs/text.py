@@ -5,7 +5,7 @@ from discord.ext import commands
 
 from components.views.pagination.list import ListPaginationView
 from config.texts import enlist
-from services.disc import requires_permission, respond
+from services.disc import CheckDeferringBehaviour, requires_permission, respond
 from facades.texts import explain, reset_template, update_template
 from util.datatypes import CommandChoiceOption, Language
 from util.exceptions import AlreadySatisfiesError
@@ -18,7 +18,7 @@ class TextCog(commands.GroupCog, name="text", description="Utilities for working
     @app_commands.describe(template_name=TextPieceID.COMMAND_OPTION_TEXT_DESCRIBE_TEMPLATE_NAME.as_locale_str())
     @app_commands.choices(template_name=[])
     @app_commands.autocomplete(template_name=CommandChoiceOption.autocomplete_from_enum(TextPieceID))
-    @requires_permission(PermissionFlagID.ADMIN)
+    @requires_permission(PermissionFlagID.ADMIN, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def describe(self, inter: discord.Interaction, template_name: TextPieceID) -> None:
         text_piece_details = explain(template_name)
 
@@ -51,7 +51,7 @@ class TextCog(commands.GroupCog, name="text", description="Utilities for working
     )
     @app_commands.autocomplete(template_name=CommandChoiceOption.autocomplete_from_enum(TextPieceID))
     @app_commands.choices(language=CommandChoiceOption.from_str_enum(Language), template_name=[])
-    @requires_permission(PermissionFlagID.ADMIN)
+    @requires_permission(PermissionFlagID.ADMIN, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def edit(self, inter: discord.Interaction, template_name: TextPieceID, language: Language, new_value: str) -> None:
         try:
             await update_template(template_name, language, new_value, inter.user)
@@ -67,7 +67,7 @@ class TextCog(commands.GroupCog, name="text", description="Utilities for working
     )
     @app_commands.autocomplete(template_name=CommandChoiceOption.autocomplete_from_enum(TextPieceID))
     @app_commands.choices(language=CommandChoiceOption.from_str_enum(Language), template_name=[])
-    @requires_permission(PermissionFlagID.ADMIN)
+    @requires_permission(PermissionFlagID.ADMIN, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def reset(self, inter: discord.Interaction, template_name: TextPieceID, language: Language) -> None:
         try:
             await reset_template(template_name, language, inter.user)
@@ -77,7 +77,7 @@ class TextCog(commands.GroupCog, name="text", description="Utilities for working
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_TEXT_LIST.as_locale_str())
-    @requires_permission(PermissionFlagID.ADMIN)
+    @requires_permission(PermissionFlagID.ADMIN, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def list(self, inter: discord.Interaction) -> None:
         await ListPaginationView(list_described_values(enlist())).respond_with_view(inter, ephemeral=True)
 

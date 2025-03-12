@@ -19,7 +19,7 @@ from facades.requests import (
     PreviousLevelRequestPendingException,
 )
 from facades.texts import render_text
-from services.disc import find_message, member_language, requires_permission, respond
+from services.disc import CheckDeferringBehaviour, find_message, member_language, requires_permission, respond
 from services.gd import get_level, LevelGrade, LevelLength
 from util.datatypes import CommandChoiceOption, CooldownEntity, Language
 from util.format import as_code, as_link, as_timestamp, as_user
@@ -154,10 +154,8 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REQUEST_WIDGETS.as_locale_str())
     @app_commands.describe(level_id=TextPieceID.COMMAND_OPTION_REQUEST_WIDGETS_LEVEL_ID.as_locale_str())
-    @requires_permission(PermissionFlagID.GD_MOD)
+    @requires_permission(PermissionFlagID.GD_MOD, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def widgets(self, inter: discord.Interaction, level_id: app_commands.Range[int, 200, 1000000000]) -> None:
-        await inter.response.defer(ephemeral=True)
-
         request = await get_last_complete_request(level_id)
         if not request or not request.details_message_channel_id or not request.details_message_id:
             await respond(inter, TextPieceID.REQUEST_INFO_REQUEST_NOT_FOUND, ephemeral=True)
@@ -173,10 +171,8 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
         await respond(inter, response_text, ephemeral=True)
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REQUEST_IGNORED.as_locale_str())
-    @requires_permission(PermissionFlagID.REVIEWER)
+    @requires_permission(PermissionFlagID.REVIEWER, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def ignored(self, inter: discord.Interaction) -> None:
-        await inter.response.defer(ephemeral=True)
-
         request = await get_oldest_ignored_request()
         if not request or not request.details_message_channel_id or not request.details_message_id:
             await respond(inter, TextPieceID.REQUEST_NO_IGNORED, ephemeral=True)
@@ -189,10 +185,8 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
         await respond(inter, response_text, ephemeral=True)
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REQUEST_UNRESOLVED.as_locale_str())
-    @requires_permission(PermissionFlagID.GD_MOD)
+    @requires_permission(PermissionFlagID.GD_MOD, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def unresolved(self, inter: discord.Interaction) -> None:
-        await inter.response.defer(ephemeral=True)
-
         request = await get_oldest_unresolved_request()
         if not request or not request.resolution_message_id or not request.resolution_message_channel_id:
             await respond(inter, TextPieceID.REQUEST_NO_UNRESOLVED, ephemeral=True)
@@ -214,7 +208,7 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
         additional_comment=TextPieceID.COMMAND_OPTION_REQUEST_INSERT_ADDITIONAL_COMMENT.as_locale_str(),
     )
     @app_commands.choices(language=CommandChoiceOption.from_str_enum(Language))
-    @requires_permission(PermissionFlagID.INSERT_REQUESTS)
+    @requires_permission(PermissionFlagID.INSERT_REQUESTS, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def insert(
         self,
         inter: discord.Interaction,
@@ -225,8 +219,6 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
         creator_name: str | None = None,
         additional_comment: str | None = None
     ) -> None:
-        await inter.response.defer(ephemeral=True)
-
         if not creator_mention and not creator_name:
             await respond(inter, TextPieceID.REQUEST_INSERT_COMMAND_CREATOR_MUST_BE_SPECIFIED, ephemeral=True)
             return

@@ -7,7 +7,7 @@ import facades.cooldowns
 from components.modals.generic import GenericModal
 from facades.permissions import has_permission
 from facades.requests import InvalidYtLinkException
-from services.disc import respond
+from services.disc import respond, safe_defer
 from util.datatypes import CooldownEntity, Language
 from util.identifiers import PermissionFlagID, TextPieceID
 
@@ -44,7 +44,7 @@ class RequestSubmissionModal(GenericModal):
 
     @classmethod
     async def process_submission(cls, interaction: Interaction, custom_id_fields: list[str], text_input_values: dict[str, str]) -> None:
-        await interaction.response.defer(ephemeral=True, thinking=True)
+        await safe_defer(interaction, True)
 
         request_id = int(custom_id_fields[0])
         yt_link = text_input_values.get("rsm:yli")

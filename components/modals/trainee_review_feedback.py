@@ -4,7 +4,7 @@ from discord.ui import TextInput
 from components.modals.generic import GenericModal
 from components.views.trainee_promotion_decision import TraineePromotionDecisionView
 from facades.parameters import get_value as get_parameter_value
-from services.disc import respond
+from services.disc import respond, safe_defer
 from util.datatypes import Language
 from util.identifiers import ParameterID, TextPieceID
 
@@ -31,7 +31,7 @@ class TraineeReviewFeedbackModal(GenericModal):
 
     @classmethod
     async def process_submission(cls, interaction: Interaction, custom_id_fields: list[str], text_input_values: dict[str, str]) -> None:
-        await interaction.response.defer(ephemeral=True, thinking=True)
+        await safe_defer(interaction, True)
 
         review_id = int(custom_id_fields[0])
         accept = bool(int(custom_id_fields[1]))

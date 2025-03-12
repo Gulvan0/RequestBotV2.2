@@ -8,7 +8,7 @@ from discord import app_commands, File, Member
 from discord.ext import commands
 
 from facades.texts import render_text
-from services.disc import member_language, requires_permission, respond
+from services.disc import CheckDeferringBehaviour, member_language, requires_permission, respond
 from util.datatypes import CommandChoiceOption, ReportGranularity, ReportRange, SimpleReportRange
 from util.identifiers import PermissionFlagID, TextPieceID
 from dateutil.parser import parse as parse_datetime, ParserError
@@ -67,8 +67,6 @@ class ReportCog(commands.GroupCog, name="report", description="Commands for disp
         date_from: str | None = None,
         date_to: str | None = None
     ):
-        await inter.response.defer(ephemeral=True, thinking=True)
-
         report_range = await self.prepare_simple_range(inter, date_from, date_to)
         if not report_range:
             return
@@ -89,8 +87,6 @@ class ReportCog(commands.GroupCog, name="report", description="Commands for disp
         date_to: str | None = None,
         granularity: ReportGranularity = ReportGranularity.DAY
     ):
-        await inter.response.defer(ephemeral=True, thinking=True)
-
         report_range = await self.prepare_range(inter, date_from, date_to, granularity == ReportGranularity.WEEK)
         if not report_range:
             return
@@ -110,7 +106,7 @@ class ReportCog(commands.GroupCog, name="report", description="Commands for disp
         granularity=TextPieceID.COMMAND_OPTION_REPORT_NEW_REQUESTS_GRANULARITY.as_locale_str(),
     )
     @app_commands.choices(granularity=CommandChoiceOption.report_granularity())
-    @requires_permission(PermissionFlagID.REPORT_VIEWER)
+    @requires_permission(PermissionFlagID.REPORT_VIEWER, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def new_requests(self, inter: discord.Interaction, date_from: str | None = None, date_to: str | None = None, granularity: ReportGranularity = ReportGranularity.DAY) -> None:
         await self.granular_report_command(facades.reports.new_requests, inter, date_from, date_to, granularity)
 
@@ -121,7 +117,7 @@ class ReportCog(commands.GroupCog, name="report", description="Commands for disp
         granularity=TextPieceID.COMMAND_OPTION_REPORT_PENDING_REQUESTS_GRANULARITY.as_locale_str(),
     )
     @app_commands.choices(granularity=CommandChoiceOption.report_granularity())
-    @requires_permission(PermissionFlagID.REPORT_VIEWER)
+    @requires_permission(PermissionFlagID.REPORT_VIEWER, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def pending_requests(self, inter: discord.Interaction, date_from: str | None = None, date_to: str | None = None, granularity: ReportGranularity = ReportGranularity.DAY) -> None:
         await self.granular_report_command(facades.reports.pending_requests, inter, date_from, date_to, granularity)
 
@@ -131,7 +127,7 @@ class ReportCog(commands.GroupCog, name="report", description="Commands for disp
         date_from=TextPieceID.COMMAND_OPTION_REPORT_REVIEWER_OPINIONS_DATE_FROM.as_locale_str(),
         date_to=TextPieceID.COMMAND_OPTION_REPORT_REVIEWER_OPINIONS_DATE_TO.as_locale_str(),
     )
-    @requires_permission(PermissionFlagID.REPORT_VIEWER)
+    @requires_permission(PermissionFlagID.REPORT_VIEWER, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def reviewer_opinions(self, inter: discord.Interaction, reviewer: Member, date_from: str | None = None, date_to: str | None = None) -> None:
         await self.simple_report_command(
             partial(facades.reports.reviewer_opinions, reviewer),
@@ -147,7 +143,7 @@ class ReportCog(commands.GroupCog, name="report", description="Commands for disp
         granularity=TextPieceID.COMMAND_OPTION_REPORT_REVIEW_ACTIVITY_GRANULARITY.as_locale_str(),
     )
     @app_commands.choices(granularity=CommandChoiceOption.report_granularity())
-    @requires_permission(PermissionFlagID.REPORT_VIEWER)
+    @requires_permission(PermissionFlagID.REPORT_VIEWER, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def review_activity(self, inter: discord.Interaction, date_from: str | None = None, date_to: str | None = None, granularity: ReportGranularity = ReportGranularity.DAY) -> None:
         await self.granular_report_command(facades.reports.review_activity, inter, date_from, date_to, granularity)
 

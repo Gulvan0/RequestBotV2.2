@@ -5,7 +5,7 @@ from components.modals.pre_approval import PreApprovalModal
 from components.modals.pre_rejection import PreRejectionModal
 from components.modals.pre_rejection_no_review import PreRejectionNoReviewModal
 from facades.permissions import has_permission
-from services.disc import member_language, respond, respond_forbidden
+from services.disc import member_language, respond, respond_forbidden, safe_defer
 from util.datatypes import Opinion
 from util.format import as_timestamp
 from util.identifiers import PermissionFlagID, TextPieceID
@@ -88,7 +88,7 @@ class PendingRequestWidgetJustApproveBtn(DynamicItem[Button[View]], template=r'p
         return cls(int(match.group("req_id")))
 
     async def callback(self, interaction: Interaction) -> None:
-        await interaction.response.defer(ephemeral=True, thinking=True)
+        await safe_defer(interaction, True)
 
         if await pass_common_checks(interaction, self.request_id):
             if has_permission(interaction.user, PermissionFlagID.TRAINEE, allow_admin=False):

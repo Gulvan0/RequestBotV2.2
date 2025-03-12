@@ -4,7 +4,7 @@ from discord.ext import commands
 
 from components.views.pagination.list import ListPaginationView
 from facades.reviews import get_level_reviews, get_user_reviews
-from services.disc import find_message, respond
+from services.disc import find_message, respond, safe_defer
 from util.format import as_link
 from util.identifiers import TextPieceID
 
@@ -13,7 +13,7 @@ class ReviewsCog(commands.GroupCog, name="reviews", description="Commands for ma
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REVIEWS_LEVEL.as_locale_str())
     @app_commands.describe(level_id=TextPieceID.COMMAND_OPTION_REVIEWS_LEVEL_LEVEL_ID.as_locale_str())
     async def level(self, inter: discord.Interaction, level_id: app_commands.Range[int, 200, 1000000000]) -> None:
-        await inter.response.defer(ephemeral=True)
+        await safe_defer(inter, True)
 
         reviews = await get_level_reviews(level_id)
 
@@ -33,7 +33,7 @@ class ReviewsCog(commands.GroupCog, name="reviews", description="Commands for ma
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REVIEWS_USER.as_locale_str())
     @app_commands.describe(author=TextPieceID.COMMAND_OPTION_REVIEWS_USER_AUTHOR.as_locale_str())
     async def user(self, inter: discord.Interaction, author: Member) -> None:
-        await inter.response.defer(ephemeral=True)
+        await safe_defer(inter, True)
 
         reviews = await get_user_reviews(author)
 

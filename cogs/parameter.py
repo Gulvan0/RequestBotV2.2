@@ -5,7 +5,7 @@ from discord.ext import commands
 
 from config.parameters import get_displayed_type, RestrictionNotSatisfiedError
 from config.parameters import enlist
-from services.disc import requires_permission, respond
+from services.disc import CheckDeferringBehaviour, requires_permission, respond
 from facades.parameters import explain, update_value, reset_value
 from util.datatypes import CommandChoiceOption
 from util.exceptions import AlreadySatisfiesError
@@ -17,7 +17,7 @@ class ParameterCog(commands.GroupCog, name="parameter", description="Utilities f
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_PARAMETER_DESCRIBE.as_locale_str())
     @app_commands.describe(parameter=TextPieceID.COMMAND_OPTION_PARAMETER_DESCRIBE_PARAMETER.as_locale_str())
     @app_commands.choices(parameter=CommandChoiceOption.from_enum(ParameterID))
-    @requires_permission(PermissionFlagID.ADMIN)
+    @requires_permission(PermissionFlagID.ADMIN, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def describe(self, inter: discord.Interaction, parameter: ParameterID) -> None:
         parameter_details = explain(parameter)
 
@@ -38,7 +38,7 @@ class ParameterCog(commands.GroupCog, name="parameter", description="Utilities f
         new_value=TextPieceID.COMMAND_OPTION_PARAMETER_SET_NEW_VALUE.as_locale_str()
     )
     @app_commands.choices(parameter=CommandChoiceOption.from_enum(ParameterID))
-    @requires_permission(PermissionFlagID.ADMIN)
+    @requires_permission(PermissionFlagID.ADMIN, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def set(self, inter: discord.Interaction, parameter: ParameterID, new_value: str) -> None:
         try:
             await update_value(parameter, new_value, inter.user)
@@ -60,7 +60,7 @@ class ParameterCog(commands.GroupCog, name="parameter", description="Utilities f
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_PARAMETER_RESET.as_locale_str())
     @app_commands.describe(parameter=TextPieceID.COMMAND_OPTION_PARAMETER_RESET_PARAMETER.as_locale_str())
     @app_commands.choices(parameter=CommandChoiceOption.from_enum(ParameterID))
-    @requires_permission(PermissionFlagID.ADMIN)
+    @requires_permission(PermissionFlagID.ADMIN, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def reset(self, inter: discord.Interaction, parameter: ParameterID) -> None:
         try:
             await reset_value(parameter, inter.user)
@@ -70,7 +70,7 @@ class ParameterCog(commands.GroupCog, name="parameter", description="Utilities f
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_PARAMETER_LIST.as_locale_str())
-    @requires_permission(PermissionFlagID.ADMIN)
+    @requires_permission(PermissionFlagID.ADMIN, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def list(self, inter: discord.Interaction) -> None:
         await respond(inter, list_described_values(enlist()), ephemeral=True)
 

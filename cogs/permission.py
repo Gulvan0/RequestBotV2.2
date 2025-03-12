@@ -6,7 +6,7 @@ from discord.ext import commands
 from config.permission_flags import enlist
 from config.stage_parameters import get_value as get_stage_parameter_value
 from facades.permissions import bind, unbind, clear, list_bound_roles, has_permission, is_permission_assigned
-from services.disc import requires_permission, respond, respond_forbidden
+from services.disc import CheckDeferringBehaviour, requires_permission, respond, respond_forbidden
 from util.datatypes import CommandChoiceOption
 from util.exceptions import AlreadySatisfiesError
 from util.format import as_code, as_role, list_described_values
@@ -43,7 +43,7 @@ class PermissionCog(commands.GroupCog, name="permission", description="Utilities
         role=TextPieceID.COMMAND_OPTION_PERMISSION_UNBIND_ROLE.as_locale_str()
     )
     @app_commands.choices(permission=CommandChoiceOption.from_enum(PermissionFlagID))
-    @requires_permission(PermissionFlagID.ADMIN)
+    @requires_permission(PermissionFlagID.ADMIN, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def unbind(self, inter: discord.Interaction, permission: PermissionFlagID, role: discord.Role):
         try:
             await unbind(role, permission, inter.user)
@@ -59,7 +59,7 @@ class PermissionCog(commands.GroupCog, name="permission", description="Utilities
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_PERMISSION_CLEAR.as_locale_str())
     @app_commands.describe(role=TextPieceID.COMMAND_OPTION_PERMISSION_CLEAR_ROLE.as_locale_str())
-    @requires_permission(PermissionFlagID.ADMIN)
+    @requires_permission(PermissionFlagID.ADMIN, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def clear(self, inter: discord.Interaction, role: discord.Role):
         try:
             await clear(role, inter.user)
@@ -69,7 +69,7 @@ class PermissionCog(commands.GroupCog, name="permission", description="Utilities
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_PERMISSION_LIST_ROLES.as_locale_str())
-    @requires_permission(PermissionFlagID.ADMIN)
+    @requires_permission(PermissionFlagID.ADMIN, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def list_roles(self, inter: discord.Interaction):
         lines = []
 
@@ -81,7 +81,7 @@ class PermissionCog(commands.GroupCog, name="permission", description="Utilities
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_PERMISSION_DESCRIBE_MEMBER.as_locale_str())
     @app_commands.describe(member=TextPieceID.COMMAND_OPTION_PERMISSION_DESCRIBE_MEMBER_MEMBER.as_locale_str())
-    @requires_permission(PermissionFlagID.ADMIN)
+    @requires_permission(PermissionFlagID.ADMIN, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def describe_member(self, inter: discord.Interaction, member: discord.Member):
         lines = []
 
