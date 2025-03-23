@@ -22,7 +22,7 @@ class QueueCog(commands.GroupCog, name="queue", description="Commands for contro
         else:
             await post_raw_text(
                 RouteID.REQUESTS_REOPENED,
-                "@everyone Requests are open again / Реквесты снова открыты"
+                "<@&1145682760074276984> Requests are open again / Реквесты снова открыты"
             )
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
@@ -36,7 +36,7 @@ class QueueCog(commands.GroupCog, name="queue", description="Commands for contro
         else:
             await post_raw_text(
                 RouteID.REQUESTS_CLOSED,
-                "@everyone Requests are temporarily closed / Реквесты временно закрыты"
+                "<@&1145682760074276984> Requests are temporarily closed / Реквесты временно закрыты"
             )
             await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 

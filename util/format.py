@@ -26,7 +26,7 @@ def as_code(line: str | int | float) -> str:
 
 def as_code_block(text: str, syntax: str | None = None) -> str:
     syntax_part = syntax or ""
-    return f'```{syntax_part}\n{text.strip()}\n```'
+    return f'```{syntax_part}\n{text.strip().replace("```", "`​`​`")}\n```'
 
 
 def as_timestamp(ts: int | float | datetime, style: TimestampStyle = TimestampStyle.RELATIVE) -> str:

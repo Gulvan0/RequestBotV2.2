@@ -54,7 +54,7 @@ class TextCog(commands.GroupCog, name="text", description="Utilities for working
     @requires_permission(PermissionFlagID.ADMIN, CheckDeferringBehaviour.DEFER_EPHEMERAL)
     async def edit(self, inter: discord.Interaction, template_name: TextPieceID, language: Language, new_value: str) -> None:
         try:
-            await update_template(template_name, language, new_value, inter.user)
+            await update_template(template_name, language, new_value.encode('raw_unicode_escape').decode('unicode_escape'), inter.user)
         except AlreadySatisfiesError:
             await respond(inter, TextPieceID.WARNING_NO_EFFECT, ephemeral=True)
         else:

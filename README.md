@@ -436,7 +436,7 @@ The text of the messages sent by bot (except for those few that aren't directed 
 
 Each template is presented by two pieces of text, one for each language. To update the specific template in the specific language, use the `/text edit` command. To reset the template text's value back to default, use `/text reset`.
 
-Formatted text (bold, italic etc.) and the specific components of the message, for example, user/role/channel mention or date and time, can be used in the template's text. Format used is described in the Discord documentation: [here](https://discord.com/developers/docs/reference#message-formatting-formats) (for components) and [there](https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline) (for text formatting).
+Formatted text (bold, italic etc.) and the specific components of the message, for example, user/role/channel mention or date and time, can be used in the template's text. Format used is described in the Discord documentation: [here](https://discord.com/developers/docs/reference#message-formatting-formats) (for components) and [there](https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline) (for text formatting). Additionally, newlines and other special characters may be included by using escape codes (hence, any literal backslash needs to be escaped as well).
 
 Some templates may have parameters. The concrete values for these parameters get passed directly from the bot's code. Each template has a fixed set of parameters passed to it. 
 

@@ -16,7 +16,7 @@ from services.gd import get_level
 from services.yt import get_video_id_by_url
 from util.datatypes import Language, Opinion, SendType
 from util.exceptions import AlreadySatisfiesError
-from util.format import as_code, as_link, as_user
+from util.format import as_code, as_code_block, as_link, as_user
 from util.identifiers import LoggedEventTypeID, ParameterID, RouteID, TextPieceID
 
 
@@ -220,7 +220,7 @@ async def complete_request(request_id: int, yt_link: str | None, additional_comm
         else:
             await post_raw_text(
                 RouteID.REQUESTS_CLOSED,
-                "@everyone Requests are temporarily closed / Реквесты временно закрыты"
+                "<@&1145682760074276984> Requests are temporarily closed / Реквесты временно закрыты"
             )
 
     await add_entry(LoggedEventTypeID.REQUEST_REQUESTED, invoker, dict(
@@ -342,8 +342,8 @@ async def _post_review(reviewer: Member, request: Request, opinion: Opinion, rev
             request_author=request.request_author_mention,
             reviewer_mention=reviewer.mention,
             level_id=request.level_id,
-            level_name=request.level_name,
-            review_text=review_text,
+            level_name=as_code(request.level_name),
+            review_text=as_code_block(review_text),
             summary=summary
         )
     )
@@ -531,7 +531,7 @@ async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | N
                     request_author=request.request_author_mention,
                     responsible_mod_mention=resolving_mod.mention,
                     level_id=request.level_id,
-                    level_name=request.level_name,
+                    level_name=as_code(request.level_name),
                     grade=grade_text_pieces[sent_for]
                 )
             )
@@ -544,8 +544,8 @@ async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | N
                     request_author=request.request_author_mention,
                     responsible_mod_mention=resolving_mod.mention,
                     level_id=request.level_id,
-                    level_name=request.level_name,
-                    reason=reason or TextPieceID.COMMON_NOT_SPECIFIED
+                    level_name=as_code(request.level_name),
+                    reason=as_code(reason) or TextPieceID.COMMON_NOT_SPECIFIED
                 )
             )
 
@@ -557,7 +557,7 @@ async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | N
         else:
             await post_raw_text(
                 RouteID.REQUESTS_REOPENED,
-                "@everyone Requests are open again / Реквесты снова открыты"
+                "<@&1145682760074276984> Requests are open again / Реквесты снова открыты"
             )
 
     await add_entry(LoggedEventTypeID.REQUEST_RESOLUTION_ADDED, resolving_mod, dict(

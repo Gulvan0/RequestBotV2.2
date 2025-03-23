@@ -41,7 +41,7 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
                 text_piece_id = TextPieceID.REQUEST_COMMAND_USER_ON_COOLDOWN
                 substitutions = dict(
                     ends_at=as_timestamp(current_cd.exact_ends_at),
-                    prev_level_name=prev_level.name,
+                    prev_level_name=as_code(prev_level.name),
                     prev_request_ts=as_timestamp(current_cd_info.causing_request.requested_at)
                 )
             else:
@@ -68,7 +68,7 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
             )
 
         if level_name:
-            substitutions.update(level_name=level_name)
+            substitutions.update(level_name=as_code(level_name))
 
         await respond(inter, text_piece_id, substitutions, ephemeral=True)
 

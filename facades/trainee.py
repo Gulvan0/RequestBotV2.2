@@ -61,12 +61,12 @@ async def add_trainee_review(trainee: Member, request_id: int, opinion: Opinion,
     if request.language == Language.EN:
         message_lines = [
             f"Review by {trainee.mention}",
-            f"Level: {request.level_name} (ID: {request.level_id})",
+            f"Level: `{request.level_name}` (ID: {request.level_id})",
         ]
     else:
         message_lines = [
             f"Ревью от {trainee.mention}",
-            f"Уровень: {request.level_name} (ID: {request.level_id})",
+            f"Уровень: `{request.level_name}` (ID: {request.level_id})",
         ]
 
     if details_widget:
