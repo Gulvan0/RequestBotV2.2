@@ -2,15 +2,16 @@ from dataclasses import dataclass
 from datetime import datetime, UTC
 
 from discord import Colour, Embed, Member, Message
-from sqlalchemy import func
+from sqlalchemy import delete, func
 from sqlmodel import col, select, Session
 
 from components.views.pending_request_widget import PendingRequestWidgetView
 from components.views.resolution_widget import ResolutionWidgetView
 from database.db import engine
-from database.models import Request, RequestOpinion, RequestReview
+from database.models import Request, RequestOpinion, RequestReview, TraineeReviewOpinion
 from facades.eventlog import add_entry
 from facades.parameters import get_value as get_parameter_value, update_value as update_parameter_value
+from facades.texts import render_text
 from services.disc import find_message, post, post_raw_text
 from services.gd import get_level
 from services.yt import get_video_id_by_url
@@ -42,6 +43,13 @@ class PreviousLevelRequestPendingException(Exception):
 class InvalidYtLinkException(Exception):
     """
     Raised when a user tries to submit a request with an invalid showcase video URL
+    """
+    pass
+
+
+class NotFoundException(Exception):
+    """
+    Raised when a user passes an id of a non-existing request
     """
     pass
 
@@ -152,7 +160,7 @@ async def create_limbo_request(level_id: int, request_language: Language, invoke
         request_id = new_entry.id
 
     await add_entry(LoggedEventTypeID.REQUEST_INITIALIZED, invoker, dict(
-        request_id=request_id,
+        request_id=str(request_id),
         level_id=str(level_id),
         lang=request_language.value
     ))
@@ -224,7 +232,7 @@ async def complete_request(request_id: int, yt_link: str | None, additional_comm
             )
 
     await add_entry(LoggedEventTypeID.REQUEST_REQUESTED, invoker, dict(
-        request_id=request_id,
+        request_id=str(request_id),
         level_id=str(level_id),
         level_name=level.name
     ))
@@ -438,7 +446,7 @@ async def add_opinion(reviewer: Member, request_id: int, opinion: Opinion, revie
         session.commit()
 
     await add_entry(LoggedEventTypeID.REQUEST_OPINION_ADDED, reviewer, dict(
-        request_id=request_id,
+        request_id=str(request_id),
         level_id=str(level_id),
         level_name=level_name,
         opinion=opinion.value,
@@ -523,8 +531,8 @@ async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | N
                 SendType.MYTHIC: TextPieceID.REQUEST_GRADE_MYTHIC,
                 SendType.LEGENDARY: TextPieceID.REQUEST_GRADE_LEGENDARY,
             }
-            await post(
-                RouteID.APPROVAL_NOTIFICATION,
+
+            review_message_text = render_text(
                 TextPieceID.REQUEST_APPROVED,
                 request.language,
                 substitutions=dict(
@@ -535,6 +543,16 @@ async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | N
                     grade=grade_text_pieces[sent_for]
                 )
             )
+            if reason:
+                review_message_text += "\n" + render_text(
+                    TextPieceID.REQUEST_APPROVAL_COMMENT_ADDENDUM,
+                    request.language,
+                    substitutions=dict(
+                        comment=as_code(reason)
+                    )
+                )
+
+            await post_raw_text(RouteID.APPROVAL_NOTIFICATION, review_message_text)
         else:
             await post(
                 RouteID.REJECTION_NOTIFICATION,
@@ -561,7 +579,7 @@ async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | N
             )
 
     await add_entry(LoggedEventTypeID.REQUEST_RESOLUTION_ADDED, resolving_mod, dict(
-        request_id=request_id,
+        request_id=str(request_id),
         level_id=str(level_id),
         level_name=level_name,
         opinion=opinion.value,
@@ -571,3 +589,25 @@ async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | N
     ))
 
     return True
+
+
+async def delete_request(request_id: int, invoker: Member) -> None:
+    with Session(engine) as session:
+        request: Request = session.get(Request, request_id)  # noqa
+        if not request:
+            raise NotFoundException
+
+        if request.resolution_message_channel_id and request.resolution_message_id:
+            resolution_widget = await find_message(request.resolution_message_channel_id, request.resolution_message_id)
+            await resolution_widget.delete()
+
+        if request.details_message_channel_id and request.details_message_id:
+            review_widget = await find_message(request.details_message_channel_id, request.details_message_id)
+            await review_widget.delete()
+
+        session.delete(request)
+        session.commit()
+
+    await add_entry(LoggedEventTypeID.REQUEST_DELETED, invoker, dict(
+        request_id=str(request_id)
+    ))

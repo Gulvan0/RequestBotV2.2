@@ -28,3 +28,15 @@ def get_reason_text_input(custom_id: str, language: Language, required: bool) ->
         style=TextStyle.long,
         custom_id=custom_id
     )
+
+
+def get_comment_text_input(custom_id: str, language: Language) -> TextInput:
+    return TextInput(
+        label=facades.texts.render_text(TextPieceID.REQUEST_OPINION_MODAL_COMMENT_LABEL, language)[:100],
+        placeholder=facades.texts.render_text(TextPieceID.REQUEST_OPINION_MODAL_COMMENT_PLACEHOLDER, language)[:100],
+        required=False,
+        min_length=4,
+        max_length=4000,
+        style=TextStyle.long,
+        custom_id=custom_id
+    )

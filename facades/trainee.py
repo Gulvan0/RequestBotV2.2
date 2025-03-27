@@ -226,7 +226,7 @@ async def pick_random_request(invoking_trainee: Member) -> RandomPickedRequest |
                 Request
             ).where(
                 ~col(Request.id).in_(
-                    select(RequestReview.request_id).where(RequestReview.author_user_id == invoking_trainee.id)
+                    select(RequestReview.request_id).where(RequestReview.author_user_id == invoking_trainee.id, RequestReview.request_id != None)  # noqa
                 ),
                 Request.details_message_id != None,  # noqa
                 Request.details_message_channel_id != None  # noqa

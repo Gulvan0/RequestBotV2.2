@@ -93,7 +93,7 @@ Only GD moderators (users with a `gd_mod` permission) are allowed to interact wi
 
 Like with Reviewer's Widget, one GD moderator can resolve each request only once. And, likewise, it's neither possible to change the resolution, nor update the text of the review that came with it.
 
-Pressing any button will cause the modal to appear. In this modal, a review text (and, when rejecting a level, a rejection reason) may be provided. Both those fields are, however, optional.
+Pressing any button will cause the modal to appear. In this modal, a review text and an additional comment (replaced by a rejection reason when rejecting a level) may be provided. Both those fields are, however, optional.
 
 After the modal is submitted, the request will get resolved, which implies the following sequence of events:
 
@@ -170,6 +170,12 @@ The `/request insert` command takes the following parameters:
     Any additional info that will appear in the request's widgets. Just like in the request creation modal.
 
     This argument may be omitted if there's nothing special to say about this request.
+
+#### Deleting a request
+
+In case a request was mistakenly created, one can use `/request delete` to silently remove both database entries corresponding to this request and messages containing this request's widgets.
+
+Please only use this in extreme cases as it may erase the important data.
 
 ### Queue
 
@@ -806,6 +812,14 @@ Request a level
 Arguments:
 
 - `level_id` - ID of a level you want to request
+
+`/request delete`
+
+Delete a request (both database entries and widget messages)
+
+Arguments:
+
+- `request_id` - ID of a request you want to delete
 
 `/request ignored`
 

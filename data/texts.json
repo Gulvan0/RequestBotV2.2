@@ -173,6 +173,16 @@
     "eng": "What are the strong and the weak sides of this level? How it can be improved?",
     "rus": "Какие у этого уровня сильные и слабые стороны? Как его можно улучшить?"
   },
+  "request_opinion_modal.comment.label": {
+    "description": "Название поля для ввода GD-модератором комментария при отправке уровня",
+    "eng": "Comment",
+    "rus": "Комментарий"
+  },
+  "request_opinion_modal.comment.placeholder": {
+    "description": "Текст, отображающийся в поле для ввода GD-модератором комментария при отправке уровня, пока оно пустое",
+    "eng": "In case some additional notes need to be pointed out",
+    "rus": "На случай, если нужно сообщить что-то дополнительно"
+  },
   "request_command.submitted": {
     "description": "Ответ на успешное создание реквеста",
     "eng": "Your level request has been successfully submitted. Staff will check it in the next few days. Please wait patiently until then",
@@ -187,10 +197,18 @@
     "eng": "Failed to send a level request: level {level_name} is already {level_quality}!",
     "rus": "Реквест не отправлен: уровень {level_name} уже оценен (как {level_quality})!"
   },
+  "request_delete_command.not_found": {
+    "description": "Сообщение, выводящееся, когда не получается найти по ID реквест, который пытается удалить пользователь",
+    "param_descriptions": {
+      "request_id": "ID реквеста, предоставленный пользователем. Ожидается, что он уже отформатирован как код"
+    },
+    "eng": "Request with ID {request_id} was not found!",
+    "rus": "Реквест с ID {request_id} не найден!"
+  },
   "request_command.not_found": {
     "description": "Сообщение, выводящееся, когда не получается найти по ID уровень, который пытается зареквестить пользователь",
     "param_descriptions": {
-      "level_id": "ID уровня, предоставленное пользователем. Ожидается, что он уже отформатирован как код"
+      "level_id": "ID уровня, предоставленный пользователем. Ожидается, что он уже отформатирован как код"
     },
     "eng": "Failed to send a level request: level not found (ID {level_id})!",
     "rus": "Реквест не отправлен: уровень с ID {level_id} не найден!"
@@ -338,6 +356,14 @@
     "description": "На что был отправлен уровень (лега)",
     "eng": "legendary <:legendary:1214976961726906378>",
     "rus": "легу <:legendary:1214976961726906378>"
+  },
+  "request.approved.comment_addendum": {
+    "description": "Строчка с текстом комментария об отправке, добавляемая в конец уведомления, когда комментарий был указан",
+    "param_descriptions": {
+      "comment": "Текст комментария. Ожидается, что уже отформатирован как код"
+    },
+    "eng": "Comment: {comment}",
+    "rus": "Комментарий: {comment}"
   },
   "request.rejected": {
     "description": "Уведомление об отклонении реквеста (с призывом его автора)",
@@ -611,6 +637,11 @@
     "description": "Описание команды `/request insert`",
     "eng": "Request a level on behalf of another creator bypassing all restrictions",
     "rus": "Зареквестить уровень от имени другого пользователя. Обходит все ограничения"
+  },
+  "command_description.request.delete": {
+    "description": "Описание команды `/request delete`",
+    "eng": "Completely remove a request from the database also deleting its widgets",
+    "rus": "Полностью стереть реквест из базы данных, также удалив все связанные виджеты"
   },
   "command_description.backup.save": {
     "description": "Описание команды `/backup save`",
@@ -961,6 +992,11 @@
     "description": "Описание параметра `additional_comment` команды `/request insert`",
     "eng": "Additional info about the submission. Optional",
     "rus": "Дополнительная информация к реквесту (необязательно)"
+  },
+  "command_option.request.delete.request_id": {
+    "description": "Описание параметра `request_id` команды `/request delete`",
+    "eng": "ID of a request to be deleted",
+    "rus": "ID удаляемого реквеста"
   },
   "command_option.backup.load.file": {
     "description": "Описание параметра `file` команды `/backup load`",

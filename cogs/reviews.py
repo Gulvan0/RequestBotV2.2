@@ -2,8 +2,8 @@ import discord
 from discord import app_commands, Member
 from discord.ext import commands
 
-from components.views.pagination.list import ListPaginationView
-from facades.reviews import get_level_reviews, get_user_reviews
+from components.views.pagination.reviews import ReviewsPaginationView
+from facades.reviews import get_level_reviews
 from services.disc import find_message, respond, safe_defer
 from util.format import as_link
 from util.identifiers import TextPieceID
@@ -35,20 +35,7 @@ class ReviewsCog(commands.GroupCog, name="reviews", description="Commands for ma
     async def user(self, inter: discord.Interaction, author: Member) -> None:
         await safe_defer(inter, True)
 
-        reviews = await get_user_reviews(author)
-
-        response_lines = []
-        for review in reviews:
-            review_message = await find_message(review.message_channel_id, review.message_id)
-            if not review_message:
-                continue
-            response_lines.append(as_link(review_message.jump_url, str(review_message.id)))
-
-        if not response_lines:
-            await respond(inter, TextPieceID.REQUEST_NO_REVIEWS, ephemeral=True)
-            return
-
-        await ListPaginationView(response_lines).respond_with_view(inter, ephemeral=True)
+        await ReviewsPaginationView(author).respond_with_view(inter, ephemeral=True)
 
 
 async def setup(bot):

@@ -58,6 +58,9 @@ def split_message_to_fit_limit(message: str, extra_portion_symbols: int = 0) -> 
     index_from = 0
     while len(message_portions) < MAX_SPLIT_MESSAGE_PORTIONS and index_from < len(message):
         index_to = index_from + actual_max_length
+        if index_to >= len(message):
+            message_portions.append(message[index_from:])
+            return message_portions
         for better_index_to_candidate in range(index_to, index_to - 20, -1):
             if message[better_index_to_candidate].isspace():
                 index_to = better_index_to_candidate

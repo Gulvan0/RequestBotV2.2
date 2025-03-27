@@ -11,12 +11,12 @@ from facades.requests import (
     assert_level_requestable,
     complete_request,
     create_limbo_request,
-    get_last_complete_request,
+    delete_request, get_last_complete_request,
     get_oldest_ignored_request,
     get_oldest_unresolved_request,
     InvalidYtLinkException,
     LevelAlreadyApprovedException,
-    PreviousLevelRequestPendingException,
+    NotFoundException, PreviousLevelRequestPendingException,
 )
 from facades.texts import render_text
 from services.disc import CheckDeferringBehaviour, find_message, member_language, requires_permission, respond
@@ -275,6 +275,17 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
             return
 
         await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
+
+    @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REQUEST_DELETE.as_locale_str())
+    @app_commands.describe(request_id=TextPieceID.COMMAND_OPTION_REQUEST_DELETE_REQUEST_ID.as_locale_str())
+    @requires_permission(PermissionFlagID.ADMIN, CheckDeferringBehaviour.DEFER_EPHEMERAL)
+    async def delete(self, inter: discord.Interaction, request_id: app_commands.Range[int, 1, 100000]) -> None:
+        try:
+            await delete_request(request_id, inter.user)
+        except NotFoundException:
+            await respond(inter, TextPieceID.REQUEST_DELETE_COMMAND_NOT_FOUND, substitutions=dict(request_id=str(request_id)), ephemeral=True)
+        else:
+            await respond(inter, TextPieceID.COMMON_SUCCESS, ephemeral=True)
 
 
 async def setup(bot):

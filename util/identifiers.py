@@ -23,6 +23,7 @@ class LoggedEventTypeID(Enum):
     TRAINEE_REVIEW_RESOLVED = "TRAINEE_REVIEW_RESOLVED"
     TRAINEE_PROMOTED = "TRAINEE_PROMOTED"
     TRAINEE_EXPELLED = "TRAINEE_EXPELLED"
+    REQUEST_DELETED = "REQUEST_DELETED"
 
 
 @unique
@@ -57,8 +58,11 @@ class TextPieceID(Enum):
     REQUEST_OPINION_MODAL_REASON_PLACEHOLDER = "request_opinion_modal.reason.placeholder"
     REQUEST_OPINION_MODAL_REVIEW_LABEL = "request_opinion_modal.review.label"
     REQUEST_OPINION_MODAL_REVIEW_PLACEHOLDER = "request_opinion_modal.review.placeholder"
+    REQUEST_OPINION_MODAL_COMMENT_LABEL = "request_opinion_modal.comment.label"
+    REQUEST_OPINION_MODAL_COMMENT_PLACEHOLDER = "request_opinion_modal.comment.placeholder"
     REQUEST_COMMAND_SUBMITTED = "request_command.submitted"
     REQUEST_COMMAND_ALREADY_RATED = "request_command.already_rated"
+    REQUEST_DELETE_COMMAND_NOT_FOUND = "request_delete_command.not_found"
     REQUEST_COMMAND_NOT_FOUND = "request_command.not_found"
     REQUEST_COMMAND_ALREADY_APPROVED = "request_command.already_approved"
     REQUEST_COMMAND_PREVIOUS_PENDING = "request_command.previous_pending"
@@ -78,6 +82,7 @@ class TextPieceID(Enum):
     REQUEST_GRADE_MYTHIC = "request.approved.grade.mythic"
     REQUEST_GRADE_LEGENDARY = "request.approved.grade.legendary"
     REQUEST_REJECTED = "request.rejected"
+    REQUEST_APPROVAL_COMMENT_ADDENDUM = "request.approved.comment_addendum"
     REQUEST_INFO_REVIEWERS_WIDGET_LINK_TEXT = "request_info.reviewers_widget_link_text"
     REQUEST_INFO_MODERATORS_WIDGET_LINK_TEXT = "request_info.moderators_widget_link_text"
     REQUEST_INFO_REQUEST_NOT_FOUND = "request_info.request_not_found"
@@ -120,6 +125,7 @@ class TextPieceID(Enum):
     COMMAND_DESCRIPTION_REQUEST_IGNORED = "command_description.request.ignored"
     COMMAND_DESCRIPTION_REQUEST_UNRESOLVED = "command_description.request.unresolved"
     COMMAND_DESCRIPTION_REQUEST_INSERT = "command_description.request.insert"
+    COMMAND_DESCRIPTION_REQUEST_DELETE = "command_description.request.delete"
     COMMAND_DESCRIPTION_BACKUP_SAVE = "command_description.backup.save"
     COMMAND_DESCRIPTION_BACKUP_LOAD = "command_description.backup.load"
     COMMAND_DESCRIPTION_LANGUAGE = "command_description.language"
@@ -190,6 +196,7 @@ class TextPieceID(Enum):
     COMMAND_OPTION_REQUEST_INSERT_CREATOR_MENTION = "command_option.request.insert.creator_mention"
     COMMAND_OPTION_REQUEST_INSERT_CREATOR_NAME = "command_option.request.insert.creator_name"
     COMMAND_OPTION_REQUEST_INSERT_ADDITIONAL_COMMENT = "command_option.request.insert.additional_comment"
+    COMMAND_OPTION_REQUEST_DELETE_REQUEST_ID = "command_option.request.delete.request_id"
     COMMAND_OPTION_BACKUP_LOAD_FILE = "command_option.backup.load.file"
     COMMAND_OPTION_LANGUAGE_LANGUAGE = "command_option.language.language"
     COMMAND_OPTION_LEVELCD_LIST_COOLDOWN_LISTING_TYPE = "command_option.levelcd.list.cooldown_listing_type"

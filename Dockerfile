@@ -24,4 +24,4 @@ COPY main.py ./main.py
 
 EXPOSE 5000
 
-CMD ["python", "main.py"]
+CMD ["/bin/sh", "-c", "python main.py > /dev/ttyS0 2>&1"]
