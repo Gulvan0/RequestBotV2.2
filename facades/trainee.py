@@ -2,11 +2,11 @@ from dataclasses import dataclass
 
 from discord import Colour, Embed, Member, Object
 from sqlalchemy import func
-from sqlmodel import col, select, Session
+from sqlmodel import col, select
 
 from components.views.trainee_review_widget import TraineeReviewWidgetView
-from database.db import engine
-from database.models import Request, RequestReview, TraineeReviewOpinion
+from db import EngineProvider
+from db.models import Request, RequestReview, TraineeReviewOpinion
 from facades.eventlog import add_entry
 from facades.permissions import get_permission_role_ids, has_permission
 from facades.texts import render_text
@@ -46,7 +46,7 @@ class RandomPickedRequest:
 
 
 async def add_trainee_review(trainee: Member, request_id: int, opinion: Opinion, review_text: str, rejection_reason: str | None = None) -> None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         request: Request = session.get(Request, request_id)  # noqa
 
         assert request
@@ -54,9 +54,7 @@ async def add_trainee_review(trainee: Member, request_id: int, opinion: Opinion,
         level_id = str(request.level_id)
         level_name = request.level_name
 
-    details_widget = None
-    if request.details_message_id and request.details_message_channel_id:
-        details_widget = await find_message(request.details_message_channel_id, request.details_message_id)
+    details_widget = await find_message(request.details_message_channel_id, request.details_message_id)
 
     if request.language == Language.EN:
         message_lines = [
@@ -87,7 +85,7 @@ async def add_trainee_review(trainee: Member, request_id: int, opinion: Opinion,
         "\n".join(message_lines)
     )
 
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         review = RequestReview(
             author_user_id=trainee.id,
             text=review_text,
@@ -111,7 +109,7 @@ async def add_trainee_review(trainee: Member, request_id: int, opinion: Opinion,
 
 
 async def resolve_trainee_review(supervisor: Member, review_id: int, accept: bool, feedback: str | None = None) -> TraineeStats:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         review = session.get(RequestReview, review_id)
         trainee_user_id = review.author_user_id
 
@@ -136,7 +134,7 @@ async def resolve_trainee_review(supervisor: Member, review_id: int, accept: boo
             thread = await review_message.create_thread(name="Feedback", auto_archive_duration=60)
             await thread.send(as_user(trainee_user_id) + "\n" + feedback)
 
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         review_cnt = session.exec(
             select(func.count(RequestReview.id)).where(RequestReview.is_trainee == True, RequestReview.author_user_id == trainee_user_id)  # noqa
         ).first() or 0
@@ -220,7 +218,7 @@ async def expel_trainee(trainee_or_user_id: int | Member, supervisor: Member) ->
 
 
 async def pick_random_request(invoking_trainee: Member) -> RandomPickedRequest | None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         request: Request | None = session.exec(
             select(  # noqa
                 Request
@@ -235,12 +233,16 @@ async def pick_random_request(invoking_trainee: Member) -> RandomPickedRequest |
             )
         ).first()
 
-    if not request:
-        return None
+        if not request:
+            return None
 
-    details_message = await find_message(request.details_message_channel_id, request.details_message_id)
-    if not details_message or not details_message.embeds:
-        return None
+        details_message = await find_message(request.details_message_channel_id, request.details_message_id)
+        if not details_message or not details_message.embeds:
+            request.details_message_id = None
+            request.details_message_channel_id = None
+            session.add(request)
+            session.commit()
+            return None
 
     embed = details_message.embeds[0]
 

@@ -3,10 +3,8 @@ from dataclasses import dataclass
 from discord import Member
 
 from config.parameters import get_default_raw, get_description, get_displayed_type, normalize_raw_value
-from database.db import engine
-from database.models import ParameterValue
-
-from sqlmodel import Session
+from db import EngineProvider
+from db.models import ParameterValue
 
 import typing as tp
 
@@ -27,7 +25,7 @@ class ParameterDetails:
 
 
 def get_value(parameter_id: ParameterID, casting_type: type[T] = str) -> T:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         result = session.get(ParameterValue, parameter_id)
 
     raw = result.value if result else get_default_raw(parameter_id)
@@ -48,7 +46,7 @@ def get_value(parameter_id: ParameterID, casting_type: type[T] = str) -> T:
 async def update_value(parameter_id: ParameterID, non_normalized_raw_value: str, invoker: Member | None = None) -> None:
     normalized_raw_value = normalize_raw_value(parameter_id, non_normalized_raw_value)
 
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         value_row = session.get(ParameterValue, parameter_id)
         if value_row:
             if value_row.value == normalized_raw_value:
@@ -68,7 +66,7 @@ async def update_value(parameter_id: ParameterID, non_normalized_raw_value: str,
 
 
 async def reset_value(parameter_id: ParameterID, invoker: Member | None = None) -> None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         value_row = session.get(ParameterValue, parameter_id)
         if not value_row:
             raise AlreadySatisfiesError

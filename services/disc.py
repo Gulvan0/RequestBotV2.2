@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 from enum import Enum, auto
 from os import PathLike
+from typing import assert_never
 
 import discord
-from discord import Embed, File, Locale, Member, Message, NotFound, Role
+from discord import Embed, File, Forbidden, Interaction, InteractionResponse, Locale, Member, Message, NotFound, Role
 from discord.app_commands import commands
+from discord.ui import Modal
 
 from config.stage_parameters import get_value as get_stage_parameter_value
 from globalconf import CONFIG
@@ -95,16 +97,16 @@ async def respond(
         else:
             message_text = str_template
 
-    if inter.response.is_done():
-        await inter.edit_original_response(content=message_text, view=view(lang) if view else None)
-    else:
-        try:
+    try:
+        if inter.response.is_done():
+            await inter.edit_original_response(content=message_text, view=view(lang) if view else None)
+        else:
             if view:
                 await inter.response.send_message(message_text, ephemeral=ephemeral, view=view(lang))
             else:
                 await inter.response.send_message(message_text, ephemeral=ephemeral)
-        except discord.errors.NotFound:
-            pass
+    except NotFound:
+        pass
 
 
 async def respond_forbidden(inter: discord.Interaction) -> None:
@@ -126,9 +128,12 @@ async def send_developers(message: str, code_syntax: str | None = None, file_pat
         is_first_portion = False
 
 
-async def safe_defer(inter: discord.Interaction, ephemeral: bool) -> None:
+async def safe_defer(inter: discord.Interaction, ephemeral: bool, thinking: bool = True) -> None:
     if not inter.response.is_done():
-        await inter.response.defer(ephemeral=ephemeral, thinking=True)
+        try:
+            await inter.response.defer(ephemeral=ephemeral, thinking=thinking)
+        except NotFound:
+            pass
 
 
 def requires_permission(permission: PermissionFlagID | list[PermissionFlagID], defer_behaviour: CheckDeferringBehaviour):
@@ -143,15 +148,22 @@ def requires_permission(permission: PermissionFlagID | list[PermissionFlagID], d
 
 
 async def post_raw_text(
-    route: RouteID,
+    route_or_channel_id: RouteID | int,
     text: str | None = None,
     view: discord.ui.View | None = None,
     embed: Embed | None = None,
     file_path: str | None = None
 ) -> Message | None:
-    if not is_enabled(route):
-        return None
-    channel_id = get_channel_id(route)
+    match route_or_channel_id:
+        case RouteID():
+            if not is_enabled(route_or_channel_id):
+                return None
+            channel_id = get_channel_id(route_or_channel_id)
+        case int():
+            channel_id = route_or_channel_id
+        case _:
+            assert_never(route_or_channel_id)
+
     channel = CONFIG.bot.get_channel(channel_id)
     returned_message = None
     is_first_portion = True
@@ -176,11 +188,40 @@ async def post(
     return await post_raw_text(route, message_text)
 
 
-async def find_message(channel_id: int, message_id: int) -> Message | None:
+async def safe_send_modal(interaction: Interaction | None, modal: Modal) -> None:
+    if interaction:
+        try:
+            await interaction.response.send_modal(modal)
+        except NotFound:
+            pass
+
+
+async def find_message(channel_id: int | None, message_id: int | None) -> Message | None:
+    if not channel_id or not message_id:
+        return None
+
     channel = CONFIG.bot.get_channel(channel_id)
-    if channel:
+    if not channel:
+        return None
+
+    try:
         return await channel.fetch_message(message_id)
-    return None
+    except (NotFound, Forbidden):
+        return None
+
+
+async def safe_delete_message(channel_id: int | None, message_id: int | None) -> None:
+    if not channel_id or not message_id:
+        return
+
+    message = await find_message(channel_id, message_id)
+    if not message:
+        return
+
+    try:
+        await message.delete()
+    except NotFound:
+        pass
 
 
 async def find_member(user_id: int) -> Member | None:

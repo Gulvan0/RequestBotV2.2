@@ -5,17 +5,17 @@ from enum import StrEnum
 from discord import Member
 from plotly.graph_objs import Figure
 from sqlalchemy import func
-from sqlmodel import col, distinct, select, Session
+from sqlmodel import col, distinct, select
 
 from facades.parameters import get_value as get_parameter_value
-from database.db import engine
+from db import EngineProvider
 
 import kaleido  # noqa - needed for plotly to function correctly (WTF)
 import pandas as pd
 import plotly.express as px
 import typing as tp
 
-from database.models import LoggedEvent, Request, RequestOpinion, RequestReview
+from db.models import LoggedEvent, Request, RequestOpinion, RequestReview
 from services.disc import find_member
 from util.datatypes import Opinion, ReportRange, SimpleReportRange
 from util.identifiers import LoggedEventTypeID, ParameterID
@@ -42,7 +42,7 @@ async def new_requests(report_range: ReportRange) -> str | None:
     data_with_gaps = defaultdict(int)
     range_start = report_range.get_first_bin_value()
     range_end = report_range.get_last_bin_value()
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         for requested_at in session.exec(query):  # noqa
             current_bin = report_range.get_bin(requested_at).value
             if not range_start or current_bin < range_start:
@@ -122,7 +122,7 @@ async def new_requests(report_range: ReportRange) -> str | None:
 
 async def pending_requests(report_range: ReportRange) -> str | None:
     if report_range.date_from:
-        with Session(engine) as session:
+        with EngineProvider.get_session() as session:
             created_before_range_start: int = session.exec(
                 select(  # noqa
                     func.count(Request.id)
@@ -161,7 +161,7 @@ async def pending_requests(report_range: ReportRange) -> str | None:
         LoggedEvent.timestamp
     )
 
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         addends: list[tuple[datetime, int]] = [
             (created_at, 1)
             for created_at in session.exec(creates_query)
@@ -223,7 +223,7 @@ async def pending_requests(report_range: ReportRange) -> str | None:
 
 
 async def reviewer_opinions(reviewer: Member, report_range: SimpleReportRange) -> str | None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         opinions = session.exec(
             report_range.restrict_query(
                 select(  # noqa
@@ -260,7 +260,7 @@ async def reviewer_opinions(reviewer: Member, report_range: SimpleReportRange) -
 
 
 async def review_activity(report_range: ReportRange) -> str | None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         result = session.exec(
             report_range.restrict_query(
                 select(

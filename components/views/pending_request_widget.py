@@ -5,7 +5,7 @@ from components.modals.pre_approval import PreApprovalModal
 from components.modals.pre_rejection import PreRejectionModal
 from components.modals.pre_rejection_no_review import PreRejectionNoReviewModal
 from facades.permissions import has_permission
-from services.disc import member_language, respond, respond_forbidden, safe_defer
+from services.disc import member_language, respond, respond_forbidden, safe_defer, safe_send_modal
 from util.datatypes import Opinion
 from util.format import as_timestamp
 from util.identifiers import PermissionFlagID, TextPieceID
@@ -67,7 +67,7 @@ class PendingRequestWidgetApproveAndReviewBtn(DynamicItem[Button[View]], templat
 
     async def callback(self, interaction: Interaction) -> None:
         if await pass_common_checks(interaction, self.request_id):
-            await interaction.response.send_modal(PreApprovalModal(self.request_id, member_language(interaction.user, interaction.locale).language))
+            await safe_send_modal(interaction, PreApprovalModal(self.request_id, member_language(interaction.user, interaction.locale).language))
 
 
 class PendingRequestWidgetJustApproveBtn(DynamicItem[Button[View]], template=r'prw:ja:(?P<req_id>\d+)'):
@@ -118,7 +118,7 @@ class PendingRequestWidgetRejectAndReviewBtn(DynamicItem[Button[View]], template
 
     async def callback(self, interaction: Interaction) -> None:
         if await pass_common_checks(interaction, self.request_id):
-            await interaction.response.send_modal(PreRejectionModal(self.request_id, member_language(interaction.user, interaction.locale).language))
+            await safe_send_modal(interaction, PreRejectionModal(self.request_id, member_language(interaction.user, interaction.locale).language))
 
 
 class PendingRequestWidgetJustRejectBtn(DynamicItem[Button[View]], template=r'prw:jr:(?P<req_id>\d+)'):
@@ -143,7 +143,7 @@ class PendingRequestWidgetJustRejectBtn(DynamicItem[Button[View]], template=r'pr
             if has_permission(interaction.user, PermissionFlagID.TRAINEE, allow_admin=False):
                 await respond(interaction, TextPieceID.REQUEST_PENDING_WIDGET_TRAINEE_REVIEW_REQUIRED, ephemeral=True)
             else:
-                await interaction.response.send_modal(PreRejectionNoReviewModal(self.request_id, member_language(interaction.user, interaction.locale).language))
+                await safe_send_modal(interaction, PreRejectionNoReviewModal(self.request_id, member_language(interaction.user, interaction.locale).language))
 
 
 class PendingRequestWidgetView(View):

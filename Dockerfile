@@ -15,7 +15,7 @@ COPY cogs ./cogs
 COPY components ./components
 COPY config ./config
 COPY data ./data
-COPY database ./database
+COPY db ./db
 COPY facades ./facades
 COPY globalconf ./globalconf
 COPY services ./services
@@ -24,4 +24,5 @@ COPY main.py ./main.py
 
 EXPOSE 5000
 
+# CMD ["/bin/sh", "-c", "python main.py --debug"]
 CMD ["/bin/sh", "-c", "python main.py > /dev/ttyS0 2>&1"]

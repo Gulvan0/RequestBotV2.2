@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 
 from discord import Member
-from sqlmodel import Session
 
 from config.routes import get_default_channel_id, get_description
-from database.db import engine
-from database.models import Route
+from db import EngineProvider
+from db.models import Route
 from facades.eventlog import add_entry
 from util.exceptions import AlreadySatisfiesError
 from util.identifiers import LoggedEventTypeID, RouteID
@@ -20,7 +19,7 @@ class RouteDetails:
 
 
 def get_channel_id(route_id: RouteID) -> int:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         result = session.get(Route, route_id)
 
     if result and result.channel_id:
@@ -30,13 +29,13 @@ def get_channel_id(route_id: RouteID) -> int:
 
 
 def is_enabled(route_id: RouteID) -> bool:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         result = session.get(Route, route_id)
     return result.enabled if result else True
 
 
 async def update_channel_id(route_id: RouteID, channel_id: int, invoker: Member | None = None) -> None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         route = session.get(Route, route_id)
         if route:
             if route.channel_id == channel_id:
@@ -58,7 +57,7 @@ async def update_channel_id(route_id: RouteID, channel_id: int, invoker: Member 
 
 
 async def reset_channel_id(route_id: RouteID, invoker: Member | None = None) -> None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         route = session.get(Route, route_id)
         if not route:
             raise AlreadySatisfiesError
@@ -80,7 +79,7 @@ async def reset_channel_id(route_id: RouteID, invoker: Member | None = None) -> 
 
 
 async def enable(route_id: RouteID, invoker: Member | None = None) -> None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         route = session.get(Route, route_id)
         if not route or route.enabled:
             raise AlreadySatisfiesError
@@ -100,7 +99,7 @@ async def enable(route_id: RouteID, invoker: Member | None = None) -> None:
 
 
 async def disable(route_id: RouteID, invoker: Member | None = None) -> None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         route = session.get(Route, route_id)
 
         if not route:

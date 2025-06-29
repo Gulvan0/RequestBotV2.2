@@ -7,7 +7,7 @@ import typing as tp
 
 from components.modals.trainee_review_feedback import TraineeReviewFeedbackModal
 from facades.permissions import has_permission
-from services.disc import member_language, respond_forbidden
+from services.disc import member_language, respond_forbidden, safe_send_modal
 from util.identifiers import PermissionFlagID
 
 
@@ -36,7 +36,7 @@ class TraineeReviewWidgetAcceptBtn(DynamicItem[Button[View]], template=r'trw:a:(
 
     async def callback(self, interaction: Interaction) -> None:
         if await pass_common_checks(interaction):
-            await interaction.response.send_modal(TraineeReviewFeedbackModal(
+            await safe_send_modal(interaction, TraineeReviewFeedbackModal(
                 review_id=self.review_id,
                 accept=True,
                 language=member_language(interaction.user, interaction.locale).language
@@ -61,7 +61,7 @@ class TraineeReviewWidgetRejectBtn(DynamicItem[Button[View]], template=r'trw:r:(
 
     async def callback(self, interaction: Interaction) -> None:
         if await pass_common_checks(interaction):
-            await interaction.response.send_modal(TraineeReviewFeedbackModal(
+            await safe_send_modal(interaction, TraineeReviewFeedbackModal(
                 review_id=self.review_id,
                 accept=False,
                 language=member_language(interaction.user, interaction.locale).language

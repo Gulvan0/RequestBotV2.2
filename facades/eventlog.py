@@ -10,13 +10,13 @@ import typing as tp
 import discord
 from sqlmodel.sql._expression_select_cls import Select, SelectOfScalar
 
-from database.models import LoggedEvent, StoredLogFilter
+from db.models import LoggedEvent, StoredLogFilter
 from util.exceptions import AlreadySatisfiesError
 from util.format import as_code_block, logs_member_ref
 from util.identifiers import LoggedEventTypeID, RouteID
-from sqlmodel import select, Session, col, func
+from sqlmodel import select, col, func
 
-from database.db import engine
+from db import EngineProvider
 
 
 class AlreadyExistsError(Exception):
@@ -68,7 +68,7 @@ async def add_entry(event_type: LoggedEventTypeID, user: discord.Member | None =
     await services.disc.post_raw_text(RouteID.LOG, posted_message)
 
     custom_data_str = json.dumps(custom_data, ensure_ascii=False) if custom_data else "{}"
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         new_entry = LoggedEvent(event_type=event_type, user_id=user.id if user else None, custom_data=custom_data_str)
         session.add(new_entry)
         session.commit()
@@ -79,7 +79,7 @@ def _current_filter_name(user: discord.Member) -> str:
 
 
 def get_filter(name: str) -> StoredLogFilter | None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         return session.get(StoredLogFilter, name)  # noqa
 
 
@@ -89,7 +89,7 @@ def get_current_filter(user: discord.Member) -> StoredLogFilter:
 
 
 def save_filter(name: str, log_filter: StoredLogFilter, force: bool = False) -> None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         stored_filter = session.get(StoredLogFilter, name)
 
         if not stored_filter:
@@ -122,7 +122,7 @@ def update_filter_user(current_filter_owner: discord.Member, restricted_user: di
 
     stored_filter.user_id = passed_user_id
 
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         session.add(stored_filter)
         session.commit()
 
@@ -135,7 +135,7 @@ def update_filter_event_type(current_filter_owner: discord.Member, restricted_ev
 
     stored_filter.event_type = restricted_event_type
 
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         session.add(stored_filter)
         session.commit()
 
@@ -154,7 +154,7 @@ def update_filter_custom_field(current_filter_owner: discord.Member, key: str, v
         custom_data_dict.pop(key, None)
     stored_filter.custom_data_values = json.dumps(custom_data_dict, ensure_ascii=False)
 
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         session.add(stored_filter)
         session.commit()
 
@@ -167,13 +167,13 @@ def clear_filter_custom_fields(current_filter_owner: discord.Member) -> None:
 
     stored_filter.custom_data_values = "{}"
 
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         session.add(stored_filter)
         session.commit()
 
 
 def delete_filter(filter_name: str) -> None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         stored_filter = session.get(StoredLogFilter, filter_name)
         if not stored_filter:
             raise AlreadySatisfiesError
@@ -186,7 +186,7 @@ def clear_current_filter(current_filter_owner: discord.Member) -> None:
 
 
 def list_filters() -> set[str]:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         query = select(StoredLogFilter.name).where(col(StoredLogFilter.name).startswith("@") == False)
         return set(session.exec(query).all())  # noqa
 
@@ -215,7 +215,7 @@ def get_entries(limit: int, offset: int = 0, log_filter: StoredLogFilter | Loade
     query = select(LoggedEvent)
     query = _apply_filter(log_filter, query)
     query = query.limit(limit).offset(offset)
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         return list(session.exec(query).all())
 
 
@@ -223,7 +223,7 @@ def get_offset_at_datetime(ts: datetime, log_filter: StoredLogFilter | LoadedLog
     query = select(func.count(LoggedEvent.id))
     query = _apply_filter(log_filter, query)
     query = query.where(LoggedEvent.timestamp < ts)
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         return session.exec(query).one()  # noqa
 
 
@@ -234,5 +234,5 @@ def find_filters_by_prefix(pref: str) -> list[str]:
         col(StoredLogFilter.name).startswith(pref),
         col(StoredLogFilter.name).startswith("@") == False
     )
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         return list(session.exec(query).all())  # noqa

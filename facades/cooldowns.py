@@ -4,10 +4,10 @@ from datetime import datetime, timedelta, UTC
 from discord import Member
 from sqlalchemy import Select
 
-from database.models import Cooldown, Request
-from database.db import engine
+from db.models import Cooldown, Request
+from db import EngineProvider
 
-from sqlmodel import col, select, Session
+from sqlmodel import col, select
 
 import facades
 from facades.eventlog import add_entry
@@ -131,7 +131,7 @@ def clean_table() -> None:
         col(Cooldown.ends_at).is_not(None),
         Cooldown.ends_at <= datetime.now(UTC)
     )
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         for entry in session.exec(select_query):  # noqa
             session.delete(entry)
         session.commit()
@@ -140,14 +140,14 @@ def clean_table() -> None:
 def get_current_cooldown(entity_type: CooldownEntity, entity_id: int) -> Cooldown | None:
     clean_table()
 
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         return session.get(Cooldown, (entity_type, entity_id))
 
 
 def get_current_cooldown_eagerly(entity_type: CooldownEntity, entity_id: int) -> EagerlyPreloadedCooldown | None:
     clean_table()
 
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         cooldown = session.get(Cooldown, (entity_type, entity_id))
         if cooldown:
             return EagerlyPreloadedCooldown(cooldown, cooldown.causing_request)  # noqa
@@ -182,7 +182,7 @@ async def cast_after_request(entity_type: CooldownEntity, entity_id: int, reques
         causing_request_id=request_id
     )
 
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         session.add(current)
         session.commit()
 
@@ -212,7 +212,7 @@ async def manually_set(entity_type: CooldownEntity, entity_id: int, caster: Memb
         caster_user_id=caster.id
     )
 
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         session.add(current)
         session.commit()
 
@@ -243,7 +243,7 @@ async def manually_modify(entity_type: CooldownEntity, entity_id: int, caster: M
         caster_user_id=caster.id
     )
 
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         session.add(current)
         session.commit()
 
@@ -258,7 +258,7 @@ async def manually_amend(entity_type: CooldownEntity, entity_id: int,  amending_
 
     old_ends_at = current.exact_ends_at
 
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         session.delete(current)
         session.commit()
 
@@ -283,7 +283,7 @@ def list_temporary_cooldowns(entity: CooldownEntity, limit: int, offset: int = 0
         offset
     )
 
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         return [
             CooldownInfo(
                 entity_id=entry.entity_id,
@@ -308,7 +308,7 @@ def list_endless_cooldowns(entity: CooldownEntity, limit: int, offset: int = 0) 
         offset
     )
 
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         return {
             entry.entity_id: entry.reason
             for entry in session.exec(query)

@@ -382,10 +382,20 @@
     "eng": "Reviewer's widget",
     "rus": "Виджет ревьюеров"
   },
+  "request_info.reviewers_widget_not_found": {
+    "description": "Текст, замещающий ссылку на сообщение с виджетом ревьюеров, когда это сообщение удалено или у бота нет прав, чтобы его увидеть",
+    "eng": "Reviewer's widget was deleted or the bot has no rights to access it",
+    "rus": "Виджет ревьюеров был удален или у бота нет прав на его просмотр"
+  },
   "request_info.moderators_widget_link_text": {
     "description": "Текст на ссылке на сообщение с виджетом модераторов",
     "eng": "Moderator's widget",
     "rus": "Виджет модераторов"
+  },
+  "request_info.moderators_widget_not_found": {
+    "description": "Текст, замещающий ссылку на сообщение с виджетом модераторов, когда это сообщение удалено или у бота нет прав, чтобы его увидеть",
+    "eng": "Moderator's widget was deleted or the bot has no rights to access it",
+    "rus": "Виджет модераторов был удален или у бота нет прав на его просмотр"
   },
   "request_info.request_not_found": {
     "description": "Сообщение, выводящееся при попытке посмотреть информацию по реквестнутому уровню в случае, когда этот левел еще не реквестили",

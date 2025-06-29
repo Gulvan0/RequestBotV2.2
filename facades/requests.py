@@ -2,17 +2,17 @@ from dataclasses import dataclass
 from datetime import datetime, UTC
 
 from discord import Colour, Embed, Member, Message
-from sqlalchemy import delete, func
-from sqlmodel import col, select, Session
+from sqlalchemy import func
+from sqlmodel import col, select
 
 from components.views.pending_request_widget import PendingRequestWidgetView
 from components.views.resolution_widget import ResolutionWidgetView
-from database.db import engine
-from database.models import Request, RequestOpinion, RequestReview, TraineeReviewOpinion
+from db import EngineProvider
+from db.models import Request, RequestOpinion, RequestReview
 from facades.eventlog import add_entry
 from facades.parameters import get_value as get_parameter_value, update_value as update_parameter_value
 from facades.texts import render_text
-from services.disc import find_message, post, post_raw_text
+from services.disc import find_message, post, post_raw_text, safe_delete_message
 from services.gd import get_level
 from services.yt import get_video_id_by_url
 from util.datatypes import Language, Opinion, SendType
@@ -55,7 +55,7 @@ class NotFoundException(Exception):
 
 
 def assert_level_requestable(level_id: int) -> None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         approved_query = select(RequestOpinion).join(Request).where(
             Request.level_id == level_id,  # noqa
             RequestOpinion.is_resolution == True,  # noqa
@@ -73,24 +73,24 @@ def assert_level_requestable(level_id: int) -> None:
 
 
 async def get_request_by_id(request_id: int) -> Request | None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         return session.get(Request, request_id)
 
 
 async def get_last_complete_request(level_id: int) -> Request | None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         query = select(Request).where(Request.level_id == level_id, Request.requested_at != None).order_by(col(Request.requested_at).desc())  # noqa
         return session.exec(query).first()  # noqa
 
 
 async def is_request_unresolved(request_id: int) -> bool:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         query = select(RequestOpinion.request_id).where(RequestOpinion.request_id == request_id, RequestOpinion.is_resolution == True)
         return session.exec(query).first() is None
 
 
 async def get_latest_pending_request(level_id: int) -> Request | None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         resolved_request_ids = select(RequestOpinion.request_id).where(RequestOpinion.is_resolution == True)
         query = select(
             Request
@@ -105,13 +105,13 @@ async def get_latest_pending_request(level_id: int) -> Request | None:
 
 
 async def get_oldest_ignored_request() -> Request | None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         query = select(Request).where(Request.resolution_message_id == None, Request.requested_at != None).order_by(Request.requested_at)  # noqa
         return session.exec(query).first()  # noqa
 
 
 async def get_oldest_unresolved_request() -> Request | None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         resolved_request_ids = select(RequestOpinion.request_id).where(RequestOpinion.is_resolution == True)
         query = select(Request).where(
             ~col(Request.id).in_(resolved_request_ids),
@@ -122,7 +122,7 @@ async def get_oldest_unresolved_request() -> Request | None:
 
 
 async def get_pending_request(oldest: bool) -> Request | None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         resolved_request_ids = select(RequestOpinion.request_id).where(RequestOpinion.is_resolution == True)
         query = select(
             Request
@@ -147,7 +147,7 @@ async def create_limbo_request(level_id: int, request_language: Language, invoke
             request_author = str(invoker.id)
             is_author_user_id = True
 
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         new_entry = Request(
             level_id=level_id,
             language=request_language,
@@ -176,7 +176,7 @@ async def complete_request(request_id: int, yt_link: str | None, additional_comm
     else:
         yt_video_id = None
 
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         request = session.get(Request, request_id)
 
         level_id = request.level_id
@@ -358,7 +358,7 @@ async def _post_review(reviewer: Member, request: Request, opinion: Opinion, rev
 
 
 async def get_existing_opinion(reviewer: Member, request_id: int, resolution_only: bool = False) -> RequestOpinion | None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         query = select(RequestOpinion).where(RequestOpinion.request_id == request_id, RequestOpinion.author_user_id == reviewer.id)
         if resolution_only:
             query = query.where(RequestOpinion.is_resolution == True)
@@ -367,7 +367,7 @@ async def get_existing_opinion(reviewer: Member, request_id: int, resolution_onl
 
 
 async def get_existing_review(reviewer: Member, request_id: int) -> RequestReview | None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         query = select(RequestReview).where(RequestReview.request_id == request_id, RequestReview.author_user_id == reviewer.id)
         query = query.order_by(col(RequestReview.created_at).desc())
         return session.exec(query).first()  # noqa
@@ -379,12 +379,12 @@ async def count_pending_requests() -> int:
         Request.requested_at != None,    # noqa
         ~col(Request.id).in_(resolved_request_ids)
     )
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         return session.exec(query).one() or 0  # noqa
 
 
 async def add_opinion(reviewer: Member, request_id: int, opinion: Opinion, review_widget_message: Message | None = None, review_text: str | None = None, reason: str | None = None) -> None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         request: Request = session.get(Request, request_id)  # noqa
         assert request
 
@@ -432,6 +432,7 @@ async def add_opinion(reviewer: Member, request_id: int, opinion: Opinion, revie
             is_first = True
             if not review_widget_message:
                 review_widget_message = await find_message(request.details_message_channel_id, request.details_message_id)
+            assert review_widget_message, "Trying to add an opinion to a message with a deleted reviewers' widget (how on Earth did you trigger this hook then?)"
             resolution_message = await _create_resolution_widget(
                 request_id,
                 review_widget_message.embeds[0],
@@ -459,7 +460,7 @@ async def add_opinion(reviewer: Member, request_id: int, opinion: Opinion, revie
 async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | None, review_text: str | None = None, reason: str | None = None) -> bool:
     opinion = Opinion.APPROVED if sent_for else Opinion.REJECTED
 
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         request: Request = session.get(Request, request_id)  # noqa
         if not request:
             return False
@@ -506,6 +507,7 @@ async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | N
                 first_opinion=opinion,
                 reasoning=formatted_reasoning
             )
+        assert resolution_widget
 
         is_first = await _append_resolution_to_resolution_widget(resolution_widget, resolving_mod, opinion, formatted_reasoning)
 
@@ -592,18 +594,13 @@ async def resolve(resolving_mod: Member, request_id: int, sent_for: SendType | N
 
 
 async def delete_request(request_id: int, invoker: Member) -> None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         request: Request = session.get(Request, request_id)  # noqa
         if not request:
             raise NotFoundException
 
-        if request.resolution_message_channel_id and request.resolution_message_id:
-            resolution_widget = await find_message(request.resolution_message_channel_id, request.resolution_message_id)
-            await resolution_widget.delete()
-
-        if request.details_message_channel_id and request.details_message_id:
-            review_widget = await find_message(request.details_message_channel_id, request.details_message_id)
-            await review_widget.delete()
+        await safe_delete_message(request.resolution_message_channel_id, request.resolution_message_id)
+        await safe_delete_message(request.details_message_channel_id, request.details_message_id)
 
         session.delete(request)
         session.commit()

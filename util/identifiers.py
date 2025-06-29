@@ -84,7 +84,9 @@ class TextPieceID(Enum):
     REQUEST_REJECTED = "request.rejected"
     REQUEST_APPROVAL_COMMENT_ADDENDUM = "request.approved.comment_addendum"
     REQUEST_INFO_REVIEWERS_WIDGET_LINK_TEXT = "request_info.reviewers_widget_link_text"
+    REQUEST_INFO_REVIEWERS_WIDGET_NOT_FOUND = "request_info.reviewers_widget_not_found"
     REQUEST_INFO_MODERATORS_WIDGET_LINK_TEXT = "request_info.moderators_widget_link_text"
+    REQUEST_INFO_MODERATORS_WIDGET_NOT_FOUND = "request_info.moderators_widget_not_found"
     REQUEST_INFO_REQUEST_NOT_FOUND = "request_info.request_not_found"
     REQUEST_NO_IGNORED = "request.no_ignored"
     REQUEST_NO_UNRESOLVED = "request.no_unresolved"
@@ -328,6 +330,7 @@ class StageParameterID(Enum):
     SPEAKS_RUSSIAN_ROLE_ID = "speaks_russian_role_id"
     ADMIN_USER_ID = "admin_user_id"
     DEVELOPER_USER_IDS = "developer_user_ids"
+    SNAPSHOT_CHANNEL_ID = "snapshot_channel_id"
 
 
 @unique

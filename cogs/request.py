@@ -19,7 +19,7 @@ from facades.requests import (
     NotFoundException, PreviousLevelRequestPendingException,
 )
 from facades.texts import render_text
-from services.disc import CheckDeferringBehaviour, find_message, member_language, requires_permission, respond
+from services.disc import CheckDeferringBehaviour, find_message, member_language, requires_permission, respond, safe_send_modal
 from services.gd import get_level, LevelGrade, LevelLength
 from util.datatypes import CommandChoiceOption, CooldownEntity, Language
 from util.format import as_code, as_link, as_timestamp, as_user
@@ -142,7 +142,7 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
             or (level.stars_requested or 0) >= get_parameter_value(ParameterID.REQUEST_MIN_STARS_TO_REQUIRE_SHOWCASE, int)
             or get_parameter_value(ParameterID.REQUEST_ALWAYS_REQUIRE_SHOWCASE, bool)
         )
-        await inter.response.send_modal(RequestSubmissionModal(request_id, request_language, require_showcase))
+        await safe_send_modal(inter, RequestSubmissionModal(request_id, request_language, require_showcase))
         # Alternative strategy in case of lags
         # async def show_modal(inter) -> None:
         #     await inter.response.send_modal(RequestSubmissionModal(request_id, request_language))
@@ -151,6 +151,34 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
         # btn.callback = show_modal
         # continue_view.add_item(btn)
         # await inter.edit_original_response(content="", view=continue_view)
+
+    @staticmethod
+    async def _make_widget_link_generic(channel_id: int | None, message_id: int | None, language: Language, link_text: TextPieceID, not_found_text: TextPieceID) -> str:
+        details_message = await find_message(channel_id, message_id)
+        if details_message:
+            return as_link(details_message.jump_url, render_text(link_text, language))
+        else:
+            return render_text(not_found_text, language)
+
+    @staticmethod
+    async def _make_reviewers_widget_link(channel_id: int | None, message_id: int | None, language: Language) -> str:
+        return await RequestCog._make_widget_link_generic(
+            channel_id,
+            message_id,
+            language,
+            TextPieceID.REQUEST_INFO_REVIEWERS_WIDGET_LINK_TEXT,
+            TextPieceID.REQUEST_INFO_REVIEWERS_WIDGET_NOT_FOUND
+        )
+
+    @staticmethod
+    async def _make_moderators_widget_link(channel_id: int | None, message_id: int | None, language: Language) -> str:
+        return await RequestCog._make_widget_link_generic(
+            channel_id,
+            message_id,
+            language,
+            TextPieceID.REQUEST_INFO_MODERATORS_WIDGET_LINK_TEXT,
+            TextPieceID.REQUEST_INFO_MODERATORS_WIDGET_NOT_FOUND
+        )
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REQUEST_WIDGETS.as_locale_str())
     @app_commands.describe(level_id=TextPieceID.COMMAND_OPTION_REQUEST_WIDGETS_LEVEL_ID.as_locale_str())
@@ -162,13 +190,16 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
             return
 
         user_lang = member_language(inter.user, inter.locale).language
-        details_message = await find_message(request.details_message_channel_id, request.details_message_id)
-        response_text = as_link(details_message.jump_url, render_text(TextPieceID.REQUEST_INFO_REVIEWERS_WIDGET_LINK_TEXT, user_lang))
+        lines = [
+            f"**Request {request.id}**",
+            await self._make_reviewers_widget_link(request.details_message_channel_id, request.details_message_id, user_lang)
+        ]
         if request.resolution_message_channel_id and request.resolution_message_id:
-            resolution_widget = await find_message(request.resolution_message_channel_id, request.resolution_message_id)
-            response_text += "\n" + as_link(resolution_widget.jump_url, render_text(TextPieceID.REQUEST_INFO_MODERATORS_WIDGET_LINK_TEXT, user_lang))
+            lines.append(
+                await self._make_moderators_widget_link(request.resolution_message_channel_id, request.resolution_message_id, user_lang)
+            )
 
-        await respond(inter, response_text, ephemeral=True)
+        await respond(inter, lines, ephemeral=True)
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REQUEST_IGNORED.as_locale_str())
     @requires_permission(PermissionFlagID.REVIEWER, CheckDeferringBehaviour.DEFER_EPHEMERAL)
@@ -179,10 +210,11 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
             return
 
         user_lang = member_language(inter.user, inter.locale).language
-        details_message = await find_message(request.details_message_channel_id, request.details_message_id)
-        response_text = as_link(details_message.jump_url, render_text(TextPieceID.REQUEST_INFO_REVIEWERS_WIDGET_LINK_TEXT, user_lang))
-
-        await respond(inter, response_text, ephemeral=True)
+        lines = [
+            f"**Request {request.id}**",
+            await self._make_reviewers_widget_link(request.details_message_channel_id, request.details_message_id, user_lang)
+        ]
+        await respond(inter, lines, ephemeral=True)
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REQUEST_UNRESOLVED.as_locale_str())
     @requires_permission(PermissionFlagID.GD_MOD, CheckDeferringBehaviour.DEFER_EPHEMERAL)
@@ -193,10 +225,11 @@ class RequestCog(commands.GroupCog, name="request", description="Commands for ma
             return
 
         user_lang = member_language(inter.user, inter.locale).language
-        resolution_widget = await find_message(request.resolution_message_channel_id, request.resolution_message_id)
-        response_text = as_link(resolution_widget.jump_url, render_text(TextPieceID.REQUEST_INFO_MODERATORS_WIDGET_LINK_TEXT, user_lang))
-
-        await respond(inter, response_text, ephemeral=True)
+        lines = [
+            f"**Request {request.id}**",
+            await self._make_moderators_widget_link(request.resolution_message_channel_id, request.resolution_message_id, user_lang)
+        ]
+        await respond(inter, lines, ephemeral=True)
 
     @app_commands.command(description=TextPieceID.COMMAND_DESCRIPTION_REQUEST_INSERT.as_locale_str())
     @app_commands.describe(

@@ -34,8 +34,9 @@ from config.routes import validate as validate_routes
 from config.parameters import validate as validate_parameters
 from config.stage_parameters import validate as validate_stage_parameters, get_value as get_stage_parameter_value
 from config.permission_flags import validate as validate_permission_flags
-from database.db import create_db_and_tables
-from database.models import *  # noqa
+from db import EngineProvider
+from db.models import RouteID, Request
+from util.datatypes import Language, Opinion
 from facades.reports import stream_results_chart, StreamResolution
 from facades.requests import add_opinion, complete_request, create_limbo_request, get_existing_opinion, get_latest_pending_request, get_pending_request, is_request_unresolved, resolve
 from globalconf import CONFIG
@@ -224,6 +225,8 @@ class RequestBot(commands.Bot):
 
         CONFIG.admin = await CONFIG.guild.fetch_member(get_stage_parameter_value(StageParameterID.ADMIN_USER_ID))
 
+        await EngineProvider.load()
+
     async def _load_extensions(self) -> None:
         if not os.path.isdir(self.ext_dir):
             self.logger.error(f"Extension directory {self.ext_dir} does not exist.")
@@ -244,19 +247,25 @@ class RequestBot(commands.Bot):
         await super().close()
         await self.client.close()
 
+    async def sync_tree(self) -> None:
+        guild = discord.Object(id=self.guild_id)
+
+        if not self.synced:
+            self.tree.copy_global_to(guild=guild)
+            self.logger.info("Tree copied")
+            await self.tree.set_translator(Translator())
+            self.logger.info("Translator set")
+            result = await self.tree.sync(guild=guild)
+            self.logger.info(f"Synced command tree: {len(result)} cogs")
+            self.synced = not self.synced
+        else:
+            self.logger.info("Skipped syncing command tree")
+
     async def setup_hook(self) -> None:
         self.client = aiohttp.ClientSession()
         await self._load_extensions()
 
         self.guild_id = get_stage_parameter_value(StageParameterID.GUILD_ID)
-        guild = discord.Object(id=self.guild_id)
-
-        if not self.synced:
-            self.tree.copy_global_to(guild=guild)
-            await self.tree.set_translator(Translator())
-            result = await self.tree.sync(guild=guild)
-            self.synced = not self.synced
-            self.logger.info(f"Synced command tree: {len(result)} commands")
 
         self.add_dynamic_items(PendingRequestWidgetApproveAndReviewBtn)
         self.add_dynamic_items(PendingRequestWidgetRejectAndReviewBtn)
@@ -275,6 +284,8 @@ class RequestBot(commands.Bot):
         self.add_dynamic_items(TraineePromotionDecisionWaitBtn)
         self.add_dynamic_items(TraineePickWidgetAcceptBtn)
         self.add_dynamic_items(TraineePickWidgetRejectBtn)
+
+        self.logger.info("Added dynamic items")
 
     @staticmethod
     async def on_interaction(inter: discord.Interaction):
@@ -326,8 +337,6 @@ def main(debug: bool, log_queries: bool) -> None:
         logger.setLevel(logging.DEBUG)
 
     CONFIG.stage = Stage.TEST if debug else Stage.PROD
-
-    create_db_and_tables()
 
     validate_texts()
     validate_routes()

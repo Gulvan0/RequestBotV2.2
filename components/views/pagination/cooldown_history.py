@@ -52,8 +52,9 @@ class CooldownHistoryPaginationView(GenericPaginationView):
                 if request_id_matches:
                     request_id = int(request_id_matches[0])
                     request = await get_request_by_id(request_id)
+                    request_handle = f"**Request {request_id}**"
                     details_message = await find_message(request.details_message_channel_id, request.details_message_id)
-                    caster_ref = as_link(details_message.jump_url, f"**Request {request_id}**")
+                    caster_ref = as_link(details_message.jump_url, request_handle) if details_message else request_handle
                 else:
                     caster_ref = "SYSTEM"
 

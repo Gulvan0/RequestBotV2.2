@@ -2,9 +2,8 @@ import typing as tp
 
 import discord
 
-from database.db import engine
-from database.models import UserPreference
-from sqlmodel import Session
+from db import EngineProvider
+from db.models import UserPreference
 
 from facades.eventlog import add_entry
 from util.identifiers import LoggedEventTypeID, UserPreferenceID
@@ -13,7 +12,7 @@ T = tp.TypeVar('T')
 
 
 def get_value(preference_id: UserPreferenceID, user: discord.Member, casting_type: type[T]) -> T | None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         result = session.get(UserPreference, (preference_id, user.id))
 
     if not result:
@@ -33,7 +32,7 @@ def get_value(preference_id: UserPreferenceID, user: discord.Member, casting_typ
 
 
 async def update_value(preference_id: UserPreferenceID, user: discord.Member, normalized_raw_value: str) -> None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         value_row = session.get(UserPreference, (preference_id, user.id))
         if value_row:
             value_row.value = normalized_raw_value

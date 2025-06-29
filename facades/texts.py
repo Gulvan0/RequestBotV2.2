@@ -3,12 +3,10 @@ from dataclasses import dataclass
 from discord import Member
 
 from config.texts import get_default_template, get_description, get_param_descriptions
-from database.db import engine
-from database.models import TextPiece
+from db import EngineProvider
+from db.models import TextPiece
 from facades.eventlog import add_entry
 from util.datatypes import Language
-
-from sqlmodel import Session
 
 import typing as tp
 
@@ -24,13 +22,13 @@ class TextPieceDetails:
 
 
 def get_template(piece_id: TextPieceID, lang: Language) -> str:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         result = session.get(TextPiece, (piece_id, lang))
     return result.template if result else get_default_template(piece_id, lang)
 
 
 async def update_template(piece_id: TextPieceID, lang: Language, new_text: str, invoker: Member | None = None) -> None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         piece = session.get(TextPiece, (piece_id, lang))
         if piece:
             if piece.template == new_text:
@@ -51,7 +49,7 @@ async def update_template(piece_id: TextPieceID, lang: Language, new_text: str, 
 
 
 async def reset_template(piece_id: TextPieceID, lang: Language, invoker: Member | None = None) -> None:
-    with Session(engine) as session:
+    with EngineProvider.get_session() as session:
         piece = session.get(TextPiece, (piece_id, lang))
         if not piece:
             raise AlreadySatisfiesError

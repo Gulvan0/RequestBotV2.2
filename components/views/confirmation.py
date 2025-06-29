@@ -5,8 +5,9 @@ import typing
 from collections.abc import Coroutine
 
 import discord
+from discord import NotFound
 
-from services.disc import member_language, respond
+from services.disc import member_language, respond, safe_defer
 from facades.texts import render_text
 from util.format import as_code_block
 from util.identifiers import TextPieceID
@@ -50,8 +51,12 @@ class ConfirmationView(discord.ui.View):
         self.callback = callback
 
         message_text = render_text(question_text, member_language(inter.user, inter.locale).language, question_substitutions)
-        await inter.response.send_message(message_text, view=self, ephemeral=ephemeral)
-        self.message = await inter.original_response()
+        try:
+            await inter.response.send_message(message_text, view=self, ephemeral=ephemeral)
+        except NotFound:
+            pass
+        else:
+            self.message = await inter.original_response()
 
     @discord.ui.button(label="Yes", style=discord.ButtonStyle.red)
     async def yes(self, inter: discord.Interaction, _) -> None:
@@ -64,7 +69,10 @@ class ConfirmationView(discord.ui.View):
 
         if not inter.response.is_done():
             success_text = render_text(TextPieceID.COMMON_SUCCESS, member_language(inter.user, inter.locale).language)
-            await inter.response.edit_message(content=success_text, view=None)
+            try:
+                await inter.response.edit_message(content=success_text, view=None)
+            except NotFound:
+                pass
         else:
             await self.destroy_self()
 
@@ -74,4 +82,4 @@ class ConfirmationView(discord.ui.View):
             return
 
         await self.destroy_self()
-        await inter.response.defer()
+        await safe_defer(inter, ephemeral=False, thinking=False)

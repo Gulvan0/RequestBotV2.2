@@ -103,7 +103,7 @@ class Request(SQLModel, table=True):
     requested_at: datetime | None  # on modal submitted successfully
 
     opinions: list["RequestOpinion"] = Relationship(back_populates="request", cascade_delete=True)
-    reviews: list["RequestReview"] = Relationship(back_populates="request")
+    reviews: list["RequestReview"] = Relationship(back_populates="request", passive_deletes=True)
 
     @property
     def request_author_mention(self) -> str:
@@ -136,8 +136,8 @@ class RequestReview(SQLModel, table=True):
     opinion: Opinion
     is_trainee: bool = False
 
-    request_id: int | None = Field(foreign_key="request.id")
-    request: Request = Relationship(back_populates="reviews")
+    request_id: int | None = Field(foreign_key="request.id", ondelete="SET NULL")
+    request: Optional[Request] = Relationship(back_populates="reviews", passive_deletes=True)
 
 
 class TraineeReviewOpinion(SQLModel, table=True):

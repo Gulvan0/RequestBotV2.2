@@ -7,7 +7,7 @@ import typing as tp
 
 from components.modals.pre_approval import PreApprovalModal
 from components.modals.pre_rejection import PreRejectionModal
-from services.disc import member_language, respond
+from services.disc import member_language, respond, safe_send_modal
 from util.format import as_timestamp
 from util.identifiers import TextPieceID
 
@@ -47,7 +47,7 @@ class TraineePickWidgetAcceptBtn(DynamicItem[Button[View]], template=r'tpw:a:(?P
 
     async def callback(self, interaction: Interaction) -> None:
         if await pass_common_checks(interaction, self.request_id):
-            await interaction.response.send_modal(PreApprovalModal(self.request_id, member_language(interaction.user, interaction.locale).language))
+            await safe_send_modal(interaction, PreApprovalModal(self.request_id, member_language(interaction.user, interaction.locale).language))
 
 
 class TraineePickWidgetRejectBtn(DynamicItem[Button[View]], template=r'tpw:r:(?P<req_id>\d+)'):
@@ -68,7 +68,7 @@ class TraineePickWidgetRejectBtn(DynamicItem[Button[View]], template=r'tpw:r:(?P
 
     async def callback(self, interaction: Interaction) -> None:
         if await pass_common_checks(interaction, self.request_id):
-            await interaction.response.send_modal(PreRejectionModal(self.request_id, member_language(interaction.user, interaction.locale).language))
+            await safe_send_modal(interaction, PreRejectionModal(self.request_id, member_language(interaction.user, interaction.locale).language))
 
 
 class TraineePickWidgetView(View):

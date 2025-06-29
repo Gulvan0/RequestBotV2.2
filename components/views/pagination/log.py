@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from components.views.pagination.generic import GenericPaginationView
-from database.models import StoredLogFilter
+from db.models import StoredLogFilter
 from facades.eventlog import get_current_filter, get_entries, get_offset_at_datetime, LoadedLogFilter
 from util.format import as_code_block, logs_member_ref
 

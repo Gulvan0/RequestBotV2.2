@@ -5,6 +5,9 @@ import discord
 import typing as tp
 
 from abc import ABC, abstractmethod
+
+from discord import NotFound
+
 from services.disc import member_language, respond
 from facades.texts import render_text
 from util.format import as_code_block
@@ -59,11 +62,14 @@ class GenericPaginationView(ABC, discord.ui.View):
             self.prev.disabled = True
             self.next.disabled = True
 
-        if inter.response.is_done():
-            await inter.edit_original_response(content=self.message_text, view=self)
-        else:
-            await inter.response.send_message(self.message_text, view=self, ephemeral=ephemeral)
-        self.message = await inter.original_response()
+        try:
+            if inter.response.is_done():
+                await inter.edit_original_response(content=self.message_text, view=self)
+            else:
+                await inter.response.send_message(self.message_text, view=self, ephemeral=ephemeral)
+            self.message = await inter.original_response()
+        except NotFound:
+            return
 
         if not blocks:
             await self.message.edit(view=None)
@@ -89,7 +95,10 @@ class GenericPaginationView(ABC, discord.ui.View):
             self.message_text = f"**{note}**\n" + self.message_text
             button.disabled = True
 
-        await inter.response.edit_message(content=self.message_text, view=self)
+        try:
+            await inter.response.edit_message(content=self.message_text, view=self)
+        except NotFound:
+            pass
 
     @discord.ui.button(label="⏵", style=discord.ButtonStyle.gray)
     async def next(self, inter: discord.Interaction, button: discord.ui.Button[GenericPaginationView]) -> None:
@@ -111,4 +120,7 @@ class GenericPaginationView(ABC, discord.ui.View):
             self.message_text += f"\n**{note}**"
             button.disabled = True
 
-        await inter.response.edit_message(content=self.message_text, view=self)
+        try:
+            await inter.response.edit_message(content=self.message_text, view=self)
+        except NotFound:
+            pass
